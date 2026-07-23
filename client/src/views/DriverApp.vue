@@ -99,12 +99,12 @@
         </button>
       </div>
 
-      <!-- Burn Link Complete Button -->
+      <!-- Complete Call & End Tracking Button -->
       <button 
         @click="setStatus('COMPLETED')"
-        class="w-full py-3.5 bg-slate-900 hover:bg-rose-950/50 border border-slate-800 hover:border-rose-700/60 text-slate-300 hover:text-rose-300 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 shadow-md"
+        class="w-full py-3.5 bg-slate-900 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-700/60 text-slate-300 hover:text-emerald-300 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 shadow-md"
       >
-        <Flame class="w-4 h-4 text-rose-500" />
+        <ShieldCheck class="w-4.5 h-4.5 text-emerald-500" />
         <span>{{ langStore.t('completed') }}</span>
       </button>
     </div>
@@ -163,7 +163,7 @@ import { onMounted, computed } from 'vue';
 import { useOrderStore } from '@/stores/orderStore';
 import { useLangStore } from '@/stores/langStore';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
-import { Truck, MapPin, KeyRound, Flame, Navigation } from 'lucide-vue-next';
+import { Truck, MapPin, KeyRound, ShieldCheck, Navigation } from 'lucide-vue-next';
 import type { OrderStatus, Location } from '@/types';
 
 const orderStore = useOrderStore();

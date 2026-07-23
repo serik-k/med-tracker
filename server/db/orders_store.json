@@ -10,10 +10,10 @@
       "lng": 76.9532
     },
     "carNumber": "Скорая №103 (02 KZ 777 ABC)",
-    "status": "EN_ROUTE",
+    "status": "ARRIVED",
     "currentLoc": {
-      "lat": 43.22456453345723,
-      "lng": 76.95285786711612
+      "lat": 43.224434141641524,
+      "lng": 76.95287164674005
     },
     "routePath": [
       {
