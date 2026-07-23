@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6 space-y-6 font-sans relative overflow-x-hidden">
+  <div class="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6 space-y-6 font-sans relative">
     <!-- Ambient Background Glows -->
     <div class="fixed top-0 right-1/4 w-[500px] h-[500px] bg-rose-600/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="fixed bottom-0 left-10 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -17,7 +17,7 @@
               {{ langStore.t('clinicTag') }}
             </span>
           </h1>
-          <p class="text-xs text-slate-400">Алматы • Оперативный мониторинг бригад и реальный геокодинг</p>
+          <p class="text-xs text-slate-400">Алматы • Оперативный мониторинг бригад и геокодирование</p>
         </div>
       </div>
 
@@ -83,8 +83,8 @@
       
       <!-- Left Column: Create Order & List (5 cols) -->
       <div class="lg:col-span-5 space-y-6">
-        <!-- New Order Form using Custom UI Kit -->
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4">
+        <!-- New Order Form (relative z-30 without overflow-hidden so CustomSelect floats smoothly over lower cards) -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4 relative z-30">
           <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
             <PlusCircle class="w-5 h-5 text-rose-500" />
             <h2 class="text-sm font-bold text-white">{{ langStore.t('newCallTitle') }}</h2>
@@ -138,8 +138,8 @@
           </form>
         </div>
 
-        <!-- Active Orders List -->
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4">
+        <!-- Active Orders List (relative z-10) -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4 relative z-10">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 class="text-sm font-bold text-white flex items-center gap-2">
               <Clock class="w-4 h-4 text-amber-400" />
@@ -151,7 +151,7 @@
             Нет активных вызовов в системе
           </div>
 
-          <div v-else class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+          <div v-else class="space-y-3.5 max-h-[440px] overflow-y-auto pr-1">
             <div 
               v-for="order in activeOrders" 
               :key="order.token"
@@ -171,6 +171,7 @@
                     </span>
                   </div>
                   <div class="text-xs font-bold text-slate-100 mt-1">{{ order.patientName }} ({{ order.patientPhone }})</div>
+                  <div class="text-[11px] font-semibold text-rose-300">{{ order.carNumber }}</div>
                   <div class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                     <MapPin class="w-3.5 h-3.5 text-rose-400 shrink-0" />
                     {{ order.address }}
@@ -192,11 +193,11 @@
                 </button>
               </div>
 
-              <!-- Action buttons -->
-              <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80">
+              <!-- Action buttons: WhatsApp, Link, & Open Driver View -->
+              <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
                 <button 
                   @click="openWhatsApp(order)"
-                  class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40 cursor-pointer transition-all active:scale-95"
+                  class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40 cursor-pointer transition-all active:scale-95"
                 >
                   <MessageSquare class="w-3.5 h-3.5" />
                   <span>{{ langStore.t('openWhatsApp') }}</span>
@@ -204,11 +205,22 @@
 
                 <button 
                   @click="copyTrackLink(order.token)"
-                  class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition-all border border-slate-700 active:scale-95"
+                  class="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition-all border border-slate-700 active:scale-95"
                 >
                   <Copy class="w-3.5 h-3.5 text-slate-400" />
                   <span>{{ copiedToken === order.token ? langStore.t('copied') : langStore.t('copyLink') }}</span>
                 </button>
+
+                <!-- Open Driver View for this specific car -->
+                <router-link
+                  :to="`/driver?token=${order.token}`"
+                  target="_blank"
+                  class="py-2 px-3 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all active:scale-95"
+                  title="Открыть экран этой машины скорой"
+                >
+                  <Smartphone class="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Водитель</span>
+                </router-link>
               </div>
             </div>
           </div>
