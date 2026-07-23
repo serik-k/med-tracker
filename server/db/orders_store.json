@@ -342,7 +342,7 @@
       "Боль в груди",
       "Одышка"
     ],
-    "isSimulating": true,
+    "isSimulating": false,
     "createdAt": "2026-07-23T16:58:08.564Z",
     "expired": false
   },
@@ -658,7 +658,7 @@
       "note": ""
     },
     "symptoms": [],
-    "isSimulating": true,
+    "isSimulating": false,
     "createdAt": "2026-07-23T17:04:37.319Z",
     "expired": false
   }
