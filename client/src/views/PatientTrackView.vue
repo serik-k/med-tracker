@@ -1,108 +1,26 @@
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-md mx-auto space-y-4 font-sans relative overflow-x-hidden">
-    <!-- Ambient Background Glows -->
-    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="fixed bottom-0 right-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
+  <div class="relative w-full min-h-screen bg-slate-950 text-slate-100 font-sans overflow-x-hidden">
     <!-- Expired or Invalid Link Screen -->
-    <div v-if="orderStore.errorMsg || order?.expired" class="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 space-y-4 relative z-10">
-      <div class="p-5 bg-slate-900 text-emerald-400 rounded-3xl border border-slate-800 shadow-2xl">
-        <ShieldCheck class="w-14 h-14" />
+    <div v-if="orderStore.errorMsg || order?.expired" class="min-h-screen flex flex-col items-center justify-center text-center p-6 space-y-5 relative z-30 max-w-md mx-auto">
+      <div class="p-6 bg-slate-900/90 text-emerald-400 rounded-3xl border border-slate-800 shadow-2xl glow-emerald">
+        <ShieldCheck class="w-16 h-16 animate-bounce" />
       </div>
-      <h1 class="text-xl font-black text-white">{{ langStore.t('expiredTitle') }}</h1>
+      <h1 class="text-2xl font-black text-white tracking-tight">{{ langStore.t('expiredTitle') }}</h1>
       <p class="text-xs text-slate-400 max-w-xs leading-relaxed">
         {{ langStore.t('expiredDesc') }}
       </p>
       <a 
         href="tel:103" 
-        class="px-5 py-3 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-rose-950/50 transition-all active:scale-95"
+        class="px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-2xl text-xs font-extrabold flex items-center gap-2 shadow-xl shadow-emerald-950/50 transition-all active:scale-95"
       >
         <PhoneCall class="w-4 h-4" /> {{ langStore.t('callDispatcher') }}
       </a>
     </div>
 
-    <!-- Active Patient Tracking Screen -->
+    <!-- Active Live Activity Patient Screen (Full Map + Floating HUD) -->
     <template v-else-if="order">
-      <!-- Top Brand Header & Language Switcher -->
-      <header class="glass-panel px-4 py-3 rounded-2xl flex items-center justify-between border border-slate-800 shadow-xl relative z-10">
-        <div class="flex items-center gap-2.5">
-          <div class="p-2 bg-gradient-to-br from-rose-600 to-rose-500 text-white rounded-xl shadow-md shadow-rose-950/50">
-            <Activity class="w-5 h-5 animate-pulse" />
-          </div>
-          <div>
-            <h1 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
-              {{ langStore.t('appTitle') }}
-            </h1>
-            <p class="text-[11px] font-bold text-rose-400">{{ order.carNumber }}</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <!-- Language Switcher -->
-          <LanguageSwitcher />
-
-          <!-- Share to Family Button -->
-          <button 
-            @click="shareWithFamily"
-            class="p-2 bg-slate-900 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all active:scale-95 shadow-md"
-            :title="langStore.t('shareFamily')"
-          >
-            <Share2 class="w-4 h-4 text-indigo-400" />
-          </button>
-        </div>
-      </header>
-
-      <!-- Stepped Live Call Progress Bar -->
-      <div class="glass-panel p-3.5 rounded-2xl border border-slate-800 shadow-xl space-y-2 relative z-10">
-        <div class="flex justify-between text-[11px] font-bold text-slate-300">
-          <span>Этап:</span>
-          <span class="text-rose-400 font-extrabold">{{ getStatusText(order.status) }}</span>
-        </div>
-        <div class="grid grid-cols-4 gap-1.5 pt-1">
-          <div 
-            v-for="(step, idx) in steps" 
-            :key="step.key"
-            :class="[
-              'h-2 rounded-full transition-all duration-500',
-              currentStepIndex >= idx 
-                ? 'bg-gradient-to-r from-rose-500 to-rose-400 shadow-sm shadow-rose-500/50' 
-                : 'bg-slate-900 border border-slate-800'
-            ]"
-            :title="step.label"
-          ></div>
-        </div>
-      </div>
-
-      <!-- Live ETA & Telemetry Card -->
-      <div class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-2xl flex items-center justify-between relative overflow-hidden z-10">
-        <div class="space-y-1">
-          <div class="flex items-center gap-2">
-            <span class="relative flex h-2.5 w-2.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-            </span>
-            <span class="text-xs font-extrabold text-rose-300 uppercase tracking-wide">{{ langStore.t('callStatusEnRoute') }}</span>
-          </div>
-
-          <div class="text-3xl font-black text-white flex items-baseline gap-2 tracking-tight">
-            <span>~{{ order.etaMinutes || etaMinutes }} {{ langStore.t('mins') }}</span>
-            <span class="text-xs font-semibold text-slate-400">({{ order.distanceKm || distanceKm }} {{ langStore.t('km') }})</span>
-          </div>
-          <div class="text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
-            <Navigation class="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span>{{ langStore.t('speedInfo') }}</span>
-          </div>
-        </div>
-
-        <!-- Car Badge -->
-        <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 text-center space-y-1 shadow-lg">
-          <Truck class="w-7 h-7 text-rose-500 mx-auto" />
-          <span class="text-[10px] font-black text-slate-300 block tracking-wider">{{ langStore.t('crewBadge') }}</span>
-        </div>
-      </div>
-
-      <!-- Live OSRM Road Map Component -->
-      <div class="h-[330px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative z-10">
+      <!-- Full Bleed Map Background -->
+      <div class="fixed inset-0 z-0">
         <LiveMap 
           :ambulance-loc="order.currentLoc"
           :destination-loc="order.destinationLoc"
@@ -110,32 +28,132 @@
         />
       </div>
 
-      <!-- Pro-active Sound Alert Pill if close -->
-      <div v-if="distanceKm < 0.6 && order.status === 'EN_ROUTE'" class="p-3.5 bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/40 rounded-2xl flex items-center gap-3 text-amber-200 animate-pulse shadow-2xl relative z-10">
-        <BellRing class="w-6 h-6 text-amber-400 shrink-0" />
-        <div class="text-xs font-semibold">
-          <strong class="block text-white font-bold mb-0.5">{{ langStore.t('nearYardWarningTitle') }}</strong>
-          {{ langStore.t('nearYardWarningText') }}
-        </div>
+      <!-- Top Floating Navigation Pill -->
+      <div class="fixed top-4 left-4 right-4 z-20 max-w-md mx-auto">
+        <header class="medical-card px-4 py-3 rounded-2xl flex items-center justify-between border border-white/10 shadow-2xl">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-gradient-to-br from-rose-600 to-rose-500 text-white rounded-xl shadow-md glow-rose">
+              <Activity class="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <h1 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                {{ langStore.t('appTitle') }}
+                <span class="text-[9px] bg-emerald-500/20 text-emerald-300 font-extrabold px-1.5 py-0.2 rounded-md border border-emerald-500/30">LIVE</span>
+              </h1>
+              <p class="text-[11px] font-extrabold text-emerald-400">{{ order.carNumber }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <LanguageSwitcher />
+            <button 
+              @click="shareWithFamily"
+              class="p-2 bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all active:scale-95 shadow-md"
+              :title="langStore.t('shareFamily')"
+            >
+              <Share2 class="w-4 h-4 text-emerald-400" />
+            </button>
+          </div>
+        </header>
       </div>
 
-      <!-- Access Details Form -->
-      <AccessForm 
-        class="relative z-10"
-        :initial-access-info="order.accessInfo"
-        @update="onUpdateAccess"
-      />
+      <!-- Bottom Dynamic Floating Activity Drawer Sheet -->
+      <div class="relative z-10 pt-[55vh] pb-8 px-4 max-w-md mx-auto space-y-4">
+        
+        <!-- Hero ETA Live Activity Card -->
+        <div class="medical-card p-5 rounded-3xl border border-white/10 shadow-2xl space-y-4">
+          
+          <!-- Call Status Header Pill -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800">
+              <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+              </span>
+              <span class="text-xs font-extrabold text-rose-300 uppercase tracking-wide">{{ getStatusText(order.status) }}</span>
+            </div>
 
-      <!-- Symptoms Selector Triage -->
-      <SymptomSelector 
-        class="relative z-10"
-        :initial-symptoms="order.symptoms"
-        @update="onUpdateSymptoms"
-      />
+            <!-- Emergency Phone Call button -->
+            <a 
+              href="tel:+77778887766" 
+              class="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+            >
+              <PhoneCall class="w-3.5 h-3.5 text-emerald-400" />
+              <span>{{ langStore.t('callOperator') }}</span>
+            </a>
+          </div>
 
-      <!-- Pre-Arrival Checklist -->
-      <PreArrivalChecklist class="relative z-10" />
+          <!-- Hero ETA Numbers -->
+          <div class="flex items-center justify-between">
+            <div class="space-y-1">
+              <div class="text-4xl font-black text-white tracking-tight flex items-baseline gap-2">
+                <span class="gradient-text-emerald">~{{ order.etaMinutes || etaMinutes }}</span>
+                <span class="text-sm font-bold text-slate-400 uppercase">{{ langStore.t('mins') }}</span>
+                <span class="text-sm font-semibold text-slate-500">({{ order.distanceKm || distanceKm }} {{ langStore.t('km') }})</span>
+              </div>
+              <div class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                <Navigation class="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                <span>{{ langStore.t('speedInfo') }}</span>
+              </div>
+            </div>
 
+            <!-- Car Badge Box -->
+            <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 text-center shadow-lg">
+              <Truck class="w-7 h-7 text-emerald-400 mx-auto" />
+              <span class="text-[10px] font-black text-slate-300 block tracking-wider mt-1">{{ langStore.t('crewBadge') }}</span>
+            </div>
+          </div>
+
+          <!-- Timeline Stepper -->
+          <div class="space-y-1.5 pt-2 border-t border-slate-800/80">
+            <div class="grid grid-cols-4 gap-2">
+              <div 
+                v-for="(step, idx) in steps" 
+                :key="step.key"
+                :class="[
+                  'h-2 rounded-full transition-all duration-500',
+                  currentStepIndex >= idx 
+                    ? 'bg-gradient-to-r from-emerald-400 to-teal-400 shadow-md shadow-emerald-500/50' 
+                    : 'bg-slate-900 border border-slate-800'
+                ]"
+              ></div>
+            </div>
+            <div class="flex justify-between text-[10px] font-bold text-slate-400 px-0.5">
+              <span>Принят</span>
+              <span>В пути</span>
+              <span>Прибыл</span>
+              <span>Клиника</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pro-active Sound Alert Pill if close -->
+        <div v-if="distanceKm < 0.6 && order.status === 'EN_ROUTE'" class="p-4 bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/40 rounded-3xl flex items-center gap-3.5 text-amber-200 animate-pulse shadow-2xl">
+          <div class="p-2 bg-amber-500/20 rounded-2xl text-amber-400 shrink-0">
+            <BellRing class="w-6 h-6" />
+          </div>
+          <div class="text-xs font-semibold">
+            <strong class="block text-white font-extrabold mb-0.5">{{ langStore.t('nearYardWarningTitle') }}</strong>
+            {{ langStore.t('nearYardWarningText') }}
+          </div>
+        </div>
+
+        <!-- Access Details Form -->
+        <AccessForm 
+          :initial-access-info="order.accessInfo"
+          @update="onUpdateAccess"
+        />
+
+        <!-- Symptoms Selector Triage -->
+        <SymptomSelector 
+          :initial-symptoms="order.symptoms"
+          @update="onUpdateSymptoms"
+        />
+
+        <!-- Pre-Arrival Checklist -->
+        <PreArrivalChecklist />
+
+      </div>
     </template>
   </div>
 </template>

@@ -1,23 +1,23 @@
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6 space-y-6 font-sans relative">
-    <!-- Ambient Background Glows -->
-    <div class="fixed top-0 right-1/4 w-[500px] h-[500px] bg-rose-600/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="fixed bottom-0 left-10 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6 space-y-6 font-sans relative overflow-x-hidden">
+    <!-- Ambient Background Glow Orbs -->
+    <div class="fixed top-0 right-1/4 w-[600px] h-[600px] bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="fixed bottom-0 left-10 w-[500px] h-[500px] bg-teal-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- Top Header -->
-    <header class="glass-panel px-6 py-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-800 shadow-2xl relative z-10">
+    <!-- Top Command Center Header -->
+    <header class="medical-card px-6 py-4 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-white/10 shadow-2xl relative z-10">
       <div class="flex items-center gap-3.5">
-        <div class="p-3 bg-gradient-to-tr from-rose-600 to-rose-500 text-white rounded-2xl shadow-lg shadow-rose-950/50">
+        <div class="p-3 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-2xl shadow-lg glow-emerald">
           <Activity class="w-6 h-6 animate-pulse" />
         </div>
         <div>
           <h1 class="text-xl font-black text-white tracking-tight flex items-center gap-2.5">
             {{ langStore.t('appTitle') }} — {{ langStore.t('dispatcherRoom') }}
-            <span class="text-xs bg-rose-500/20 text-rose-300 font-bold px-2.5 py-0.5 rounded-full border border-rose-500/30">
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 font-extrabold px-3 py-1 rounded-full border border-emerald-500/30">
               {{ langStore.t('clinicTag') }}
             </span>
           </h1>
-          <p class="text-xs text-slate-400">Алматы • Оперативный мониторинг автопарка на единой карте</p>
+          <p class="text-xs text-slate-400 font-medium">г. Алматы • Центр диспетчеризации и мониторинга флота</p>
         </div>
       </div>
 
@@ -28,7 +28,7 @@
         <router-link 
           to="/track/demo-track-123" 
           target="_blank"
-          class="px-3.5 py-2 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-rose-950/50 transition-all active:scale-95"
+          class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-2xl text-xs font-extrabold flex items-center gap-2 shadow-xl shadow-emerald-950/50 transition-all active:scale-95"
         >
           <Eye class="w-4 h-4" />
           {{ langStore.t('patientTrack') }}
@@ -36,53 +36,56 @@
       </div>
     </header>
 
-    <!-- Analytical Stats Bar -->
+    <!-- Analytical Stats Header Bar -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10">
-      <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-xl">
+      <div class="medical-card p-4 rounded-3xl border border-white/10 flex items-center justify-between shadow-xl medical-card-hover">
         <div class="space-y-0.5">
-          <span class="text-xs text-slate-400 font-semibold block">{{ langStore.t('activeCalls') }}</span>
-          <span class="text-2xl font-black text-white">{{ activeOrders.length }}</span>
+          <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider">{{ langStore.t('activeCalls') }}</span>
+          <span class="text-3xl font-black text-white tracking-tight">{{ activeOrders.length }}</span>
         </div>
-        <div class="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
-          <Clock class="w-5 h-5" />
+        <div class="p-3.5 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20 shadow-md">
+          <Clock class="w-6 h-6" />
         </div>
       </div>
 
-      <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-xl">
+      <div class="medical-card p-4 rounded-3xl border border-white/10 flex items-center justify-between shadow-xl medical-card-hover">
         <div class="space-y-0.5">
-          <span class="text-xs text-slate-400 font-semibold block">{{ langStore.t('avgArrival') }}</span>
-          <span class="text-2xl font-black text-emerald-400">11.4 {{ langStore.t('mins') }}</span>
+          <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider">{{ langStore.t('avgArrival') }}</span>
+          <span class="text-3xl font-black gradient-text-emerald tracking-tight">11.4 {{ langStore.t('mins') }}</span>
         </div>
-        <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-          <Zap class="w-5 h-5" />
+        <div class="p-3.5 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-md">
+          <Zap class="w-6 h-6" />
         </div>
       </div>
 
-      <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-xl">
+      <div class="medical-card p-4 rounded-3xl border border-white/10 flex items-center justify-between shadow-xl medical-card-hover">
         <div class="space-y-0.5">
-          <span class="text-xs text-slate-400 font-semibold block">{{ langStore.t('onDutyCars') }}</span>
-          <span class="text-2xl font-black text-rose-400">3</span>
+          <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider">{{ langStore.t('onDutyCars') }}</span>
+          <span class="text-3xl font-black text-teal-400 tracking-tight">3</span>
         </div>
-        <div class="p-3 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20">
-          <Truck class="w-5 h-5" />
+        <div class="p-3.5 bg-teal-500/10 text-teal-400 rounded-2xl border border-teal-500/20 shadow-md">
+          <Truck class="w-6 h-6" />
         </div>
       </div>
     </div>
 
-    <!-- Main Grid: Form + Orders + Map -->
+    <!-- Main Command Console Split Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
       
-      <!-- Left Column: Create Order & List (5 cols) -->
+      <!-- Left Column: New Call Form + Active Order Cards (5 cols) -->
       <div class="lg:col-span-5 space-y-6">
-        <!-- New Order Form -->
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4 relative z-30">
-          <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-            <PlusCircle class="w-5 h-5 text-rose-500" />
-            <h2 class="text-sm font-bold text-white">{{ langStore.t('newCallTitle') }}</h2>
+        
+        <!-- New Dispatch Form -->
+        <div class="medical-card p-5 rounded-3xl border border-white/10 shadow-2xl space-y-4 relative z-30">
+          <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+            <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
+              <PlusCircle class="w-5 h-5" />
+            </div>
+            <h2 class="text-sm font-extrabold text-white tracking-tight">{{ langStore.t('newCallTitle') }}</h2>
           </div>
 
           <form @submit.prevent="handleCreateOrder" class="space-y-3.5">
-            <!-- Custom Input: Patient Name -->
+            <!-- Patient Name -->
             <CustomInput 
               v-model="newOrderForm.patientName"
               :label="langStore.t('patientNameLabel')"
@@ -91,7 +94,7 @@
               required
             />
 
-            <!-- Custom Input: Phone -->
+            <!-- Phone -->
             <CustomInput 
               v-model="newOrderForm.patientPhone"
               :label="langStore.t('phoneLabel')"
@@ -101,7 +104,7 @@
               required
             />
 
-            <!-- Custom Input: Address in Almaty -->
+            <!-- Address in Almaty -->
             <CustomInput 
               v-model="newOrderForm.address"
               :label="langStore.t('addressLabel')"
@@ -110,7 +113,7 @@
               required
             />
 
-            <!-- Custom Select: Car Choice -->
+            <!-- Car Selector -->
             <CustomSelect 
               v-model="newOrderForm.carNumber"
               :label="langStore.t('selectCarLabel')"
@@ -121,7 +124,7 @@
             <button 
               type="submit" 
               :disabled="loading"
-              class="w-full py-3 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-950/50 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 disabled:opacity-50"
+              class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-2xl text-xs font-black shadow-xl shadow-emerald-950/50 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 disabled:opacity-50"
             >
               <Send class="w-4 h-4" />
               <span>{{ loading ? 'Поиск геокодирования...' : langStore.t('createCallBtn') }}</span>
@@ -129,10 +132,10 @@
           </form>
         </div>
 
-        <!-- Active Orders List -->
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4 relative z-10">
+        <!-- Active Orders Cards List -->
+        <div class="medical-card p-5 rounded-3xl border border-white/10 shadow-2xl space-y-4 relative z-10">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <h2 class="text-sm font-extrabold text-white flex items-center gap-2">
               <Clock class="w-4 h-4 text-amber-400" />
               {{ langStore.t('activeCalls') }} ({{ activeOrders.length }})
             </h2>
@@ -146,7 +149,7 @@
             <div 
               v-for="order in activeOrders" 
               :key="order.token"
-              class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all space-y-3 shadow-md"
+              class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 transition-all space-y-3 shadow-md"
             >
               <div class="flex items-start justify-between">
                 <div>
@@ -162,9 +165,9 @@
                     </span>
                   </div>
                   <div class="text-xs font-bold text-slate-100 mt-1">{{ order.patientName }} ({{ order.patientPhone }})</div>
-                  <div class="text-[11px] font-bold text-rose-400 mt-0.5">{{ order.carNumber }}</div>
+                  <div class="text-[11px] font-bold text-emerald-400 mt-0.5">{{ order.carNumber }}</div>
                   <div class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                    <MapPin class="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                    <MapPin class="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     {{ order.address }}
                   </div>
                 </div>
@@ -184,7 +187,7 @@
                 </button>
               </div>
 
-              <!-- Action buttons: WhatsApp & Copy Link -->
+              <!-- Action buttons -->
               <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80">
                 <button 
                   @click="openWhatsApp(order)"
@@ -207,12 +210,12 @@
         </div>
       </div>
 
-      <!-- Right Column: Live Clinic Map (7 cols) - NOW RENDERS ALL ACTIVE AMBULANCES ON THE MAP SIMULTANEOUSLY! -->
+      <!-- Right Column: Live Fleet Map (7 cols) -->
       <div class="lg:col-span-7 flex flex-col space-y-4">
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl flex-1 flex flex-col space-y-4">
+        <div class="medical-card p-5 rounded-3xl border border-white/10 shadow-2xl flex-1 flex flex-col space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <Compass class="w-5 h-5 text-rose-500" />
+              <Compass class="w-5 h-5 text-emerald-400" />
               <h2 class="text-sm font-bold text-white">{{ langStore.t('mapTitle') }}</h2>
             </div>
             <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
@@ -221,8 +224,8 @@
             </div>
           </div>
 
-          <!-- Map Container passing ALL active orders to LiveMap -->
-          <div class="w-full h-[580px] rounded-xl overflow-hidden relative border border-slate-800">
+          <!-- Map Container -->
+          <div class="w-full h-[600px] rounded-2xl overflow-hidden relative border border-slate-800">
             <LiveMap :orders="activeOrders" />
           </div>
         </div>
