@@ -1,21 +1,30 @@
 @import "tailwindcss";
 
 @layer utilities {
-  /* Crisp Light Medical Design System (Apple Health / One Medical Style) */
-  .medical-card {
+  /* 2026 Bento & Dynamic Island Design System */
+  .bento-card {
     background: #ffffff;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 28px;
+    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
   }
 
-  .medical-card-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .bento-card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .medical-card-hover:hover {
+  .bento-card-hover:hover {
     border-color: rgba(13, 148, 136, 0.4);
-    box-shadow: 0 20px 30px -10px rgba(13, 148, 136, 0.12), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+    box-shadow: 0 20px 40px -10px rgba(13, 148, 136, 0.12);
     transform: translateY(-2px);
+  }
+
+  .floating-island {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15), 0 0 25px 0 rgba(13, 148, 136, 0.08);
   }
 
   .glow-teal {
@@ -73,9 +82,9 @@
   background: #ffffff !important;
   color: #0f172a !important;
   border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 16px !important;
+  border-radius: 20px !important;
   box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15) !important;
-  padding: 4px !important;
+  padding: 6px !important;
 }
 
 .leaflet-popup-tip {

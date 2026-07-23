@@ -18,7 +18,7 @@
       </a>
     </div>
 
-    <!-- Active Mobile-First Live Tracking Screen -->
+    <!-- Active 2026 Dynamic Live Tracking Screen -->
     <template v-else-if="order">
       <!-- Full Screen Background Map Canvas -->
       <div class="fixed inset-0 z-0">
@@ -29,11 +29,11 @@
         />
       </div>
 
-      <!-- Top Floating Navigation Bar (Safe Area Padding & Zero Overflow) -->
-      <div class="fixed top-2.5 left-2.5 right-2.5 z-20 max-w-md mx-auto">
-        <header class="medical-card px-3 py-2 rounded-2xl flex items-center justify-between gap-2 border border-slate-200/90 shadow-xl backdrop-blur-xl bg-white/95 overflow-hidden">
+      <!-- Top Floating Navigation Island Pill (Safe Area Padding & Zero Overflow) -->
+      <div class="fixed top-3 left-3 right-3 z-20 max-w-md mx-auto">
+        <header class="floating-island px-3.5 py-2.5 rounded-2xl flex items-center justify-between gap-2 border border-slate-200/90 shadow-xl">
           <div class="flex items-center gap-2 min-w-0 truncate">
-            <div class="p-1.5 bg-teal-600 text-white rounded-xl shadow-xs glow-teal shrink-0">
+            <div class="p-2 bg-teal-600 text-white rounded-xl shadow-xs glow-teal shrink-0">
               <Activity class="w-4 h-4 animate-pulse" />
             </div>
             <div class="min-w-0 truncate">
@@ -49,23 +49,23 @@
             <LanguageSwitcher />
             <button 
               @click="shareWithFamily"
-              class="p-1.5 bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-xs"
+              class="p-2 bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-xs"
               :title="langStore.t('shareFamily')"
             >
-              <Share2 class="w-3.5 h-3.5 text-teal-600" />
+              <Share2 class="w-4 h-4 text-teal-600" />
             </button>
           </div>
         </header>
       </div>
 
-      <!-- Mobile Expandable Bottom Activity Drawer -->
+      <!-- 2026 Dynamic Island Bottom Sheet Drawer -->
       <div 
         :class="[
           'fixed inset-x-0 bottom-0 z-20 max-w-md mx-auto transition-all duration-300 ease-out flex flex-col',
           isExpanded ? 'h-[88vh]' : 'h-[36vh] sm:h-[40vh]'
         ]"
       >
-        <div class="medical-card h-full rounded-t-[32px] border-t border-x border-slate-200/90 shadow-2xl flex flex-col overflow-hidden bg-white/95 backdrop-blur-2xl">
+        <div class="floating-island h-full rounded-t-[36px] border-t border-x border-slate-200/90 shadow-2xl flex flex-col overflow-hidden bg-white/95 backdrop-blur-2xl">
           
           <!-- Drawer Drag Handle & Toggle Button -->
           <div 
@@ -79,13 +79,13 @@
             </div>
           </div>
 
-          <!-- Drawer Content Scroll Area -->
+          <!-- Drawer Bento Content Area -->
           <div class="flex-1 overflow-y-auto p-4 space-y-4">
             
-            <!-- Hero ETA Activity Banner -->
-            <div class="bg-gradient-to-br from-slate-50 to-teal-50/30 p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-xs">
+            <!-- Hero ETA Bento Widget -->
+            <div class="bento-card p-4.5 border border-slate-200/80 space-y-3.5 shadow-sm">
               <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-slate-200 text-teal-800 shadow-xs truncate">
+                <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 shadow-xs truncate">
                   <span class="relative flex h-2 w-2 shrink-0">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-500 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-teal-600"></span>
@@ -95,14 +95,14 @@
 
                 <a 
                   href="tel:+77778887766" 
-                  class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[11px] font-black flex items-center gap-1.5 shadow-xs active:scale-95 transition-all shrink-0"
+                  class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[11px] font-black flex items-center gap-1.5 shadow-xs active:scale-95 transition-all shrink-0"
                 >
                   <PhoneCall class="w-3.5 h-3.5" />
                   <span>{{ langStore.t('callOperator') }}</span>
                 </a>
               </div>
 
-              <!-- Big ETA Display -->
+              <!-- Hero ETA Display -->
               <div class="flex items-center justify-between pt-1">
                 <div class="space-y-0.5 min-w-0">
                   <div class="text-3xl sm:text-4xl font-black tracking-tight flex items-baseline gap-1.5 flex-wrap">
@@ -116,14 +116,14 @@
                   </div>
                 </div>
 
-                <div class="p-2.5 bg-white rounded-2xl border border-slate-200 text-center shadow-xs shrink-0">
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center shadow-xs shrink-0">
                   <Truck class="w-6 h-6 text-teal-600 mx-auto" />
                   <span class="text-[9px] font-black text-slate-700 block tracking-wider mt-0.5">{{ langStore.t('crewBadge') }}</span>
                 </div>
               </div>
 
               <!-- Timeline Stepper -->
-              <div class="space-y-1 pt-2 border-t border-slate-200/60">
+              <div class="space-y-1 pt-2 border-t border-slate-100">
                 <div class="grid grid-cols-4 gap-1.5">
                   <div 
                     v-for="(step, idx) in steps" 
@@ -145,7 +145,7 @@
               </div>
             </div>
 
-            <!-- Pro-active Sound Alert Pill if close -->
+            <!-- Sound Alert Pill if close -->
             <div v-if="distanceKm < 0.6 && order.status === 'EN_ROUTE'" class="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-900 shadow-xs animate-pulse">
               <div class="p-2 bg-amber-200/60 rounded-xl text-amber-800 shrink-0">
                 <BellRing class="w-5 h-5" />
@@ -156,19 +156,19 @@
               </div>
             </div>
 
-            <!-- Access Details Form -->
+            <!-- Access Details Bento -->
             <AccessForm 
               :initial-access-info="order.accessInfo"
               @update="onUpdateAccess"
             />
 
-            <!-- Symptoms Selector Triage -->
+            <!-- Symptoms Selector Bento -->
             <SymptomSelector 
               :initial-symptoms="order.symptoms"
               @update="onUpdateSymptoms"
             />
 
-            <!-- Pre-Arrival Checklist -->
+            <!-- Pre-Arrival Checklist Bento -->
             <PreArrivalChecklist />
 
           </div>
