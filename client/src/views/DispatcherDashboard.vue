@@ -1,30 +1,30 @@
 <template>
   <div class="min-h-screen bg-slate-50 text-slate-900 p-4 sm:p-6 space-y-6 font-sans relative">
     <!-- Top Header Bar -->
-    <header class="bento-card px-6 py-4 rounded-[28px] flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-200/90 shadow-sm">
-      <div class="flex items-center gap-3.5">
-        <div class="p-3 bg-teal-600 text-white rounded-2xl shadow-md glow-teal">
+    <header class="bento-card px-6 py-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-200/90 shadow-xs overflow-hidden">
+      <div class="flex items-center gap-3.5 min-w-0 truncate">
+        <div class="p-3 bg-teal-800 text-white rounded-2xl shadow-xs shrink-0">
           <Activity class="w-6 h-6 animate-pulse" />
         </div>
-        <div>
-          <h1 class="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-            {{ langStore.t('appTitle') }} — {{ langStore.t('dispatcherRoom') }}
-            <span class="text-xs bg-teal-50 text-teal-800 font-extrabold px-3 py-1 rounded-full border border-teal-200">
+        <div class="min-w-0 truncate">
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5 truncate">
+            <span class="truncate">{{ langStore.t('appTitle') }} — {{ langStore.t('dispatcherRoom') }}</span>
+            <span class="text-xs bg-teal-50 text-teal-800 font-bold px-3 py-1 rounded-full border border-teal-200 shrink-0">
               {{ langStore.t('clinicTag') }}
             </span>
           </h1>
-          <p class="text-xs font-semibold text-slate-500">г. Алматы • Единый Центр Мониторинга Флота и Геокодирования</p>
+          <p class="text-xs font-medium text-slate-500 truncate">г. Алматы • Оперативный мониторинг вызовов и флота скорой</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 shrink-0">
         <!-- Language Switcher UI -->
         <LanguageSwitcher />
 
         <router-link 
           to="/track/demo-track-123" 
           target="_blank"
-          class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl text-xs font-black flex items-center gap-2 shadow-lg shadow-teal-900/20 transition-all active:scale-95"
+          class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-xs transition-all active:scale-95 shrink-0"
         >
           <Eye class="w-4 h-4" />
           {{ langStore.t('patientTrack') }}
@@ -32,35 +32,35 @@
       </div>
     </header>
 
-    <!-- Bento Grid 2.0 Analytical Stats Bar -->
+    <!-- Analytical Stats Bar -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10">
-      <div class="bento-card p-4.5 rounded-[28px] border border-slate-200/90 flex items-center justify-between shadow-sm bento-card-hover">
-        <div class="space-y-0.5">
-          <span class="text-xs text-slate-500 font-extrabold block uppercase tracking-wider">{{ langStore.t('activeCalls') }}</span>
-          <span class="text-3xl font-black text-slate-900 tracking-tight">{{ activeOrders.length }}</span>
+      <div class="bento-card p-4.5 rounded-2xl border border-slate-200/90 flex items-center justify-between shadow-xs bento-card-hover">
+        <div class="space-y-0.5 min-w-0 truncate">
+          <span class="text-xs text-slate-500 font-bold block uppercase tracking-wider truncate">{{ langStore.t('activeCalls') }}</span>
+          <span class="text-3xl font-extrabold text-slate-900 font-mono tracking-tight">{{ activeOrders.length }}</span>
         </div>
-        <div class="p-3.5 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200 shadow-xs">
-          <Clock class="w-6 h-6" />
-        </div>
-      </div>
-
-      <div class="bento-card p-4.5 rounded-[28px] border border-slate-200/90 flex items-center justify-between shadow-sm bento-card-hover">
-        <div class="space-y-0.5">
-          <span class="text-xs text-slate-500 font-extrabold block uppercase tracking-wider">{{ langStore.t('avgArrival') }}</span>
-          <span class="text-3xl font-black gradient-text-teal tracking-tight">11.4 {{ langStore.t('mins') }}</span>
-        </div>
-        <div class="p-3.5 bg-teal-50 text-teal-600 rounded-2xl border border-teal-200 shadow-xs">
-          <Zap class="w-6 h-6" />
+        <div class="p-3 bg-slate-100 text-slate-700 rounded-2xl border border-slate-200 shrink-0">
+          <Clock class="w-5 h-5" />
         </div>
       </div>
 
-      <div class="bento-card p-4.5 rounded-[28px] border border-slate-200/90 flex items-center justify-between shadow-sm bento-card-hover">
-        <div class="space-y-0.5">
-          <span class="text-xs text-slate-500 font-extrabold block uppercase tracking-wider">{{ langStore.t('onDutyCars') }}</span>
-          <span class="text-3xl font-black text-teal-700 tracking-tight">3</span>
+      <div class="bento-card p-4.5 rounded-2xl border border-slate-200/90 flex items-center justify-between shadow-xs bento-card-hover">
+        <div class="space-y-0.5 min-w-0 truncate">
+          <span class="text-xs text-slate-500 font-bold block uppercase tracking-wider truncate">{{ langStore.t('avgArrival') }}</span>
+          <span class="text-3xl font-extrabold text-teal-800 font-mono tracking-tight">11.4 {{ langStore.t('mins') }}</span>
         </div>
-        <div class="p-3.5 bg-teal-50 text-teal-600 rounded-2xl border border-teal-200 shadow-xs">
-          <Truck class="w-6 h-6" />
+        <div class="p-3 bg-teal-50 text-teal-800 rounded-2xl border border-teal-200 shrink-0">
+          <Zap class="w-5 h-5" />
+        </div>
+      </div>
+
+      <div class="bento-card p-4.5 rounded-2xl border border-slate-200/90 flex items-center justify-between shadow-xs bento-card-hover">
+        <div class="space-y-0.5 min-w-0 truncate">
+          <span class="text-xs text-slate-500 font-bold block uppercase tracking-wider truncate">{{ langStore.t('onDutyCars') }}</span>
+          <span class="text-3xl font-extrabold text-slate-900 font-mono tracking-tight">3</span>
+        </div>
+        <div class="p-3 bg-slate-100 text-slate-700 rounded-2xl border border-slate-200 shrink-0">
+          <Truck class="w-5 h-5" />
         </div>
       </div>
     </div>
@@ -72,12 +72,12 @@
       <div class="lg:col-span-5 space-y-6">
         
         <!-- New Dispatch Bento Card -->
-        <div class="bento-card p-5 rounded-[28px] border border-slate-200/90 shadow-sm space-y-4 relative z-30">
+        <div class="bento-card p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4 relative z-30 overflow-hidden">
           <div class="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-            <div class="p-2 bg-teal-50 text-teal-600 rounded-xl">
+            <div class="p-2 bg-teal-50 text-teal-800 rounded-xl">
               <PlusCircle class="w-5 h-5" />
             </div>
-            <h2 class="text-sm font-black text-slate-900 tracking-tight">{{ langStore.t('newCallTitle') }}</h2>
+            <h2 class="text-sm font-bold text-slate-900 tracking-tight">{{ langStore.t('newCallTitle') }}</h2>
           </div>
 
           <form @submit.prevent="handleCreateOrder" class="space-y-3.5">
@@ -90,11 +90,11 @@
               required
             />
 
-            <!-- Phone -->
+            <!-- Phone with Auto-Mask (+7 7XX XXX-XX-XX) -->
             <CustomInput 
               v-model="newOrderForm.patientPhone"
               :label="langStore.t('phoneLabel')"
-              :placeholder="langStore.t('phonePlaceholder')"
+              placeholder="+7 (777) 000-00-00"
               :icon="Phone"
               type="tel"
               required
@@ -120,7 +120,7 @@
             <button 
               type="submit" 
               :disabled="loading"
-              class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 disabled:opacity-50"
+              class="w-full py-3.5 bg-teal-800 hover:bg-teal-900 text-white rounded-2xl text-xs font-bold shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 disabled:opacity-50"
             >
               <Send class="w-4 h-4" />
               <span>{{ loading ? 'Поиск геокодирования...' : langStore.t('createCallBtn') }}</span>
@@ -129,15 +129,15 @@
         </div>
 
         <!-- Active Orders Bento List -->
-        <div class="bento-card p-5 rounded-[28px] border border-slate-200/90 shadow-sm space-y-4 relative z-10">
+        <div class="bento-card p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4 relative z-10 overflow-hidden">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 class="text-sm font-black text-slate-900 flex items-center gap-2">
-              <Clock class="w-4 h-4 text-amber-500" />
+            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <Clock class="w-4 h-4 text-slate-600" />
               {{ langStore.t('activeCalls') }} ({{ activeOrders.length }})
             </h2>
           </div>
 
-          <div v-if="activeOrders.length === 0" class="text-center py-8 text-xs font-semibold text-slate-400">
+          <div v-if="activeOrders.length === 0" class="text-center py-8 text-xs font-medium text-slate-400">
             Нет активных вызовов в системе
           </div>
 
@@ -145,26 +145,26 @@
             <div 
               v-for="order in activeOrders" 
               :key="order.token"
-              class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-teal-500/50 transition-all space-y-3 shadow-xs"
+              class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-teal-700/40 transition-all space-y-3 shadow-xs overflow-hidden"
             >
-              <div class="flex items-start justify-between">
-                <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 truncate">
                   <div class="flex items-center gap-2">
-                    <span class="font-black text-xs text-slate-900">{{ order.id }}</span>
+                    <span class="font-extrabold text-xs text-slate-900 font-mono">{{ order.id }}</span>
                     <span 
                       :class="[
-                        'text-[10px] font-bold px-2.5 py-0.5 rounded-full border',
+                        'text-[10px] font-bold px-2.5 py-0.5 rounded-full border truncate',
                         getStatusBadgeClass(order.status)
                       ]"
                     >
                       {{ getStatusText(order.status) }}
                     </span>
                   </div>
-                  <div class="text-xs font-black text-slate-900 mt-1">{{ order.patientName }} ({{ order.patientPhone }})</div>
-                  <div class="text-[11px] font-black text-teal-600 mt-0.5">{{ order.carNumber }}</div>
-                  <div class="text-xs font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
-                    <MapPin class="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                    {{ order.address }}
+                  <div class="text-xs font-bold text-slate-900 mt-1 truncate">{{ order.patientName }} ({{ order.patientPhone }})</div>
+                  <div class="text-[11px] font-bold text-teal-800 mt-0.5 truncate">{{ order.carNumber }}</div>
+                  <div class="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                    <MapPin class="w-3.5 h-3.5 text-teal-800 shrink-0" />
+                    <span class="truncate">{{ order.address }}</span>
                   </div>
                 </div>
 
@@ -172,9 +172,9 @@
                 <button
                   @click="toggleSim(order.token, !order.isSimulating)"
                   :class="[
-                    'px-2.5 py-1 rounded-xl text-[10px] font-extrabold border transition-all cursor-pointer flex items-center gap-1 shadow-xs',
+                    'px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 shadow-xs shrink-0',
                     order.isSimulating 
-                      ? 'bg-teal-50 text-teal-700 border-teal-300 animate-pulse'
+                      ? 'bg-teal-50 text-teal-800 border-teal-200 animate-pulse'
                       : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900'
                   ]"
                 >
@@ -187,15 +187,15 @@
               <div class="flex items-center gap-2 pt-2 border-t border-slate-200/60">
                 <button 
                   @click="openWhatsApp(order)"
-                  class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all active:scale-95"
+                  class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all active:scale-95 truncate"
                 >
-                  <MessageSquare class="w-3.5 h-3.5" />
-                  <span>{{ langStore.t('openWhatsApp') }}</span>
+                  <MessageSquare class="w-3.5 h-3.5 shrink-0" />
+                  <span class="truncate">{{ langStore.t('openWhatsApp') }}</span>
                 </button>
 
                 <button 
                   @click="copyTrackLink(order.token)"
-                  class="py-2 px-3.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer transition-all border border-slate-200 shadow-xs active:scale-95"
+                  class="py-2 px-3.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer transition-all border border-slate-200 shadow-xs active:scale-95 shrink-0"
                 >
                   <Copy class="w-3.5 h-3.5 text-slate-500" />
                   <span>{{ copiedToken === order.token ? langStore.t('copied') : langStore.t('copyLink') }}</span>
@@ -208,20 +208,20 @@
 
       <!-- Right Column: Live Fleet Map Bento Card (7 cols) -->
       <div class="lg:col-span-7 flex flex-col space-y-4">
-        <div class="bento-card p-5 rounded-[28px] border border-slate-200/90 shadow-sm flex-1 flex flex-col space-y-4">
+        <div class="bento-card p-5 rounded-2xl border border-slate-200/90 shadow-xs flex-1 flex flex-col space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <Compass class="w-5 h-5 text-teal-600" />
-              <h2 class="text-sm font-black text-slate-900">{{ langStore.t('mapTitle') }}</h2>
+              <Compass class="w-5 h-5 text-teal-800" />
+              <h2 class="text-sm font-bold text-slate-900">{{ langStore.t('mapTitle') }}</h2>
             </div>
-            <div class="flex items-center gap-2 text-xs text-slate-500 font-extrabold">
-              <span class="inline-block w-2.5 h-2.5 rounded-full bg-teal-600 animate-ping"></span>
+            <div class="flex items-center gap-2 text-xs text-slate-500 font-bold">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-teal-700 animate-ping"></span>
               {{ activeOrders.length }} {{ langStore.t('carsInAir') }} на карте
             </div>
           </div>
 
           <!-- Map Container -->
-          <div class="w-full h-[600px] rounded-2xl overflow-hidden relative border border-slate-200">
+          <div class="w-full h-[600px] rounded-xl overflow-hidden relative border border-slate-200">
             <LiveMap :orders="activeOrders" />
           </div>
         </div>

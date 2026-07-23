@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900 p-2.5 sm:p-4 max-w-md mx-auto space-y-3 font-sans relative pb-24 select-none overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 text-slate-900 p-3 sm:p-4 max-w-md mx-auto space-y-3 font-sans relative pb-24 select-none overflow-x-hidden">
     <!-- Header (Zero Overflow Fit) -->
-    <header class="medical-card px-3 py-2.5 rounded-2xl flex items-center justify-between gap-2 border border-slate-200/80 shadow-md overflow-hidden">
+    <header class="medical-card px-3.5 py-2.5 rounded-2xl flex items-center justify-between gap-2 border border-slate-200/80 shadow-xs overflow-hidden">
       <div class="flex items-center gap-2 min-w-0 truncate">
-        <div class="p-1.5 bg-teal-600 text-white rounded-xl shadow-xs glow-teal shrink-0">
+        <div class="p-1.5 bg-teal-800 text-white rounded-xl shadow-xs shrink-0">
           <Truck class="w-4.5 h-4.5" />
         </div>
         <div class="min-w-0 truncate">
-          <h1 class="text-xs font-black text-slate-900 tracking-tight truncate">{{ langStore.t('driverTitle') }}</h1>
-          <p class="text-[10px] font-black text-teal-600 truncate">{{ activeOrder?.carNumber || 'Бригада скорой' }}</p>
+          <h1 class="text-xs font-bold text-slate-900 tracking-tight truncate">{{ langStore.t('driverTitle') }}</h1>
+          <p class="text-[10px] font-bold text-teal-800 truncate">{{ activeOrder?.carNumber || 'Бригада скорой' }}</p>
         </div>
       </div>
 
@@ -18,7 +18,7 @@
     </header>
 
     <!-- Active Call / Car Selector -->
-    <div class="medical-card p-3 rounded-2xl border border-slate-200/80 space-y-1.5 relative z-30 shadow-md">
+    <div class="medical-card p-3 rounded-2xl border border-slate-200/80 space-y-1.5 relative z-30 shadow-xs">
       <CustomSelect 
         v-model="selectedToken"
         label="Выбрать активный вызов / Машину:"
@@ -28,38 +28,38 @@
     </div>
 
     <!-- Active Call Info Card -->
-    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-md relative z-10">
+    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-xs relative z-10 overflow-hidden">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
-        <span class="text-xs font-black text-teal-700 tracking-wider shrink-0">ВЫЗОВ {{ activeOrder.id }}</span>
-        <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 truncate">
+        <span class="text-xs font-extrabold text-teal-800 font-mono tracking-wider shrink-0">ВЫЗОВ {{ activeOrder.id }}</span>
+        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 truncate">
           {{ getStatusText(activeOrder.status) }}
         </span>
       </div>
 
-      <div class="space-y-0.5">
-        <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Науқас / Пациент</div>
-        <div class="text-base font-black text-slate-900 tracking-tight truncate">{{ activeOrder.patientName }} ({{ activeOrder.patientPhone }})</div>
+      <div class="space-y-0.5 min-w-0 truncate">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Науқас / Пациент</div>
+        <div class="text-base font-bold text-slate-900 tracking-tight truncate">{{ activeOrder.patientName }} ({{ activeOrder.patientPhone }})</div>
       </div>
 
-      <div class="space-y-0.5">
-        <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Адрес вызова</div>
-        <div class="text-xs font-bold text-slate-800 flex items-start gap-1.5">
-          <MapPin class="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-          <span class="leading-relaxed">{{ activeOrder.address }}</span>
+      <div class="space-y-0.5 min-w-0">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Адрес вызова</div>
+        <div class="text-xs font-semibold text-slate-800 flex items-start gap-1.5">
+          <MapPin class="w-4 h-4 text-teal-800 shrink-0 mt-0.5" />
+          <span class="leading-relaxed break-words min-w-0">{{ activeOrder.address }}</span>
         </div>
       </div>
     </div>
 
     <!-- Mobile-First Touch Status Buttons Grid (Big 52px Touch Targets) -->
-    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-md relative z-10">
-      <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-wider">{{ langStore.t('1clickStatus') }}</h2>
+    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-xs relative z-10">
+      <h2 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{{ langStore.t('1clickStatus') }}</h2>
 
       <div class="grid grid-cols-2 gap-2">
         <button 
           @click="setStatus('ACCEPTED')"
           :class="[
-            'py-3.5 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
-            activeOrder.status === 'ACCEPTED' ? 'bg-amber-500 text-white border-amber-400 shadow-md scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
+            'py-3.5 px-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
+            activeOrder.status === 'ACCEPTED' ? 'bg-amber-600 text-white border-amber-500 shadow-xs scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
           ]"
         >
           {{ langStore.t('accepted') }}
@@ -68,8 +68,8 @@
         <button 
           @click="setStatus('EN_ROUTE')"
           :class="[
-            'py-3.5 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
-            activeOrder.status === 'EN_ROUTE' ? 'bg-rose-600 text-white border-rose-500 shadow-md animate-pulse scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
+            'py-3.5 px-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
+            activeOrder.status === 'EN_ROUTE' ? 'bg-rose-700 text-white border-rose-600 shadow-xs animate-pulse scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
           ]"
         >
           {{ langStore.t('enRoute') }}
@@ -78,8 +78,8 @@
         <button 
           @click="setStatus('ARRIVED')"
           :class="[
-            'py-3.5 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
-            activeOrder.status === 'ARRIVED' ? 'bg-teal-600 text-white border-teal-500 shadow-md scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
+            'py-3.5 px-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
+            activeOrder.status === 'ARRIVED' ? 'bg-teal-800 text-white border-teal-700 shadow-xs scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
           ]"
         >
           {{ langStore.t('arrived') }}
@@ -88,8 +88,8 @@
         <button 
           @click="setStatus('HOSPITAL_TRANSPORT')"
           :class="[
-            'py-3.5 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
-            activeOrder.status === 'HOSPITAL_TRANSPORT' ? 'bg-indigo-600 text-white border-indigo-500 shadow-md scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
+            'py-3.5 px-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
+            activeOrder.status === 'HOSPITAL_TRANSPORT' ? 'bg-slate-800 text-white border-slate-700 shadow-xs scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
           ]"
         >
           {{ langStore.t('hospitalTransport') }}
@@ -99,7 +99,7 @@
       <!-- Complete Call Button -->
       <button 
         @click="setStatus('COMPLETED')"
-        class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 shadow-md"
+        class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 shadow-xs"
       >
         <ShieldCheck class="w-5 h-5 text-emerald-400" />
         <span>{{ langStore.t('completed') }}</span>
@@ -107,17 +107,17 @@
     </div>
 
     <!-- Live Access Details from Patient -->
-    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-md relative z-10">
-      <div class="flex items-center gap-2 text-teal-700 border-b border-slate-100 pb-2.5">
-        <KeyRound class="w-4.5 h-4.5 text-teal-600" />
-        <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider">{{ langStore.t('patientDetailsTitle') }}</h2>
+    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-xs relative z-10 overflow-hidden">
+      <div class="flex items-center gap-2 text-slate-900 border-b border-slate-100 pb-2.5">
+        <KeyRound class="w-4.5 h-4.5 text-teal-800" />
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900">{{ langStore.t('patientDetailsTitle') }}</h2>
       </div>
 
       <!-- Symptoms -->
       <div v-if="activeOrder.symptoms.length > 0" class="space-y-1">
         <div class="text-[10px] font-bold text-slate-400">{{ langStore.t('symptoms') }}:</div>
         <div class="flex flex-wrap gap-1.5">
-          <span v-for="symptom in activeOrder.symptoms" :key="symptom" class="text-xs bg-rose-50 text-rose-800 px-2.5 py-0.5 rounded-lg border border-rose-200 font-black">
+          <span v-for="symptom in activeOrder.symptoms" :key="symptom" class="text-xs bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-200 font-bold">
             {{ symptom }}
           </span>
         </div>
@@ -125,31 +125,31 @@
 
       <!-- Access items -->
       <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-          <span class="text-slate-500 text-[9px] block font-extrabold uppercase">{{ langStore.t('intercom') }}</span>
-          <strong class="text-teal-800 text-xs font-black">{{ activeOrder.accessInfo.intercom || langStore.t('notSpecified') }}</strong>
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
+          <span class="text-slate-500 text-[9px] block font-bold uppercase">{{ langStore.t('intercom') }}</span>
+          <strong class="text-slate-900 text-xs font-bold block truncate">{{ activeOrder.accessInfo.intercom || langStore.t('notSpecified') }}</strong>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-          <span class="text-slate-500 text-[9px] block font-extrabold uppercase">{{ langStore.t('gateCode') }}</span>
-          <strong class="text-teal-800 text-xs font-black">{{ activeOrder.accessInfo.gateCode || langStore.t('notSpecified') }}</strong>
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
+          <span class="text-slate-500 text-[9px] block font-bold uppercase">{{ langStore.t('gateCode') }}</span>
+          <strong class="text-slate-900 text-xs font-bold block truncate">{{ activeOrder.accessInfo.gateCode || langStore.t('notSpecified') }}</strong>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-          <span class="text-slate-500 text-[9px] block font-extrabold uppercase">{{ langStore.t('entranceFloor') }}</span>
-          <strong class="text-slate-900 text-xs font-black">{{ activeOrder.accessInfo.entrance || '?' }} / {{ activeOrder.accessInfo.floor || '?' }}</strong>
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
+          <span class="text-slate-500 text-[9px] block font-bold uppercase">{{ langStore.t('entranceFloor') }}</span>
+          <strong class="text-slate-900 text-xs font-bold block truncate">{{ activeOrder.accessInfo.entrance || '?' }} / {{ activeOrder.accessInfo.floor || '?' }}</strong>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-          <span class="text-slate-500 text-[9px] block font-extrabold uppercase">{{ langStore.t('note') }}</span>
-          <strong class="text-slate-700 text-[10px] font-bold block truncate">{{ activeOrder.accessInfo.note || langStore.t('noNote') }}</strong>
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
+          <span class="text-slate-500 text-[9px] block font-bold uppercase">{{ langStore.t('note') }}</span>
+          <strong class="text-slate-700 text-[10px] font-medium block truncate">{{ activeOrder.accessInfo.note || langStore.t('noNote') }}</strong>
         </div>
       </div>
 
       <!-- Photo preview if uploaded -->
       <div v-if="activeOrder.accessInfo.photoUrl" class="pt-2 border-t border-slate-100">
         <span class="text-[10px] text-slate-500 block mb-1 font-bold">{{ langStore.t('photoFromPatient') }}</span>
-        <img :src="activeOrder.accessInfo.photoUrl" class="w-full h-36 object-cover rounded-xl border border-slate-200 shadow-md" />
+        <img :src="activeOrder.accessInfo.photoUrl" class="w-full h-36 object-cover rounded-xl border border-slate-200 shadow-xs" />
       </div>
     </div>
 
@@ -158,9 +158,9 @@
       <a 
         :href="getNavigatorUrl(activeOrder.destinationLoc)"
         target="_blank"
-        class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-xl shadow-indigo-950/20 cursor-pointer transition-all active:scale-95 border border-indigo-400/30 backdrop-blur-xl"
+        class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-xl shadow-slate-950/20 cursor-pointer transition-all active:scale-95 border border-slate-800 backdrop-blur-xl"
       >
-        <Navigation class="w-4 h-4" />
+        <Navigation class="w-4 h-4 text-teal-400" />
         <span>{{ langStore.t('navButton') }}</span>
       </a>
     </div>
