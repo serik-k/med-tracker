@@ -17,22 +17,13 @@
               {{ langStore.t('clinicTag') }}
             </span>
           </h1>
-          <p class="text-xs text-slate-400">Алматы • Оперативный мониторинг бригад и геокодирование</p>
+          <p class="text-xs text-slate-400">Алматы • Оперативный мониторинг автопарка на единой карте</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
         <!-- Language Switcher UI -->
         <LanguageSwitcher />
-
-        <router-link 
-          to="/driver" 
-          target="_blank"
-          class="px-3.5 py-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-2 transition-all active:scale-95 shadow-md"
-        >
-          <Smartphone class="w-4 h-4 text-emerald-400" />
-          {{ langStore.t('driverRoom') }}
-        </router-link>
 
         <router-link 
           to="/track/demo-track-123" 
@@ -83,7 +74,7 @@
       
       <!-- Left Column: Create Order & List (5 cols) -->
       <div class="lg:col-span-5 space-y-6">
-        <!-- New Order Form (relative z-30 without overflow-hidden so CustomSelect floats smoothly over lower cards) -->
+        <!-- New Order Form -->
         <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4 relative z-30">
           <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
             <PlusCircle class="w-5 h-5 text-rose-500" />
@@ -138,7 +129,7 @@
           </form>
         </div>
 
-        <!-- Active Orders List (relative z-10) -->
+        <!-- Active Orders List -->
         <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4 relative z-10">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 class="text-sm font-bold text-white flex items-center gap-2">
@@ -171,7 +162,7 @@
                     </span>
                   </div>
                   <div class="text-xs font-bold text-slate-100 mt-1">{{ order.patientName }} ({{ order.patientPhone }})</div>
-                  <div class="text-[11px] font-semibold text-rose-300">{{ order.carNumber }}</div>
+                  <div class="text-[11px] font-bold text-rose-400 mt-0.5">{{ order.carNumber }}</div>
                   <div class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                     <MapPin class="w-3.5 h-3.5 text-rose-400 shrink-0" />
                     {{ order.address }}
@@ -193,8 +184,8 @@
                 </button>
               </div>
 
-              <!-- Action buttons: WhatsApp, Link, & Open Driver View -->
-              <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+              <!-- Action buttons: WhatsApp & Copy Link -->
+              <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80">
                 <button 
                   @click="openWhatsApp(order)"
                   class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40 cursor-pointer transition-all active:scale-95"
@@ -205,29 +196,18 @@
 
                 <button 
                   @click="copyTrackLink(order.token)"
-                  class="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition-all border border-slate-700 active:scale-95"
+                  class="py-2 px-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition-all border border-slate-700 active:scale-95"
                 >
                   <Copy class="w-3.5 h-3.5 text-slate-400" />
                   <span>{{ copiedToken === order.token ? langStore.t('copied') : langStore.t('copyLink') }}</span>
                 </button>
-
-                <!-- Open Driver View for this specific car -->
-                <router-link
-                  :to="`/driver?token=${order.token}`"
-                  target="_blank"
-                  class="py-2 px-3 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all active:scale-95"
-                  title="Открыть экран этой машины скорой"
-                >
-                  <Smartphone class="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Водитель</span>
-                </router-link>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Live Clinic Map (7 cols) -->
+      <!-- Right Column: Live Clinic Map (7 cols) - NOW RENDERS ALL ACTIVE AMBULANCES ON THE MAP SIMULTANEOUSLY! -->
       <div class="lg:col-span-7 flex flex-col space-y-4">
         <div class="glass-panel p-5 rounded-2xl border border-slate-800 shadow-xl flex-1 flex flex-col space-y-4">
           <div class="flex items-center justify-between">
@@ -237,17 +217,13 @@
             </div>
             <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
               <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-              {{ activeOrders.length }} {{ langStore.t('carsInAir') }}
+              {{ activeOrders.length }} {{ langStore.t('carsInAir') }} на карте
             </div>
           </div>
 
-          <!-- Map Container -->
+          <!-- Map Container passing ALL active orders to LiveMap -->
           <div class="w-full h-[580px] rounded-xl overflow-hidden relative border border-slate-800">
-            <LiveMap 
-              :ambulance-loc="selectedOrder?.currentLoc || activeOrders[0]?.currentLoc"
-              :destination-loc="selectedOrder?.destinationLoc || activeOrders[0]?.destinationLoc"
-              :route-path="selectedOrder?.routePath || activeOrders[0]?.routePath"
-            />
+            <LiveMap :orders="activeOrders" />
           </div>
         </div>
       </div>
@@ -265,7 +241,6 @@ import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect.vu
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
 import { 
   Activity, 
-  Smartphone, 
   Eye, 
   PlusCircle, 
   Clock, 
@@ -286,7 +261,6 @@ const orderStore = useOrderStore();
 const langStore = useLangStore();
 const loading = ref(false);
 const copiedToken = ref<string | null>(null);
-const selectedOrder = ref<Order | null>(null);
 
 const activeOrders = computed(() => orderStore.activeOrders);
 
@@ -314,7 +288,6 @@ const handleCreateOrder = async () => {
     newOrderForm.patientName = '';
     newOrderForm.patientPhone = '';
     newOrderForm.address = '';
-    selectedOrder.value = created;
   } catch (err) {
     alert('Ошибка при создании вызова');
   } finally {
