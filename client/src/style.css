@@ -1,40 +1,39 @@
 @import "tailwindcss";
 
+:root {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
+}
+
 @layer utilities {
-  /* 2026 Bento & Dynamic Island Design System */
+  /* Strict 2026 Medical Typography & Monochromatic Palette */
   .bento-card {
     background: #ffffff;
     border: 1px solid rgba(226, 232, 240, 0.9);
-    border-radius: 28px;
-    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+    border-radius: 24px;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
   }
 
   .bento-card-hover {
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .bento-card-hover:hover {
-    border-color: rgba(13, 148, 136, 0.4);
-    box-shadow: 0 20px 40px -10px rgba(13, 148, 136, 0.12);
-    transform: translateY(-2px);
+    border-color: rgba(15, 118, 110, 0.3);
+    box-shadow: 0 12px 30px -5px rgba(15, 118, 110, 0.08);
+    transform: translateY(-1px);
   }
 
   .floating-island {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(226, 232, 240, 0.9);
-    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15), 0 0 25px 0 rgba(13, 148, 136, 0.08);
-  }
-
-  .glow-teal {
-    box-shadow: 0 0 25px -5px rgba(13, 148, 136, 0.3);
+    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.12);
   }
 
   .gradient-text-teal {
-    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #0f766e;
   }
 }
 
@@ -53,7 +52,7 @@
   width: 68px;
   height: 68px;
   border-radius: 50%;
-  background: rgba(13, 148, 136, 0.3);
+  background: rgba(15, 118, 110, 0.25);
   animation: pulse-ring 2s infinite cubic-bezier(0.45, 0, 0.55, 1);
 }
 
@@ -75,16 +74,16 @@
 /* Leaflet clean light theme map tweaks */
 .leaflet-container {
   background: #f8fafc !important;
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
 }
 
 .leaflet-popup-content-wrapper {
   background: #ffffff !important;
   color: #0f172a !important;
   border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 20px !important;
-  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15) !important;
-  padding: 6px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.12) !important;
+  padding: 4px !important;
 }
 
 .leaflet-popup-tip {
