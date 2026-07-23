@@ -1,102 +1,97 @@
 <template>
-  <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl relative overflow-hidden group">
-    <!-- Ambient Glow -->
-    <div class="absolute -top-10 -left-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-500"></div>
-
+  <div class="medical-card p-5 rounded-3xl border border-slate-200/80 space-y-4 shadow-lg relative overflow-hidden group">
     <div class="flex items-center gap-2.5">
-      <div class="p-2.5 bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 text-indigo-400 rounded-xl border border-indigo-500/20 shadow-md">
+      <div class="p-2.5 bg-teal-50 text-teal-600 rounded-2xl border border-teal-100 shadow-sm">
         <KeyRound class="w-5 h-5" />
       </div>
       <div>
-        <h3 class="text-sm font-extrabold text-slate-100 tracking-tight">Уточнение доступа для водителя скорой</h3>
-        <p class="text-[11px] text-slate-400">Поможет врачам сразу найти правильный подъезд</p>
+        <h3 class="text-sm font-black text-slate-900 tracking-tight">Уточнение доступа для водителя скорой</h3>
+        <p class="text-[11px] font-semibold text-slate-500">Поможет врачам сразу найти правильный подъезд</p>
       </div>
     </div>
 
     <!-- Quick Access Inputs Grid -->
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
+        <label class="block text-xs font-extrabold text-slate-700 mb-1 flex items-center justify-between">
           <span>Код домофона</span>
-          <span class="text-[10px] text-slate-500 font-normal">или "Не работает"</span>
         </label>
         <input 
           v-model="form.intercom"
           @input="emitUpdate"
           type="text" 
           placeholder="Например: 45К1234"
-          class="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-xl px-3 py-2.5 text-xs text-slate-100 placeholder-slate-600 outline-none transition-all"
+          class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all shadow-sm"
         />
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
+        <label class="block text-xs font-extrabold text-slate-700 mb-1 flex items-center justify-between">
           <span>Шлагбаум / Ворота</span>
-          <span class="text-[10px] text-slate-500 font-normal">код или телефон</span>
         </label>
         <input 
           v-model="form.gateCode"
           @input="emitUpdate"
           type="text" 
           placeholder="Код ворот или номер охраны"
-          class="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-xl px-3 py-2.5 text-xs text-slate-100 placeholder-slate-600 outline-none transition-all"
+          class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all shadow-sm"
         />
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1">№ Подъезда</label>
+        <label class="block text-xs font-extrabold text-slate-700 mb-1">№ Подъезда</label>
         <input 
           v-model="form.entrance"
           @input="emitUpdate"
           type="text" 
           placeholder="Подъезд"
-          class="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-xl px-3 py-2.5 text-xs text-slate-100 placeholder-slate-600 outline-none transition-all"
+          class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all shadow-sm"
         />
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1">Этаж</label>
+        <label class="block text-xs font-extrabold text-slate-700 mb-1">Этаж</label>
         <input 
           v-model="form.floor"
           @input="emitUpdate"
           type="text" 
           placeholder="Этаж"
-          class="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-xl px-3 py-2.5 text-xs text-slate-100 placeholder-slate-600 outline-none transition-all"
+          class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all shadow-sm"
         />
       </div>
     </div>
 
     <!-- Extra Note for Driver -->
     <div>
-      <label class="block text-xs font-bold text-slate-300 mb-1">Подсказка проезда во двор</label>
+      <label class="block text-xs font-extrabold text-slate-700 mb-1">Подсказка проезда во двор</label>
       <textarea
         v-model="form.note"
         @input="emitUpdate"
         rows="2"
-        placeholder="Например: Ремонт дороги, заезд со стороны переулка, шлагбаум открывается автоматически..."
-        class="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-600 outline-none transition-all resize-none"
+        placeholder="Например: Ремонт дороги, заезд со стороны переулка..."
+        class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl p-3 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all resize-none shadow-sm"
       ></textarea>
     </div>
 
-    <!-- Photo Upload Simulation with preview thumbnail -->
+    <!-- Photo Upload Simulation -->
     <div>
-      <label class="block text-xs font-bold text-slate-300 mb-1">Фото арки или подъезда</label>
+      <label class="block text-xs font-extrabold text-slate-700 mb-1">Фото арки или подъезда</label>
       <div 
         @click="simulatePhotoUpload"
-        class="border-2 border-dashed border-slate-800 hover:border-indigo-500/60 rounded-xl p-3.5 text-center cursor-pointer transition-all bg-slate-900/40 hover:bg-slate-900/90 group"
+        class="border-2 border-dashed border-slate-200 hover:border-teal-600 rounded-2xl p-3.5 text-center cursor-pointer transition-all bg-slate-50 hover:bg-teal-50/50 group"
       >
-        <div v-if="!form.photoUrl" class="flex items-center justify-center gap-2 text-xs text-slate-400 group-hover:text-indigo-300">
-          <Camera class="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
-          <span class="font-medium">Нажмите, чтобы прикрепить фото арки/подъезда</span>
+        <div v-if="!form.photoUrl" class="flex items-center justify-center gap-2 text-xs font-bold text-slate-500 group-hover:text-teal-700">
+          <Camera class="w-4 h-4 text-teal-600 group-hover:scale-110 transition-transform" />
+          <span>Нажмите, чтобы прикрепить фото арки/подъезда</span>
         </div>
-        <div v-else class="flex items-center justify-between text-xs text-emerald-400 font-bold">
+        <div v-else class="flex items-center justify-between text-xs text-teal-700 font-extrabold">
           <div class="flex items-center gap-2">
-            <img :src="form.photoUrl" class="w-10 h-10 object-cover rounded-lg border border-emerald-500/40" />
-            <span class="flex items-center gap-1.5 text-emerald-300">
-              <CheckCircle2 class="w-4 h-4 text-emerald-400" /> Фото прикреплено для водителя
+            <img :src="form.photoUrl" class="w-10 h-10 object-cover rounded-xl border border-teal-200 shadow-sm" />
+            <span class="flex items-center gap-1.5 text-teal-800">
+              <CheckCircle2 class="w-4 h-4 text-teal-600" /> Фото прикреплено для водителя
             </span>
           </div>
-          <button @click.stop="removePhoto" class="text-xs text-rose-400 hover:underline px-2 py-1 bg-rose-500/10 rounded-md">Удалить</button>
+          <button @click.stop="removePhoto" class="text-xs text-rose-600 hover:underline px-2.5 py-1 bg-rose-50 rounded-lg">Удалить</button>
         </div>
       </div>
     </div>

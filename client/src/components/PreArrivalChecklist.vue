@@ -1,34 +1,31 @@
 <template>
-  <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl relative overflow-hidden group">
-    <!-- Subtle Ambient Glow -->
-    <div class="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/20 transition-all duration-500"></div>
-
+  <div class="medical-card p-5 rounded-3xl border border-slate-200/80 space-y-4 shadow-lg relative overflow-hidden group">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="p-2.5 bg-gradient-to-br from-amber-500/20 to-amber-600/10 text-amber-400 rounded-xl border border-amber-500/20 shadow-md">
+        <div class="p-2.5 bg-amber-50 text-amber-600 rounded-2xl border border-amber-100 shadow-sm">
           <ClipboardList class="w-5 h-5" />
         </div>
         <div>
-          <h3 class="text-sm font-extrabold text-slate-100 tracking-tight">Подготовка к приходу врача</h3>
-          <p class="text-[11px] text-slate-400">Памятка для пациента и близких</p>
+          <h3 class="text-sm font-black text-slate-900 tracking-tight">Подготовка к приходу врача</h3>
+          <p class="text-[11px] font-semibold text-slate-500">Памятка для пациента и близких</p>
         </div>
       </div>
 
       <!-- Completion Badge -->
-      <div class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[11px] font-bold text-slate-300 flex items-center gap-1.5 shadow-inner">
-        <span class="text-amber-400 font-extrabold">{{ completedCount }}</span> / {{ checklist.length }}
+      <div class="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-black text-slate-700 shadow-inner">
+        <span class="text-amber-600 font-black">{{ completedCount }}</span> / {{ checklist.length }}
       </div>
     </div>
 
     <!-- Gamified Progress Bar -->
     <div class="space-y-1.5">
-      <div class="flex justify-between text-[10px] font-bold text-slate-400">
+      <div class="flex justify-between text-[10px] font-black text-slate-500 uppercase tracking-wider">
         <span>Прогресс готовности:</span>
-        <span :class="progressPercent === 100 ? 'text-emerald-400 font-extrabold' : 'text-amber-400'">{{ progressPercent }}%</span>
+        <span :class="progressPercent === 100 ? 'text-teal-600 font-black' : 'text-amber-600'">{{ progressPercent }}%</span>
       </div>
-      <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
+      <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
         <div 
-          class="h-full bg-gradient-to-r from-amber-500 to-emerald-400 rounded-full transition-all duration-500 ease-out shadow-sm"
+          class="h-full bg-gradient-to-r from-amber-500 to-teal-500 rounded-full transition-all duration-500 ease-out shadow-sm"
           :style="{ width: `${progressPercent}%` }"
         ></div>
       </div>
@@ -40,10 +37,10 @@
         v-for="(item, idx) in checklist" 
         :key="idx"
         :class="[
-          'flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-300 cursor-pointer select-none',
+          'flex items-start gap-3 p-3.5 rounded-2xl border transition-all duration-300 cursor-pointer select-none',
           item.checked 
-            ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-200 shadow-md shadow-emerald-950/20 scale-[0.99]' 
-            : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:border-slate-700 hover:bg-slate-900/90'
+            ? 'bg-teal-50/70 border-teal-300 text-teal-900 shadow-sm scale-[0.99]' 
+            : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-white'
         ]"
       >
         <div class="relative mt-0.5 flex items-center justify-center shrink-0">
@@ -53,18 +50,18 @@
             class="peer sr-only"
           />
           <div :class="[
-            'w-5 h-5 rounded-lg border flex items-center justify-center transition-all duration-200',
-            item.checked ? 'bg-emerald-500 border-emerald-400 text-slate-950 shadow-md shadow-emerald-500/30' : 'bg-slate-950 border-slate-700'
+            'w-5 h-5 rounded-lg border flex items-center justify-center transition-all duration-200 shadow-sm',
+            item.checked ? 'bg-teal-600 border-teal-600 text-white' : 'bg-white border-slate-300'
           ]">
             <Check v-if="item.checked" class="w-3.5 h-3.5 stroke-[3]" />
           </div>
         </div>
 
         <div class="text-xs">
-          <span :class="[item.checked ? 'line-through text-slate-400 font-medium' : 'text-slate-100 font-bold']">
+          <span :class="[item.checked ? 'line-through text-slate-400 font-semibold' : 'text-slate-900 font-extrabold']">
             {{ item.text }}
           </span>
-          <p v-if="item.sub" :class="[item.checked ? 'text-slate-500' : 'text-slate-400', 'text-[11px] mt-0.5']">
+          <p v-if="item.sub" :class="[item.checked ? 'text-slate-400' : 'text-slate-500', 'text-[11px] font-semibold mt-0.5']">
             {{ item.sub }}
           </p>
         </div>
@@ -72,13 +69,13 @@
     </div>
 
     <!-- Caution Warning Box -->
-    <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-3 text-xs text-rose-200 shadow-lg shadow-rose-950/20">
-      <div class="p-1.5 bg-rose-500/20 rounded-lg text-rose-400 shrink-0">
+    <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-xs text-rose-900 shadow-sm">
+      <div class="p-1.5 bg-rose-100 rounded-xl text-rose-600 shrink-0">
         <AlertTriangle class="w-4 h-4" />
       </div>
       <div class="space-y-0.5">
-        <strong class="font-extrabold text-rose-100 block">Важно до приезда врача:</strong>
-        <p class="text-[11px] text-rose-300/90 leading-relaxed">
+        <strong class="font-black text-rose-950 block">Важно до приезда врача:</strong>
+        <p class="text-[11px] font-semibold text-rose-800 leading-relaxed">
           При болях в животе не принимайте сильные обезболивающие (чтобы не смазать симптомы), и не давайте воду/еду.
         </p>
       </div>

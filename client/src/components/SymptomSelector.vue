@@ -1,16 +1,13 @@
 <template>
-  <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl relative overflow-hidden group">
-    <!-- Ambient Glow -->
-    <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-rose-500/20 transition-all duration-500"></div>
-
+  <div class="medical-card p-5 rounded-3xl border border-slate-200/80 space-y-4 shadow-lg relative overflow-hidden group">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="p-2.5 bg-gradient-to-br from-rose-500/20 to-rose-600/10 text-rose-400 rounded-xl border border-rose-500/20 shadow-md">
+        <div class="p-2.5 bg-rose-50 text-rose-600 rounded-2xl border border-rose-100 shadow-sm">
           <Stethoscope class="w-5 h-5" />
         </div>
         <div>
-          <h3 class="text-sm font-extrabold text-slate-100 tracking-tight">Уточните симптомы для врача</h3>
-          <p class="text-[11px] text-slate-400">Врач увидит информацию в машине до приезда</p>
+          <h3 class="text-sm font-black text-slate-900 tracking-tight">Уточните симптомы для врача</h3>
+          <p class="text-[11px] font-semibold text-slate-500">Врач увидит информацию в машине до приезда</p>
         </div>
       </div>
     </div>
@@ -22,15 +19,15 @@
         :key="symptom.name"
         @click="toggleSymptom(symptom.name)"
         :class="[
-          'p-3 rounded-xl border text-left transition-all duration-300 flex items-center gap-2.5 cursor-pointer text-xs font-semibold select-none relative overflow-hidden',
+          'p-3 rounded-2xl border text-left transition-all duration-300 flex items-center gap-2.5 cursor-pointer text-xs font-bold select-none relative overflow-hidden',
           selectedSymptoms.includes(symptom.name)
-            ? 'bg-gradient-to-r from-rose-500/25 to-rose-600/15 border-rose-500 text-rose-100 shadow-lg shadow-rose-950/50 scale-[1.02] ring-1 ring-rose-500/50'
-            : 'bg-slate-900/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200 hover:bg-slate-900'
+            ? 'bg-rose-50 border-rose-500 text-rose-900 shadow-md scale-[1.02] ring-2 ring-rose-500/20'
+            : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900 hover:bg-white'
         ]"
       >
         <div :class="[
-          'p-1.5 rounded-lg transition-colors',
-          selectedSymptoms.includes(symptom.name) ? 'bg-rose-500 text-white shadow-sm' : 'bg-slate-800 text-slate-400'
+          'p-1.5 rounded-xl transition-colors',
+          selectedSymptoms.includes(symptom.name) ? 'bg-rose-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-500'
         ]">
           <component :is="symptom.icon" class="w-3.5 h-3.5" />
         </div>
@@ -40,19 +37,19 @@
 
     <!-- Custom Symptom Note Input -->
     <div class="pt-1">
-      <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 focus-within:border-rose-500/80 rounded-xl px-3 py-2 transition-all">
-        <PlusCircle class="w-4 h-4 text-slate-500 shrink-0" />
+      <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 focus-within:border-rose-500 rounded-2xl px-3.5 py-2.5 transition-all shadow-sm">
+        <PlusCircle class="w-4 h-4 text-slate-400 shrink-0" />
         <input 
           v-model="customSymptomText"
           @keydown.enter.prevent="addCustomSymptom"
           type="text" 
-          placeholder="Свой симптом (нажмите Enter, чтобы добавить)..."
-          class="w-full bg-transparent text-xs text-slate-100 placeholder-slate-600 outline-none"
+          placeholder="Свой симптом (нажмите Enter)..."
+          class="w-full bg-transparent text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none"
         />
         <button 
           v-if="customSymptomText.trim()"
           @click="addCustomSymptom" 
-          class="text-xs font-bold text-rose-400 hover:text-rose-300 px-2 py-0.5 bg-rose-500/20 rounded-md border border-rose-500/30 transition-all"
+          class="text-xs font-extrabold text-white px-3 py-1 bg-rose-600 hover:bg-rose-500 rounded-xl shadow-sm transition-all"
         >
           Добавить
         </button>
@@ -60,12 +57,12 @@
     </div>
 
     <!-- Active Count Badge -->
-    <div v-if="selectedSymptoms.length > 0" class="pt-2 flex items-center justify-between text-xs text-slate-400 border-t border-slate-800/80">
+    <div v-if="selectedSymptoms.length > 0" class="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 font-bold">
       <span class="flex items-center gap-1">
-        Выбрано: <strong class="text-rose-400 font-extrabold px-1.5 py-0.5 bg-rose-500/10 rounded-md border border-rose-500/20">{{ selectedSymptoms.length }}</strong>
+        Выбрано: <strong class="text-rose-600 font-black px-2 py-0.5 bg-rose-50 rounded-lg border border-rose-200">{{ selectedSymptoms.length }}</strong>
       </span>
-      <span class="text-emerald-400 flex items-center gap-1.5 font-bold text-[11px] animate-pulse">
-        <CheckCircle2 class="w-4 h-4 text-emerald-400" /> Передается в машину врачу
+      <span class="text-teal-700 flex items-center gap-1.5 font-extrabold text-[11px]">
+        <CheckCircle2 class="w-4 h-4 text-teal-600" /> Передается в машину врачу
       </span>
     </div>
   </div>
