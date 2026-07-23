@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full" ref="selectRef">
+  <div class="relative w-full" :class="isOpen ? 'z-40' : 'z-10'" ref="selectRef">
     <label v-if="label" class="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
       <span>{{ label }}</span>
     </label>
@@ -30,7 +30,7 @@
     >
       <div
         v-if="isOpen"
-        class="absolute z-50 w-full mt-1.5 bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-xl shadow-2xl overflow-hidden max-h-56 overflow-y-auto divide-y divide-slate-800/60"
+        class="absolute left-0 right-0 z-50 w-full mt-1.5 bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 rounded-xl shadow-2xl overflow-hidden max-h-56 overflow-y-auto divide-y divide-slate-800/80"
       >
         <div
           v-for="opt in options"

@@ -11,7 +11,7 @@
         </div>
         <div>
           <h1 class="text-sm font-black text-white tracking-tight">{{ langStore.t('driverTitle') }}</h1>
-          <p class="text-[11px] font-semibold text-rose-300">Бригада №103 (02 KZ 777 ABC)</p>
+          <p class="text-[11px] font-bold text-rose-300">{{ activeOrder?.carNumber || 'Бригада скорой' }}</p>
         </div>
       </div>
 
@@ -20,31 +20,41 @@
       </div>
     </header>
 
+    <!-- Driver Active Call / Car Selector (Allows testing 2 or more drivers simultaneously!) -->
+    <div class="glass-panel p-3.5 rounded-2xl border border-slate-800 space-y-2 relative z-30 shadow-xl">
+      <CustomSelect 
+        v-model="selectedToken"
+        label="Выбрать активный вызов / Машину:"
+        :options="driverOrderOptions"
+        :icon="Truck"
+      />
+    </div>
+
     <!-- Active Call Info Card -->
-    <div v-if="order" class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3.5 shadow-xl relative z-10">
+    <div v-if="activeOrder" class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3.5 shadow-xl relative z-10">
       <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-        <span class="text-xs font-black text-rose-400 tracking-wider">ВЫЗОВ {{ order.id }}</span>
+        <span class="text-xs font-black text-rose-400 tracking-wider">ВЫЗОВ {{ activeOrder.id }}</span>
         <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-          {{ getStatusText(order.status) }}
+          {{ getStatusText(activeOrder.status) }}
         </span>
       </div>
 
       <div class="space-y-0.5">
         <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Науқас / Пациент</div>
-        <div class="text-base font-extrabold text-white">{{ order.patientName }} ({{ order.patientPhone }})</div>
+        <div class="text-base font-extrabold text-white">{{ activeOrder.patientName }} ({{ activeOrder.patientPhone }})</div>
       </div>
 
       <div class="space-y-1">
         <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Адрес вызова</div>
         <div class="text-xs font-bold text-rose-200 flex items-start gap-1.5">
           <MapPin class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-          <span class="leading-relaxed">{{ order.address }}</span>
+          <span class="leading-relaxed">{{ activeOrder.address }}</span>
         </div>
       </div>
 
       <!-- Quick Launch Navigator Button -->
       <a 
-        :href="getNavigatorUrl(order.destinationLoc)"
+        :href="getNavigatorUrl(activeOrder.destinationLoc)"
         target="_blank"
         class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-950/50 cursor-pointer transition-all active:scale-95 border border-indigo-400/30"
       >
@@ -54,7 +64,7 @@
     </div>
 
     <!-- Status Change Action Buttons Grid -->
-    <div v-if="order" class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3 shadow-xl relative z-10">
+    <div v-if="activeOrder" class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3 shadow-xl relative z-10">
       <h2 class="text-xs font-extrabold text-slate-300 uppercase tracking-wider">{{ langStore.t('1clickStatus') }}</h2>
 
       <div class="grid grid-cols-2 gap-2.5">
@@ -62,7 +72,7 @@
           @click="setStatus('ACCEPTED')"
           :class="[
             'p-3.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center active:scale-95 shadow-md',
-            order.status === 'ACCEPTED' ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-amber-950/50' : 'bg-slate-900 border-slate-800 text-slate-400'
+            activeOrder.status === 'ACCEPTED' ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-amber-950/50' : 'bg-slate-900 border-slate-800 text-slate-400'
           ]"
         >
           {{ langStore.t('accepted') }}
@@ -72,7 +82,7 @@
           @click="setStatus('EN_ROUTE')"
           :class="[
             'p-3.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center active:scale-95 shadow-md',
-            order.status === 'EN_ROUTE' ? 'bg-rose-600 text-white border-rose-400 shadow-rose-950/50 animate-pulse' : 'bg-slate-900 border-slate-800 text-slate-400'
+            activeOrder.status === 'EN_ROUTE' ? 'bg-rose-600 text-white border-rose-400 shadow-rose-950/50 animate-pulse' : 'bg-slate-900 border-slate-800 text-slate-400'
           ]"
         >
           {{ langStore.t('enRoute') }}
@@ -82,7 +92,7 @@
           @click="setStatus('ARRIVED')"
           :class="[
             'p-3.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center active:scale-95 shadow-md',
-            order.status === 'ARRIVED' ? 'bg-emerald-600 text-white border-emerald-400 shadow-emerald-950/50' : 'bg-slate-900 border-slate-800 text-slate-400'
+            activeOrder.status === 'ARRIVED' ? 'bg-emerald-600 text-white border-emerald-400 shadow-emerald-950/50' : 'bg-slate-900 border-slate-800 text-slate-400'
           ]"
         >
           {{ langStore.t('arrived') }}
@@ -92,7 +102,7 @@
           @click="setStatus('HOSPITAL_TRANSPORT')"
           :class="[
             'p-3.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center active:scale-95 shadow-md',
-            order.status === 'HOSPITAL_TRANSPORT' ? 'bg-indigo-600 text-white border-indigo-400 shadow-indigo-950/50' : 'bg-slate-900 border-slate-800 text-slate-400'
+            activeOrder.status === 'HOSPITAL_TRANSPORT' ? 'bg-indigo-600 text-white border-indigo-400 shadow-indigo-950/50' : 'bg-slate-900 border-slate-800 text-slate-400'
           ]"
         >
           {{ langStore.t('hospitalTransport') }}
@@ -110,17 +120,17 @@
     </div>
 
     <!-- Live Access Details from Patient -->
-    <div v-if="order" class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3.5 shadow-xl relative z-10">
+    <div v-if="activeOrder" class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3.5 shadow-xl relative z-10">
       <div class="flex items-center gap-2 text-indigo-400 border-b border-slate-800 pb-2.5">
         <KeyRound class="w-4.5 h-4.5" />
         <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">{{ langStore.t('patientDetailsTitle') }}</h2>
       </div>
 
       <!-- Symptoms -->
-      <div v-if="order.symptoms.length > 0" class="space-y-1">
+      <div v-if="activeOrder.symptoms.length > 0" class="space-y-1">
         <div class="text-[11px] font-bold text-slate-400">{{ langStore.t('symptoms') }}:</div>
         <div class="flex flex-wrap gap-1.5">
-          <span v-for="symptom in order.symptoms" :key="symptom" class="text-xs bg-rose-500/20 text-rose-200 px-2.5 py-1 rounded-lg border border-rose-500/30 font-bold">
+          <span v-for="symptom in activeOrder.symptoms" :key="symptom" class="text-xs bg-rose-500/20 text-rose-200 px-2.5 py-1 rounded-lg border border-rose-500/30 font-bold">
             {{ symptom }}
           </span>
         </div>
@@ -130,59 +140,86 @@
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
           <span class="text-slate-400 text-[10px] block font-semibold">{{ langStore.t('intercom') }}</span>
-          <strong class="text-indigo-300 text-xs font-extrabold">{{ order.accessInfo.intercom || langStore.t('notSpecified') }}</strong>
+          <strong class="text-indigo-300 text-xs font-extrabold">{{ activeOrder.accessInfo.intercom || langStore.t('notSpecified') }}</strong>
         </div>
 
         <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
           <span class="text-slate-400 text-[10px] block font-semibold">{{ langStore.t('gateCode') }}</span>
-          <strong class="text-indigo-300 text-xs font-extrabold">{{ order.accessInfo.gateCode || langStore.t('notSpecified') }}</strong>
+          <strong class="text-indigo-300 text-xs font-extrabold">{{ activeOrder.accessInfo.gateCode || langStore.t('notSpecified') }}</strong>
         </div>
 
         <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
           <span class="text-slate-400 text-[10px] block font-semibold">{{ langStore.t('entranceFloor') }}</span>
-          <strong class="text-slate-200 text-xs font-extrabold">{{ order.accessInfo.entrance || '?' }} / {{ order.accessInfo.floor || '?' }}</strong>
+          <strong class="text-slate-200 text-xs font-extrabold">{{ activeOrder.accessInfo.entrance || '?' }} / {{ activeOrder.accessInfo.floor || '?' }}</strong>
         </div>
 
         <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
           <span class="text-slate-400 text-[10px] block font-semibold">{{ langStore.t('note') }}</span>
-          <strong class="text-slate-300 text-[11px] font-bold block truncate">{{ order.accessInfo.note || langStore.t('noNote') }}</strong>
+          <strong class="text-slate-300 text-[11px] font-bold block truncate">{{ activeOrder.accessInfo.note || langStore.t('noNote') }}</strong>
         </div>
       </div>
 
       <!-- Photo preview if uploaded -->
-      <div v-if="order.accessInfo.photoUrl" class="pt-2 border-t border-slate-800">
+      <div v-if="activeOrder.accessInfo.photoUrl" class="pt-2 border-t border-slate-800">
         <span class="text-[11px] text-slate-400 block mb-1 font-bold">{{ langStore.t('photoFromPatient') }}</span>
-        <img :src="order.accessInfo.photoUrl" class="w-full h-40 object-cover rounded-xl border border-slate-700 shadow-lg" />
+        <img :src="activeOrder.accessInfo.photoUrl" class="w-full h-40 object-cover rounded-xl border border-slate-700 shadow-lg" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useOrderStore } from '@/stores/orderStore';
 import { useLangStore } from '@/stores/langStore';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect.vue';
 import { Truck, MapPin, KeyRound, ShieldCheck, Navigation } from 'lucide-vue-next';
 import type { OrderStatus, Location } from '@/types';
 
+const route = useRoute();
+const router = useRouter();
 const orderStore = useOrderStore();
 const langStore = useLangStore();
-const demoToken = 'demo-track-123';
 
-const order = computed(() => orderStore.currentOrder);
+const selectedToken = ref<string>((route.query.token as string) || 'demo-track-123');
 
 onMounted(() => {
-  orderStore.joinOrderRoom(demoToken);
+  orderStore.joinDispatcherRoom(); // Fetch all active orders
+  if (selectedToken.value) {
+    orderStore.joinOrderRoom(selectedToken.value);
+  }
   startGpsTracking();
+});
+
+const driverOrderOptions = computed<SelectOption[]>(() => {
+  if (orderStore.activeOrders.length === 0) {
+    return [{ value: 'demo-track-123', label: 'Скорая №103 (ORD-7701) — Демо' }];
+  }
+  return orderStore.activeOrders.map(o => ({
+    value: o.token,
+    label: `${o.carNumber} — ${o.patientName} (${o.id})`
+  }));
+});
+
+watch(selectedToken, (newToken) => {
+  if (newToken) {
+    orderStore.joinOrderRoom(newToken);
+    router.replace({ query: { token: newToken } });
+  }
+});
+
+const activeOrder = computed(() => {
+  return orderStore.currentOrder || orderStore.activeOrders.find(o => o.token === selectedToken.value);
 });
 
 const startGpsTracking = () => {
   if ('geolocation' in navigator) {
     navigator.geolocation.watchPosition(
       (pos) => {
-        if (order.value && order.value.status === 'EN_ROUTE') {
-          orderStore.sendLocation(demoToken, pos.coords.latitude, pos.coords.longitude);
+        if (activeOrder.value && activeOrder.value.status === 'EN_ROUTE') {
+          orderStore.sendLocation(selectedToken.value, pos.coords.latitude, pos.coords.longitude);
         }
       },
       (err) => console.log('Geolocation error:', err),
@@ -192,7 +229,7 @@ const startGpsTracking = () => {
 };
 
 const setStatus = (status: OrderStatus) => {
-  orderStore.updateStatus(demoToken, status);
+  orderStore.updateStatus(selectedToken.value, status);
 };
 
 const getNavigatorUrl = (loc?: Location) => {
