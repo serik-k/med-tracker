@@ -1,18 +1,18 @@
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900 p-3 sm:p-4 max-w-md mx-auto space-y-3.5 font-sans relative pb-24 select-none overflow-x-hidden">
-    <!-- Header -->
-    <header class="medical-card px-4 py-3 rounded-2xl flex items-center justify-between border border-slate-200/80 shadow-md">
-      <div class="flex items-center gap-2.5">
-        <div class="p-2 bg-teal-600 text-white rounded-xl shadow-md glow-teal shrink-0">
-          <Truck class="w-5 h-5" />
+  <div class="min-h-screen bg-slate-50 text-slate-900 p-2.5 sm:p-4 max-w-md mx-auto space-y-3 font-sans relative pb-24 select-none overflow-x-hidden">
+    <!-- Header (Zero Overflow Fit) -->
+    <header class="medical-card px-3 py-2.5 rounded-2xl flex items-center justify-between gap-2 border border-slate-200/80 shadow-md overflow-hidden">
+      <div class="flex items-center gap-2 min-w-0 truncate">
+        <div class="p-1.5 bg-teal-600 text-white rounded-xl shadow-xs glow-teal shrink-0">
+          <Truck class="w-4.5 h-4.5" />
         </div>
-        <div>
-          <h1 class="text-xs font-black text-slate-900 tracking-tight">{{ langStore.t('driverTitle') }}</h1>
+        <div class="min-w-0 truncate">
+          <h1 class="text-xs font-black text-slate-900 tracking-tight truncate">{{ langStore.t('driverTitle') }}</h1>
           <p class="text-[10px] font-black text-teal-600 truncate">{{ activeOrder?.carNumber || 'Бригада скорой' }}</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 shrink-0">
         <LanguageSwitcher />
       </div>
     </header>
@@ -29,16 +29,16 @@
 
     <!-- Active Call Info Card -->
     <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-md relative z-10">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
-        <span class="text-xs font-black text-teal-700 tracking-wider">ВЫЗОВ {{ activeOrder.id }}</span>
-        <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
+        <span class="text-xs font-black text-teal-700 tracking-wider shrink-0">ВЫЗОВ {{ activeOrder.id }}</span>
+        <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 truncate">
           {{ getStatusText(activeOrder.status) }}
         </span>
       </div>
 
       <div class="space-y-0.5">
         <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Науқас / Пациент</div>
-        <div class="text-base font-black text-slate-900 tracking-tight">{{ activeOrder.patientName }} ({{ activeOrder.patientPhone }})</div>
+        <div class="text-base font-black text-slate-900 tracking-tight truncate">{{ activeOrder.patientName }} ({{ activeOrder.patientPhone }})</div>
       </div>
 
       <div class="space-y-0.5">
@@ -52,13 +52,13 @@
 
     <!-- Mobile-First Touch Status Buttons Grid (Big 52px Touch Targets) -->
     <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-md relative z-10">
-      <h2 class="text-[11px] font-black text-slate-500 uppercase tracking-wider">{{ langStore.t('1clickStatus') }}</h2>
+      <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-wider">{{ langStore.t('1clickStatus') }}</h2>
 
-      <div class="grid grid-cols-2 gap-2.5">
+      <div class="grid grid-cols-2 gap-2">
         <button 
           @click="setStatus('ACCEPTED')"
           :class="[
-            'py-4 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-sm min-h-[52px] flex items-center justify-center',
+            'py-3.5 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
             activeOrder.status === 'ACCEPTED' ? 'bg-amber-500 text-white border-amber-400 shadow-md scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
           ]"
         >
@@ -68,7 +68,7 @@
         <button 
           @click="setStatus('EN_ROUTE')"
           :class="[
-            'py-4 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-sm min-h-[52px] flex items-center justify-center',
+            'py-3.5 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
             activeOrder.status === 'EN_ROUTE' ? 'bg-rose-600 text-white border-rose-500 shadow-md animate-pulse scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
           ]"
         >
@@ -78,7 +78,7 @@
         <button 
           @click="setStatus('ARRIVED')"
           :class="[
-            'py-4 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-sm min-h-[52px] flex items-center justify-center',
+            'py-3.5 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
             activeOrder.status === 'ARRIVED' ? 'bg-teal-600 text-white border-teal-500 shadow-md scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
           ]"
         >
@@ -88,7 +88,7 @@
         <button 
           @click="setStatus('HOSPITAL_TRANSPORT')"
           :class="[
-            'py-4 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-sm min-h-[52px] flex items-center justify-center',
+            'py-3.5 px-2 rounded-2xl border text-xs font-black transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
             activeOrder.status === 'HOSPITAL_TRANSPORT' ? 'bg-indigo-600 text-white border-indigo-500 shadow-md scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
           ]"
         >
@@ -154,11 +154,11 @@
     </div>
 
     <!-- Sticky Bottom Navigator Bar for Driver -->
-    <div v-if="activeOrder" class="fixed bottom-3 left-3 right-3 z-30 max-w-md mx-auto">
+    <div v-if="activeOrder" class="fixed bottom-2.5 left-2.5 right-2.5 z-30 max-w-md mx-auto">
       <a 
         :href="getNavigatorUrl(activeOrder.destinationLoc)"
         target="_blank"
-        class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-xl shadow-indigo-950/30 cursor-pointer transition-all active:scale-95 border border-indigo-400/30 backdrop-blur-xl"
+        class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-xl shadow-indigo-950/20 cursor-pointer transition-all active:scale-95 border border-indigo-400/30 backdrop-blur-xl"
       >
         <Navigation class="w-4 h-4" />
         <span>{{ langStore.t('navButton') }}</span>

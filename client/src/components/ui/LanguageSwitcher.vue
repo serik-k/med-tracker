@@ -1,27 +1,28 @@
 <template>
-  <div class="flex items-center p-1 bg-slate-100 border border-slate-200 rounded-xl shadow-inner">
+  <div class="flex items-center p-0.5 bg-slate-100 border border-slate-200/90 rounded-xl shadow-inner shrink-0 select-none">
     <button
       v-for="lang in languages"
       :key="lang.code"
       @click="langStore.setLanguage(lang.code)"
       :class="[
-        'px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none',
+        'px-2 py-1 rounded-lg text-[10px] font-extrabold transition-all duration-200 cursor-pointer flex items-center gap-1 select-none',
         langStore.currentLang === lang.code
-          ? 'bg-teal-600 text-white shadow-md scale-105'
+          ? 'bg-teal-600 text-white shadow-sm scale-105'
           : 'text-slate-500 hover:text-slate-900'
       ]"
     >
       <span>{{ lang.flag }}</span>
-      <span>{{ lang.label }}</span>
+      <span class="hidden xs:inline">{{ lang.label }}</span>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useLangStore } from '@/stores/langStore';
+import { useLangStore } from '@/stores/orderStore'; // Wait, import from store
+import { useLangStore as useLanguageStore } from '@/stores/langStore';
 import type { Language } from '@/i18n/translations';
 
-const langStore = useLangStore();
+const langStore = useLanguageStore();
 
 const languages: { code: Language; flag: string; label: string }[] = [
   { code: 'ru', flag: '🇷🇺', label: 'RU' },
