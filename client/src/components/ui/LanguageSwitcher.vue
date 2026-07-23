@@ -12,17 +12,16 @@
       ]"
     >
       <span>{{ lang.flag }}</span>
-      <span class="hidden xs:inline">{{ lang.label }}</span>
+      <span>{{ lang.label }}</span>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useLangStore } from '@/stores/orderStore'; // Wait, import from store
-import { useLangStore as useLanguageStore } from '@/stores/langStore';
+import { useLangStore } from '@/stores/langStore';
 import type { Language } from '@/i18n/translations';
 
-const langStore = useLanguageStore();
+const langStore = useLangStore();
 
 const languages: { code: Language; flag: string; label: string }[] = [
   { code: 'ru', flag: '🇷🇺', label: 'RU' },
