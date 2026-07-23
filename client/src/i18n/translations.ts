@@ -9,7 +9,7 @@ export const translations: Record<Language, Record<string, string>> = {
     driverRoom: 'Водитель',
     patientTrack: 'Отслеживание Скорой Помощи',
     liveTracking: 'GPS Live Трекинг',
-    callDispatcher: 'Связаться с клиниками',
+    callDispatcher: 'Связаться с клиникой',
     callOperator: 'Диспетчер',
     shareFamily: 'Поделиться с близкими',
     
@@ -45,7 +45,7 @@ export const translations: Record<Language, Record<string, string>> = {
     enRoute: 'В пути к пациенту',
     arrived: 'Прибыл на место',
     hospitalTransport: 'Госпитализация',
-    completed: 'Завершить вызов (Сжечь ссылку)',
+    completed: 'Завершить вызов и отслеживание',
     navButton: 'Маршрут в Яндекс Навигаторе',
     patientDetailsTitle: 'Детали от пациента в эфире',
     symptoms: 'Симптомы',
@@ -68,8 +68,8 @@ export const translations: Record<Language, Record<string, string>> = {
     crewBadge: 'ЭКИПАЖ №103',
     nearYardWarningTitle: 'Скорая въезжает в ваш двор!',
     nearYardWarningText: 'Пожалуйста, приоткройте дверь в квартиру и снимите трубку домофона.',
-    expiredTitle: 'Ссылка на отслеживание сгорела',
-    expiredDesc: 'Вызов скорой помощи завершен. Для защиты геоданных машин и персональных данных отслеживание автоматически закрыто.',
+    expiredTitle: 'Сессия отслеживания завершена',
+    expiredDesc: 'Вызов скорой помощи завершен. Для защиты персональных данных и геопозиции бригады отслеживание временно закрыто.',
 
     // Access Form
     accessFormTitle: 'Уточнение доступа для водителя скорой',
@@ -145,7 +145,7 @@ export const translations: Record<Language, Record<string, string>> = {
     enRoute: 'Науқасқа жолда',
     arrived: 'Орынға келді',
     hospitalTransport: 'Ауруханаға жеткізу',
-    completed: 'Шақыруды аяқтау (Сілтемені жою)',
+    completed: 'Шақыруды және бақылауды аяқтау',
     navButton: 'Яндекс Навигатордағы бағыт',
     patientDetailsTitle: 'Науқастан түскен мәліметтер',
     symptoms: 'Симптомдар',
@@ -168,8 +168,8 @@ export const translations: Record<Language, Record<string, string>> = {
     crewBadge: 'БРИГАДА №103',
     nearYardWarningTitle: 'Жедел жәрдем аулаңызға кірді!',
     nearYardWarningText: 'Өтініш, пәтер есігін ашып, домофон тұтқасын көтеріңіз.',
-    expiredTitle: 'Бақылау сілтемесі аяқталды',
-    expiredDesc: 'Шақыру аяқталды. Қауіпсіздік мақсатында бақылау сілтемесі автоматты түрде жабылды.',
+    expiredTitle: 'Бақылау сессиясы аяқталды',
+    expiredDesc: 'Шақыру аяқталды. Қауіпсіздік мақсатында бақылау парақшасы автоматты түрде жабылды.',
 
     // Access Form
     accessFormTitle: 'Жүргізушіге арналған кіру мәліметтері',
@@ -245,7 +245,7 @@ export const translations: Record<Language, Record<string, string>> = {
     enRoute: 'En Route to Patient',
     arrived: 'Arrived at Location',
     hospitalTransport: 'Hospital Transport',
-    completed: 'Complete Call (Burn Link)',
+    completed: 'Complete Call & End Tracking',
     navButton: 'Yandex Navigator Route',
     patientDetailsTitle: 'Patient Live Access Details',
     symptoms: 'Symptoms',
@@ -268,7 +268,7 @@ export const translations: Record<Language, Record<string, string>> = {
     crewBadge: 'CREW #103',
     nearYardWarningTitle: 'Ambulance is entering your yard!',
     nearYardWarningText: 'Please unlatch your apartment door and pick up the intercom receiver.',
-    expiredTitle: 'Tracking Link Expired',
+    expiredTitle: 'Tracking Session Completed',
     expiredDesc: 'The emergency call has been completed. For data privacy, tracking has automatically ended.',
 
     // Access Form

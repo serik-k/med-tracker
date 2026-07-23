@@ -6,8 +6,8 @@
 
     <!-- Expired or Invalid Link Screen -->
     <div v-if="orderStore.errorMsg || order?.expired" class="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 space-y-4 relative z-10">
-      <div class="p-5 bg-rose-500/10 text-rose-500 rounded-3xl border border-rose-500/20 shadow-2xl shadow-rose-950/50">
-        <Flame class="w-14 h-14 animate-pulse" />
+      <div class="p-5 bg-slate-900 text-emerald-400 rounded-3xl border border-slate-800 shadow-2xl">
+        <ShieldCheck class="w-14 h-14" />
       </div>
       <h1 class="text-xl font-black text-white">{{ langStore.t('expiredTitle') }}</h1>
       <p class="text-xs text-slate-400 max-w-xs leading-relaxed">
@@ -155,7 +155,7 @@ import {
   PhoneCall, 
   Truck, 
   Navigation, 
-  Flame, 
+  ShieldCheck, 
   BellRing,
   Share2
 } from 'lucide-vue-next';
