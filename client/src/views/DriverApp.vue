@@ -2,7 +2,7 @@
   <main class="mx-auto min-h-svh w-full max-w-md bg-slate-100 pb-28 text-slate-950">
     <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur">
       <div class="flex min-w-0 items-center gap-3"><div class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-800 text-white"><Ambulance class="h-5 w-5" /></div><div class="min-w-0"><h1 class="text-sm font-black">Экипаж</h1><p class="truncate text-xs font-bold text-teal-800">{{ activeOrder?.carNumber || 'Вызов не назначен' }}</p></div></div>
-      <div class="flex items-center gap-2"><span v-if="activeOrder" class="flex items-center gap-1.5 text-[10px] font-bold" :class="gpsStateClass"><LocateFixed class="h-3.5 w-3.5" />{{ gpsStateText }}</span><LanguageSwitcher /></div>
+      <div class="flex items-center gap-2"><span v-if="activeOrder" class="hidden items-center gap-1.5 text-[10px] font-bold min-[390px]:flex" :class="gpsStateClass"><LocateFixed class="h-3.5 w-3.5" />{{ gpsStateText }}</span><ThemeToggle /><LanguageSwitcher /></div>
     </header>
 
     <div class="space-y-3 p-3">
@@ -30,8 +30,8 @@
           <div class="mb-3 flex items-center gap-2"><Info class="h-4 w-4 text-teal-800" /><h2 class="text-sm font-black">Важно от пациента</h2></div>
           <div v-if="hasAccessInfo" class="grid grid-cols-2 gap-2 text-xs"><div v-if="activeOrder.accessInfo.residenceType" class="info-cell"><span>Тип жилья</span><strong>{{ activeOrder.accessInfo.residenceType === 'house' ? 'Частный дом' : 'Квартира' }}</strong></div><div v-if="activeOrder.accessInfo.intercom" class="info-cell"><span>Домофон</span><strong>{{ activeOrder.accessInfo.intercom }}</strong></div><div v-if="activeOrder.accessInfo.gateCode" class="info-cell"><span>Ворота</span><strong>{{ activeOrder.accessInfo.gateCode }}</strong></div><div v-if="activeOrder.accessInfo.entrance" class="info-cell"><span>Подъезд</span><strong>{{ activeOrder.accessInfo.entrance }}</strong></div><div v-if="activeOrder.accessInfo.floor" class="info-cell"><span>Этаж</span><strong>{{ activeOrder.accessInfo.floor }}</strong></div></div>
           <p v-else class="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">Пациент пока не передал данные для доступа.</p>
-          <p v-if="activeOrder.accessInfo.note" class="mt-2 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-950"><strong class="block text-[10px] uppercase text-amber-700">Комментарий</strong>{{ activeOrder.accessInfo.note }}</p>
-          <div v-if="activeOrder.symptoms?.length" class="mt-3"><p class="mb-2 text-[10px] font-black uppercase tracking-wider text-slate-500">Симптомы</p><div class="flex flex-wrap gap-1.5"><span v-for="symptom in activeOrder.symptoms" :key="symptom" class="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-900 ring-1 ring-red-200">{{ symptom }}</span></div></div>
+          <p v-if="activeOrder.accessInfo.note" class="break-anywhere mt-2 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-950"><strong class="block text-[10px] uppercase text-amber-700">Комментарий</strong>{{ activeOrder.accessInfo.note }}</p>
+          <div v-if="activeOrder.symptoms?.length" class="min-w-0 mt-3"><p class="mb-2 text-[10px] font-black uppercase tracking-wider text-slate-500">Симптомы</p><div class="flex min-w-0 flex-wrap gap-1.5"><span v-for="symptom in activeOrder.symptoms" :key="symptom" class="break-anywhere max-w-full rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-900 ring-1 ring-red-200">{{ symptom }}</span></div></div>
         </section>
       </template>
     </div>
@@ -47,6 +47,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useOrderStore } from '@/stores/orderStore';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
+import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import { Ambulance, Building2, CheckCircle2, CircleDot, Hospital, Info, Link2Off, LoaderCircle, LocateFixed, Navigation, Phone, Route, ShieldCheck } from 'lucide-vue-next';
 import type { Location, OrderStatus } from '@/types';
 
@@ -72,4 +73,4 @@ function confirmComplete(){if(!activeOrder.value)return;orderStore.updateStatus(
 function getNavigatorUrl(loc?:Location){return loc?`https://yandex.ru/maps/?rtext=~${loc.lat},${loc.lng}`:'https://yandex.ru/maps/';}
 </script>
 
-<style scoped>.info-cell{border:1px solid #e2e8f0;border-radius:.75rem;background:#f8fafc;padding:.625rem}.info-cell span{display:block;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b}.info-cell strong{display:block;margin-top:.125rem;font-size:.875rem;font-weight:900;color:#0f172a}</style>
+<style scoped>.info-cell{min-width:0;overflow:hidden;border:1px solid #e2e8f0;border-radius:.75rem;background:#f8fafc;padding:.625rem}.info-cell span{display:block;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b}.info-cell strong{display:block;min-width:0;margin-top:.125rem;overflow-wrap:anywhere;word-break:break-word;font-size:.875rem;font-weight:900;color:#0f172a}</style>

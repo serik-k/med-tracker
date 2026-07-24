@@ -15,7 +15,7 @@
       </div>
 
       <div class="mt-4 space-y-2">
-        <button v-for="item in checklist" :key="item.id" type="button" class="flex w-full items-start gap-3 rounded-2xl border p-3.5 text-left transition-colors active:scale-[0.99]" :class="item.checked ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-slate-50'" :aria-pressed="item.checked" @click="item.checked = !item.checked">
+        <button v-for="item in checklist" :key="item.id" type="button" class="flex w-full items-start gap-3 rounded-2xl border p-3.5 text-left transition-colors active:scale-[0.99]" :class="item.checked ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-slate-50'" :aria-pressed="item.checked" @click="toggleItem(item)">
           <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border shadow-sm" :class="item.checked ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 bg-white text-transparent'"><Check class="h-3.5 w-3.5 stroke-[3]" /></span>
           <span class="min-w-0"><strong class="block text-xs font-extrabold" :class="item.checked ? 'text-emerald-950' : 'text-slate-900'">{{ item.title }}</strong><span class="mt-0.5 block text-[11px] leading-snug" :class="item.checked ? 'text-emerald-800' : 'text-slate-500'">{{ item.description }}</span></span>
         </button>
@@ -32,6 +32,8 @@
 import { computed, ref } from 'vue';
 import { AlertTriangle, Check, CircleCheckBig, ClipboardCheck } from 'lucide-vue-next';
 
+const emit = defineEmits<{ (e: 'update:ready', ready: boolean): void }>();
+
 const checklist = ref([
   { id: 'access', title: 'Обеспечьте доступ', description: 'Откройте входную дверь, домофон или шлагбаум. Проверьте, работает ли лифт.', checked: false },
   { id: 'medical', title: 'Подготовьте информацию', description: 'Документы пациента, список лекарств и известные аллергии.', checked: false },
@@ -40,4 +42,8 @@ const checklist = ref([
 
 const completedCount = computed(() => checklist.value.filter(item => item.checked).length);
 const isReady = computed(() => completedCount.value === checklist.value.length);
+const toggleItem = (item: (typeof checklist.value)[number]) => {
+  item.checked = !item.checked;
+  emit('update:ready', checklist.value.every(entry => entry.checked));
+};
 </script>

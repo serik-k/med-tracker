@@ -5,7 +5,7 @@
         <div class="flex items-center gap-3"><div class="grid h-9 w-9 place-items-center rounded-lg bg-red-600 text-white"><Cross class="h-5 w-5" /></div><div><h1 class="text-sm font-extrabold">MedTracker · Диспетчерская</h1><p class="text-xs text-slate-500">Алматы · оперативная смена</p></div></div>
         <div class="flex items-center gap-2">
           <div class="hidden items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold sm:flex" :class="orderStore.isConnected ? 'border-teal-200 bg-teal-50 text-teal-800' : 'border-red-200 bg-red-50 text-red-800'"><span class="h-2 w-2 rounded-full" :class="orderStore.isConnected ? 'bg-teal-600' : 'bg-red-500'"></span>{{ orderStore.isConnected ? 'Связь стабильна' : 'Нет связи' }}</div>
-          <LanguageSwitcher /><button class="inline-flex h-10 items-center gap-2 rounded-lg bg-red-600 px-4 text-xs font-extrabold text-white hover:bg-red-700" @click="isCreateOpen = true"><Plus class="h-4 w-4" /> Новый вызов</button>
+          <ThemeToggle /><LanguageSwitcher /><button class="inline-flex h-10 items-center gap-2 rounded-lg bg-red-600 px-4 text-xs font-extrabold text-white hover:bg-red-700" @click="isCreateOpen = true"><Plus class="h-4 w-4" /> Новый вызов</button>
         </div>
       </div>
     </header>
@@ -58,6 +58,7 @@ import LiveMap from '@/components/LiveMap.vue';
 import CustomInput from '@/components/ui/CustomInput.vue';
 import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect.vue';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
+import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import { Ambulance, ChevronRight, CircleCheck, Copy, Cross, MapPin, MessageSquare, Phone, Play, Plus, Send, User, X } from 'lucide-vue-next';
 import type { Order, OrderStatus } from '@/types';
 
