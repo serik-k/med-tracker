@@ -10,9 +10,27 @@
       </div>
     </div>
 
+    <fieldset>
+      <legend class="mb-2 block text-xs font-extrabold text-slate-700">Тип жилья</legend>
+      <div class="grid grid-cols-2 rounded-2xl bg-slate-100 p-1" role="radiogroup" aria-label="Тип жилья">
+        <button
+          v-for="option in residenceOptions"
+          :key="option.value"
+          type="button"
+          role="radio"
+          :aria-checked="form.residenceType === option.value"
+          class="min-h-10 rounded-xl px-3 text-xs font-extrabold transition-all"
+          :class="form.residenceType === option.value ? 'bg-white text-teal-800 shadow-sm' : 'text-slate-500'"
+          @click="setResidenceType(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      </div>
+    </fieldset>
+
     <!-- Quick Access Inputs Grid -->
     <div class="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2">
-      <div>
+      <div v-if="form.residenceType === 'apartment'">
         <label class="block text-xs font-extrabold text-slate-700 mb-1 flex items-center justify-between">
           <span>Код домофона</span>
         </label>
@@ -38,7 +56,7 @@
         />
       </div>
 
-      <div>
+      <div v-if="form.residenceType === 'apartment'">
         <label class="block text-xs font-extrabold text-slate-700 mb-1">№ Подъезда</label>
         <input 
           v-model="form.entrance"
@@ -49,7 +67,7 @@
         />
       </div>
 
-      <div>
+      <div v-if="form.residenceType === 'apartment'">
         <label class="block text-xs font-extrabold text-slate-700 mb-1">Этаж</label>
         <input 
           v-model="form.floor"
@@ -119,6 +137,7 @@ const isDirty = ref(false);
 const saveMessage = ref('');
 
 const form = reactive<AccessInfo>({
+  residenceType: 'apartment',
   intercom: '',
   gateCode: '',
   entrance: '',
@@ -127,9 +146,25 @@ const form = reactive<AccessInfo>({
   photoUrl: ''
 });
 
+const residenceOptions = [
+  { value: 'apartment' as const, label: 'Квартира' },
+  { value: 'house' as const, label: 'Частный дом' }
+];
+
+const setResidenceType = (type: 'apartment' | 'house') => {
+  form.residenceType = type;
+  if (type === 'house') {
+    form.intercom = '';
+    form.entrance = '';
+    form.floor = '';
+  }
+  isDirty.value = true;
+};
+
 watch(() => props.initialAccessInfo, (newVal) => {
   if (newVal) {
     Object.assign(form, newVal);
+    form.residenceType ||= 'apartment';
   }
 }, { immediate: true });
 

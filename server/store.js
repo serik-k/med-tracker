@@ -5,6 +5,20 @@ import { loadSavedOrders, saveOrdersToFile } from './db/fileStore.js';
 class OrderStore {
   constructor() {
     this.orders = loadSavedOrders();
+    let repaired = false;
+    this.orders.forEach(order => {
+      if (order.status !== 'COMPLETED' && order.expired) {
+        order.expired = false;
+        delete order.completedAt;
+        repaired = true;
+      }
+      if (order.status === 'COMPLETED' && !order.expired) {
+        order.expired = true;
+        order.completedAt ||= new Date().toISOString();
+        repaired = true;
+      }
+    });
+    if (repaired) this.persist();
     if (this.orders.size === 0) {
       this.initDemoData();
     }
@@ -80,7 +94,7 @@ class OrderStore {
       routePath: realRoute.path,
       distanceKm: realRoute.distanceKm,
       etaMinutes: realRoute.etaMinutes,
-      accessInfo: { intercom: '', gateCode: '', entrance: '', floor: '', note: '' },
+      accessInfo: { residenceType: 'apartment', intercom: '', gateCode: '', entrance: '', floor: '', note: '' },
       symptoms: [],
       isSimulating: false,
       createdAt: new Date().toISOString(),
@@ -107,11 +121,15 @@ class OrderStore {
   updateOrderStatus(token, status) {
     const order = this.orders.get(token);
     if (!order) return null;
+    if (order.expired && order.status === 'COMPLETED' && status !== 'COMPLETED') return null;
 
     order.status = status;
     if (status === 'COMPLETED') {
       order.expired = true;
       order.completedAt = new Date().toISOString();
+    } else {
+      order.expired = false;
+      delete order.completedAt;
     }
     this.persist();
     return order;

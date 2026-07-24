@@ -16,14 +16,27 @@ const io = new Server(httpServer, {
   }
 });
 
+const getCrewId = (carNumber = '') => carNumber.match(/№\s*(\d+)/)?.[1] || carNumber.match(/\b(\d{3})\b/)?.[1] || null;
+
 // REST Endpoints
 app.get('/api/orders', (req, res) => {
   res.json(orderStore.getAllActiveOrders());
 });
 
+app.get('/api/crews/:crewId/active-order', (req, res) => {
+  const crewId = String(req.params.crewId || '').replace(/\D/g, '');
+  const order = orderStore.getAllActiveOrders()
+    .filter(item => getCrewId(item.carNumber) === crewId)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+  if (!order) return res.status(204).end();
+  res.json(order);
+});
+
 app.post('/api/orders', async (req, res) => {
   const order = await orderStore.createOrder(req.body);
   io.emit('order_created', order);
+  const crewId = getCrewId(order.carNumber);
+  if (crewId) io.to(`crew_${crewId}`).emit('crew_order', order);
   res.status(201).json(order);
 });
 
@@ -55,6 +68,16 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('join_crew', (crewId) => {
+    const normalizedCrewId = String(crewId || '').replace(/\D/g, '');
+    if (!normalizedCrewId) return;
+    socket.join(`crew_${normalizedCrewId}`);
+    const assignedOrder = orderStore.getAllActiveOrders()
+      .filter(order => getCrewId(order.carNumber) === normalizedCrewId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    if (assignedOrder) socket.emit('crew_order', assignedOrder);
+  });
+
   socket.on('update_location', ({ token, lat, lng }) => {
     const updated = orderStore.updateLocation(token, lat, lng);
     if (updated) {
@@ -74,6 +97,10 @@ io.on('connection', (socket) => {
         expired: updated.expired,
         completedAt: updated.completedAt || null
       });
+      if (updated.status === 'COMPLETED') {
+        const crewId = getCrewId(updated.carNumber);
+        if (crewId) io.to(`crew_${crewId}`).emit('crew_order_cleared', { token });
+      }
     }
   });
 

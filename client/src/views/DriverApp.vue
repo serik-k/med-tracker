@@ -6,8 +6,9 @@
     </header>
 
     <div class="space-y-3 p-3">
-      <section v-if="!selectedToken" class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center"><Link2Off class="mx-auto h-9 w-9 text-amber-700" /><h2 class="mt-3 text-base font-black">Активный вызов не назначен</h2><p class="mt-1 text-sm text-amber-900">Откройте персональную ссылку, которую диспетчер выдал вашей бригаде.</p></section>
-      <section v-else-if="!activeOrder" class="rounded-2xl border border-slate-200 bg-white p-6 text-center" role="status"><LoaderCircle class="mx-auto h-8 w-8 animate-spin text-teal-700" /><p class="mt-3 text-sm font-bold">Загружаем назначенный вызов…</p></section>
+      <section v-if="!crewId && !selectedToken" class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center"><Link2Off class="mx-auto h-9 w-9 text-amber-700" /><h2 class="mt-3 text-base font-black">Бригада не определена</h2><p class="mt-1 text-sm text-amber-900">Откройте постоянную ссылку вашей бригады, например /driver/103.</p></section>
+      <section v-else-if="!activeOrder && !orderStore.isConnected" class="rounded-2xl border border-slate-200 bg-white p-6 text-center" role="status"><LoaderCircle class="mx-auto h-8 w-8 animate-spin text-teal-700" /><p class="mt-3 text-sm font-bold">Подключаемся к диспетчерской…</p></section>
+      <section v-else-if="!activeOrder" class="rounded-2xl border border-slate-200 bg-white p-6 text-center" role="status"><Ambulance class="mx-auto h-9 w-9 text-teal-700" /><h2 class="mt-3 text-base font-black">Активных вызовов нет</h2><p class="mt-1 text-sm text-slate-500">Экран обновится автоматически, когда диспетчер назначит вызов бригаде №{{ crewId }}.</p></section>
 
       <template v-else>
         <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -27,7 +28,7 @@
 
         <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div class="mb-3 flex items-center gap-2"><Info class="h-4 w-4 text-teal-800" /><h2 class="text-sm font-black">Важно от пациента</h2></div>
-          <div v-if="hasAccessInfo" class="grid grid-cols-2 gap-2 text-xs"><div v-if="activeOrder.accessInfo.intercom" class="info-cell"><span>Домофон</span><strong>{{ activeOrder.accessInfo.intercom }}</strong></div><div v-if="activeOrder.accessInfo.gateCode" class="info-cell"><span>Ворота</span><strong>{{ activeOrder.accessInfo.gateCode }}</strong></div><div v-if="activeOrder.accessInfo.entrance" class="info-cell"><span>Подъезд</span><strong>{{ activeOrder.accessInfo.entrance }}</strong></div><div v-if="activeOrder.accessInfo.floor" class="info-cell"><span>Этаж</span><strong>{{ activeOrder.accessInfo.floor }}</strong></div></div>
+          <div v-if="hasAccessInfo" class="grid grid-cols-2 gap-2 text-xs"><div v-if="activeOrder.accessInfo.residenceType" class="info-cell"><span>Тип жилья</span><strong>{{ activeOrder.accessInfo.residenceType === 'house' ? 'Частный дом' : 'Квартира' }}</strong></div><div v-if="activeOrder.accessInfo.intercom" class="info-cell"><span>Домофон</span><strong>{{ activeOrder.accessInfo.intercom }}</strong></div><div v-if="activeOrder.accessInfo.gateCode" class="info-cell"><span>Ворота</span><strong>{{ activeOrder.accessInfo.gateCode }}</strong></div><div v-if="activeOrder.accessInfo.entrance" class="info-cell"><span>Подъезд</span><strong>{{ activeOrder.accessInfo.entrance }}</strong></div><div v-if="activeOrder.accessInfo.floor" class="info-cell"><span>Этаж</span><strong>{{ activeOrder.accessInfo.floor }}</strong></div></div>
           <p v-else class="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">Пациент пока не передал данные для доступа.</p>
           <p v-if="activeOrder.accessInfo.note" class="mt-2 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-950"><strong class="block text-[10px] uppercase text-amber-700">Комментарий</strong>{{ activeOrder.accessInfo.note }}</p>
           <div v-if="activeOrder.symptoms?.length" class="mt-3"><p class="mb-2 text-[10px] font-black uppercase tracking-wider text-slate-500">Симптомы</p><div class="flex flex-wrap gap-1.5"><span v-for="symptom in activeOrder.symptoms" :key="symptom" class="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-900 ring-1 ring-red-200">{{ symptom }}</span></div></div>
@@ -49,8 +50,8 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
 import { Ambulance, Building2, CheckCircle2, CircleDot, Hospital, Info, Link2Off, LoaderCircle, LocateFixed, Navigation, Phone, Route, ShieldCheck } from 'lucide-vue-next';
 import type { Location, OrderStatus } from '@/types';
 
-const route=useRoute(); const orderStore=useOrderStore(); const selectedToken=ref<string>((route.query.token as string)||''); const isCompleteConfirmOpen=ref(false); const statusMessage=ref(''); const gpsState=ref<'waiting'|'active'|'error'>('waiting'); let gpsWatchId:number|null=null;
-const activeOrder=computed(()=>orderStore.currentOrder?.token===selectedToken.value?orderStore.currentOrder:null);
+const route=useRoute(); const orderStore=useOrderStore(); const crewId=String(route.params.crewId||'').replace(/\D/g,''); const selectedToken=ref<string>((route.query.token as string)||''); const isCompleteConfirmOpen=ref(false); const statusMessage=ref(''); const gpsState=ref<'waiting'|'active'|'error'>('waiting'); let gpsWatchId:number|null=null;
+const activeOrder=computed(()=>crewId?orderStore.currentOrder:(orderStore.currentOrder?.token===selectedToken.value?orderStore.currentOrder:null));
 const flow:OrderStatus[]=['ACCEPTED','EN_ROUTE','ARRIVED','HOSPITAL_TRANSPORT'];
 const shortLabels:Partial<Record<OrderStatus,string>>={ACCEPTED:'Принят',EN_ROUTE:'В пути',ARRIVED:'Прибыл',HOSPITAL_TRANSPORT:'В клинику'};
 const labels:Record<OrderStatus,string>={ACCEPTED:'Вызов принят',EN_ROUTE:'В пути к пациенту',ARRIVED:'На месте',HOSPITAL_TRANSPORT:'Транспортировка в клинику',COMPLETED:'Вызов завершён'};
@@ -59,14 +60,14 @@ const statusText=computed(()=>activeOrder.value?labels[activeOrder.value.status]
 const currentFlowIndex=computed(()=>activeOrder.value?Math.max(0,flow.indexOf(activeOrder.value.status)):0);
 const nextStatus=computed(()=>{if(!activeOrder.value)return null; const index=flow.indexOf(activeOrder.value.status); if(index<0||index>=2)return null; const status=flow[index+1]; return {status,label:({EN_ROUTE:'Начать движение',ARRIVED:'Я прибыл на место'} as Partial<Record<OrderStatus,string>>)[status]!,icon:icons[status]};});
 const statusBadgeClass=computed(()=>activeOrder.value?.status==='EN_ROUTE'||activeOrder.value?.status==='ARRIVED'?'bg-teal-100 text-teal-800':'bg-slate-100 text-slate-700');
-const navigatorUrl=computed(()=>getNavigatorUrl(activeOrder.value?.destinationLoc)); const hasAccessInfo=computed(()=>!!activeOrder.value&&Object.entries(activeOrder.value.accessInfo).some(([key,value])=>key!=='photoUrl'&&!!value));
+const navigatorUrl=computed(()=>getNavigatorUrl(activeOrder.value?.destinationLoc)); const hasAccessInfo=computed(()=>!!activeOrder.value&&Object.entries(activeOrder.value.accessInfo).some(([key,value])=>!['photoUrl','residenceType'].includes(key)&&!!value));
 const gpsStateText=computed(()=>gpsState.value==='active'?'GPS активен':gpsState.value==='error'?'Ошибка GPS':'GPS…'); const gpsStateClass=computed(()=>gpsState.value==='active'?'text-teal-700':gpsState.value==='error'?'text-red-700':'text-slate-500');
-onMounted(()=>{if(selectedToken.value){orderStore.joinOrderRoom(selectedToken.value);startGpsTracking();}}); onBeforeUnmount(stopGps);
-function startGpsTracking(){if(!('geolocation' in navigator)){gpsState.value='error';return;} gpsWatchId=navigator.geolocation.watchPosition(pos=>{gpsState.value='active';if(activeOrder.value?.status==='EN_ROUTE')orderStore.sendLocation(selectedToken.value,pos.coords.latitude,pos.coords.longitude);},()=>gpsState.value='error',{enableHighAccuracy:true});}
+onMounted(()=>{if(crewId)orderStore.joinCrewRoom(crewId);else if(selectedToken.value)orderStore.joinOrderRoom(selectedToken.value);if(crewId||selectedToken.value)startGpsTracking();}); onBeforeUnmount(stopGps);
+function startGpsTracking(){if(!('geolocation' in navigator)){gpsState.value='error';return;} gpsWatchId=navigator.geolocation.watchPosition(pos=>{gpsState.value='active';if(activeOrder.value?.status==='EN_ROUTE')orderStore.sendLocation(activeOrder.value.token,pos.coords.latitude,pos.coords.longitude);},()=>gpsState.value='error',{enableHighAccuracy:true});}
 function stopGps(){if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}}
-function advanceStatus(){if(!nextStatus.value)return;orderStore.updateStatus(selectedToken.value,nextStatus.value.status);statusMessage.value=`Статус обновлён: ${nextStatus.value.label}`;setTimeout(()=>statusMessage.value='',3000);}
-function startTransport(){orderStore.updateStatus(selectedToken.value,'HOSPITAL_TRANSPORT');statusMessage.value='Статус обновлён: транспортировка в клинику';setTimeout(()=>statusMessage.value='',3000);}
-function confirmComplete(){orderStore.updateStatus(selectedToken.value,'COMPLETED');isCompleteConfirmOpen.value=false;statusMessage.value='Вызов завершён';stopGps();}
+function advanceStatus(){if(!nextStatus.value||!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,nextStatus.value.status);statusMessage.value=`Статус обновлён: ${nextStatus.value.label}`;setTimeout(()=>statusMessage.value='',3000);}
+function startTransport(){if(!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,'HOSPITAL_TRANSPORT');statusMessage.value='Статус обновлён: транспортировка в клинику';setTimeout(()=>statusMessage.value='',3000);}
+function confirmComplete(){if(!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,'COMPLETED');isCompleteConfirmOpen.value=false;statusMessage.value='Вызов завершён';stopGps();}
 function getNavigatorUrl(loc?:Location){return loc?`https://yandex.ru/maps/?rtext=~${loc.lat},${loc.lng}`:'https://yandex.ru/maps/';}
 </script>
 
