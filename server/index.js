@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 
   socket.on('join_dispatcher', () => {
     socket.join('dispatcher_room');
-    socket.emit('all_orders', orderStore.getAllActiveOrders());
+    socket.emit('all_orders', orderStore.getAllDispatcherOrders());
   });
 
   socket.on('join_order', (token) => {
@@ -71,7 +71,8 @@ io.on('connection', (socket) => {
       io.to(`order_${token}`).to('dispatcher_room').emit('status_updated', {
         token,
         status: updated.status,
-        expired: updated.expired
+        expired: updated.expired,
+        completedAt: updated.completedAt || null
       });
     }
   });

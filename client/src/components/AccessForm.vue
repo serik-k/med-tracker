@@ -11,14 +11,14 @@
     </div>
 
     <!-- Quick Access Inputs Grid -->
-    <div class="grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2">
       <div>
         <label class="block text-xs font-extrabold text-slate-700 mb-1 flex items-center justify-between">
           <span>Код домофона</span>
         </label>
         <input 
           v-model="form.intercom"
-          @input="emitUpdate"
+          @input="isDirty = true"
           type="text" 
           placeholder="Например: 45К1234"
           class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all shadow-sm"
@@ -31,7 +31,7 @@
         </label>
         <input 
           v-model="form.gateCode"
-          @input="emitUpdate"
+          @input="isDirty = true"
           type="text" 
           placeholder="Код ворот или номер охраны"
           class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all shadow-sm"
@@ -42,7 +42,7 @@
         <label class="block text-xs font-extrabold text-slate-700 mb-1">№ Подъезда</label>
         <input 
           v-model="form.entrance"
-          @input="emitUpdate"
+          @input="isDirty = true"
           type="text" 
           placeholder="Подъезд"
           class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all shadow-sm"
@@ -53,7 +53,7 @@
         <label class="block text-xs font-extrabold text-slate-700 mb-1">Этаж</label>
         <input 
           v-model="form.floor"
-          @input="emitUpdate"
+          @input="isDirty = true"
           type="text" 
           placeholder="Этаж"
           class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all shadow-sm"
@@ -66,7 +66,7 @@
       <label class="block text-xs font-extrabold text-slate-700 mb-1">Подсказка проезда во двор</label>
       <textarea
         v-model="form.note"
-        @input="emitUpdate"
+        @input="isDirty = true"
         rows="2"
         placeholder="Например: Ремонт дороги, заезд со стороны переулка..."
         class="w-full bg-slate-50 border border-slate-200 focus:border-teal-600 focus:bg-white rounded-2xl p-3 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all resize-none shadow-sm"
@@ -76,8 +76,9 @@
     <!-- Photo Upload Simulation -->
     <div>
       <label class="block text-xs font-extrabold text-slate-700 mb-1">Фото арки или подъезда</label>
+      <input ref="fileInput" type="file" accept="image/*" class="sr-only" @change="handlePhotoUpload" />
       <div 
-        @click="simulatePhotoUpload"
+        @click="fileInput?.click()"
         class="border-2 border-dashed border-slate-200 hover:border-teal-600 rounded-2xl p-3.5 text-center cursor-pointer transition-all bg-slate-50 hover:bg-teal-50/50 group"
       >
         <div v-if="!form.photoUrl" class="flex items-center justify-center gap-2 text-xs font-bold text-slate-500 group-hover:text-teal-700">
@@ -91,16 +92,18 @@
               <CheckCircle2 class="w-4 h-4 text-teal-600" /> Фото прикреплено для водителя
             </span>
           </div>
-          <button @click.stop="removePhoto" class="text-xs text-rose-600 hover:underline px-2.5 py-1 bg-rose-50 rounded-lg">Удалить</button>
+          <button type="button" @click.stop="removePhoto" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-red-50 text-red-700 transition-colors hover:bg-red-100" aria-label="Удалить фотографию" title="Удалить фотографию"><Trash2 class="h-4 w-4" /></button>
         </div>
       </div>
     </div>
+
+    <button type="button" :disabled="!isDirty" class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-teal-800 text-sm font-black text-white disabled:bg-slate-200 disabled:text-slate-500" @click="saveAccessInfo"><CheckCircle2 class="h-4 w-4" />{{ saveMessage || (isDirty ? 'Сохранить и передать бригаде' : 'Данные сохранены') }}</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from 'vue';
-import { KeyRound, Camera, CheckCircle2 } from 'lucide-vue-next';
+import { reactive, ref, watch } from 'vue';
+import { KeyRound, Camera, CheckCircle2, Trash2 } from 'lucide-vue-next';
 import type { AccessInfo } from '@/types';
 
 const props = defineProps<{
@@ -110,6 +113,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update', accessInfo: Partial<AccessInfo>): void;
 }>();
+
+const fileInput = ref<HTMLInputElement | null>(null);
+const isDirty = ref(false);
+const saveMessage = ref('');
 
 const form = reactive<AccessInfo>({
   intercom: '',
@@ -130,13 +137,26 @@ const emitUpdate = () => {
   emit('update', { ...form });
 };
 
-const simulatePhotoUpload = () => {
-  form.photoUrl = 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=400&q=80';
-  emitUpdate();
+const handlePhotoUpload = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    form.photoUrl = String(reader.result || '');
+    isDirty.value = true;
+  };
+  reader.readAsDataURL(file);
 };
 
 const removePhoto = () => {
   form.photoUrl = '';
+  isDirty.value = true;
+};
+
+const saveAccessInfo = () => {
   emitUpdate();
+  isDirty.value = false;
+  saveMessage.value = 'Передано бригаде';
+  window.setTimeout(() => { saveMessage.value = ''; }, 2500);
 };
 </script>

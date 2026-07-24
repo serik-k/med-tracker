@@ -1,248 +1,73 @@
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900 p-3 sm:p-4 max-w-md mx-auto space-y-3 font-sans relative pb-24 select-none overflow-x-hidden">
-    <!-- Header (Zero Overflow Fit) -->
-    <header class="medical-card px-3.5 py-2.5 rounded-2xl flex items-center justify-between gap-2 border border-slate-200/80 shadow-xs overflow-hidden">
-      <div class="flex items-center gap-2 min-w-0 truncate">
-        <div class="p-1.5 bg-teal-800 text-white rounded-xl shadow-xs shrink-0">
-          <Truck class="w-4.5 h-4.5" />
-        </div>
-        <div class="min-w-0 truncate">
-          <h1 class="text-xs font-bold text-slate-900 tracking-tight truncate">{{ langStore.t('driverTitle') }}</h1>
-          <p class="text-[10px] font-bold text-teal-800 truncate">{{ activeOrder?.carNumber || 'Бригада скорой' }}</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-1.5 shrink-0">
-        <LanguageSwitcher />
-      </div>
+  <main class="mx-auto min-h-svh w-full max-w-md bg-slate-100 pb-28 text-slate-950">
+    <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur">
+      <div class="flex min-w-0 items-center gap-3"><div class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-800 text-white"><Ambulance class="h-5 w-5" /></div><div class="min-w-0"><h1 class="text-sm font-black">Экипаж</h1><p class="truncate text-xs font-bold text-teal-800">{{ activeOrder?.carNumber || 'Вызов не назначен' }}</p></div></div>
+      <div class="flex items-center gap-2"><span class="flex items-center gap-1.5 text-[10px] font-bold" :class="gpsStateClass"><LocateFixed class="h-3.5 w-3.5" />{{ gpsStateText }}</span><LanguageSwitcher /></div>
     </header>
 
-    <!-- Active Call / Car Selector -->
-    <div class="medical-card p-3 rounded-2xl border border-slate-200/80 space-y-1.5 relative z-30 shadow-xs">
-      <CustomSelect 
-        v-model="selectedToken"
-        label="Выбрать активный вызов / Машину:"
-        :options="driverOrderOptions"
-        :icon="Truck"
-      />
+    <div class="space-y-3 p-3">
+      <section v-if="!selectedToken" class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center"><Link2Off class="mx-auto h-9 w-9 text-amber-700" /><h2 class="mt-3 text-base font-black">Активный вызов не назначен</h2><p class="mt-1 text-sm text-amber-900">Откройте персональную ссылку, которую диспетчер выдал вашей бригаде.</p></section>
+      <section v-else-if="!activeOrder" class="rounded-2xl border border-slate-200 bg-white p-6 text-center" role="status"><LoaderCircle class="mx-auto h-8 w-8 animate-spin text-teal-700" /><p class="mt-3 text-sm font-bold">Загружаем назначенный вызов…</p></section>
+
+      <template v-else>
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3"><span class="font-mono text-xs font-black text-teal-800">ВЫЗОВ {{ activeOrder.id }}</span><span class="rounded-md px-2 py-1 text-[10px] font-black" :class="statusBadgeClass">{{ statusText }}</span></div>
+          <div class="p-4"><h2 class="text-xl font-black leading-tight">{{ activeOrder.address }}</h2><div class="mt-3 flex items-center justify-between gap-3"><div class="min-w-0"><p class="truncate text-sm font-extrabold">{{ activeOrder.patientName }}</p><p class="mt-0.5 text-xs text-slate-500">{{ activeOrder.patientPhone }}</p></div><a :href="`tel:${activeOrder.patientPhone}`" class="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-teal-800" aria-label="Позвонить пациенту"><Phone class="h-5 w-5" /></a></div></div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p class="text-[10px] font-black uppercase tracking-wider text-slate-500">Текущий статус</p>
+          <div class="mt-2 flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-teal-50 text-teal-800"><component :is="currentStatusIcon" class="h-5 w-5" /></span><div><h2 class="text-base font-black">{{ statusText }}</h2><p class="text-xs text-slate-500">Статус видят диспетчер и пациент</p></div></div>
+          <div class="mt-4 grid grid-cols-4 gap-1" aria-label="Этапы вызова"><div v-for="(status,index) in flow" :key="status" class="text-center"><div class="h-1.5 rounded-full" :class="currentFlowIndex>=index?'bg-teal-700':'bg-slate-200'"></div><span class="mt-1.5 block text-[9px] font-bold" :class="currentFlowIndex===index?'text-teal-900':'text-slate-400'">{{ shortLabels[status] }}</span></div></div>
+          <button v-if="nextStatus" class="mt-4 flex min-h-16 w-full items-center justify-center gap-2 rounded-xl bg-teal-800 px-4 text-base font-black text-white active:scale-[0.99]" @click="advanceStatus"><component :is="nextStatus.icon" class="h-5 w-5" />{{ nextStatus.label }}</button>
+          <div v-else-if="activeOrder.status==='ARRIVED'" class="mt-4 grid gap-2 min-[360px]:grid-cols-2"><button class="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-teal-800 px-3 text-xs font-black text-white" @click="startTransport"><Hospital class="h-4 w-4" /> Везём в клинику</button><button class="flex min-h-14 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-xs font-black text-slate-800" @click="isCompleteConfirmOpen=true"><ShieldCheck class="h-4 w-4" /> Помощь завершена</button></div>
+          <button v-else class="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-black text-red-800" @click="isCompleteConfirmOpen = true"><ShieldCheck class="h-5 w-5" /> Завершить вызов</button>
+          <p v-if="statusMessage" class="mt-3 rounded-lg bg-teal-50 p-2.5 text-center text-xs font-bold text-teal-800" role="status">{{ statusMessage }}</p>
+        </section>
+
+        <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="mb-3 flex items-center gap-2"><Info class="h-4 w-4 text-teal-800" /><h2 class="text-sm font-black">Важно от пациента</h2></div>
+          <div v-if="hasAccessInfo" class="grid grid-cols-2 gap-2 text-xs"><div v-if="activeOrder.accessInfo.intercom" class="info-cell"><span>Домофон</span><strong>{{ activeOrder.accessInfo.intercom }}</strong></div><div v-if="activeOrder.accessInfo.gateCode" class="info-cell"><span>Ворота</span><strong>{{ activeOrder.accessInfo.gateCode }}</strong></div><div v-if="activeOrder.accessInfo.entrance" class="info-cell"><span>Подъезд</span><strong>{{ activeOrder.accessInfo.entrance }}</strong></div><div v-if="activeOrder.accessInfo.floor" class="info-cell"><span>Этаж</span><strong>{{ activeOrder.accessInfo.floor }}</strong></div></div>
+          <p v-else class="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">Пациент пока не передал данные для доступа.</p>
+          <p v-if="activeOrder.accessInfo.note" class="mt-2 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-950"><strong class="block text-[10px] uppercase text-amber-700">Комментарий</strong>{{ activeOrder.accessInfo.note }}</p>
+          <div v-if="activeOrder.symptoms?.length" class="mt-3"><p class="mb-2 text-[10px] font-black uppercase tracking-wider text-slate-500">Симптомы</p><div class="flex flex-wrap gap-1.5"><span v-for="symptom in activeOrder.symptoms" :key="symptom" class="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-900 ring-1 ring-red-200">{{ symptom }}</span></div></div>
+        </section>
+      </template>
     </div>
 
-    <!-- Active Call Info Card -->
-    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-xs relative z-10 overflow-hidden">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
-        <span class="text-xs font-extrabold text-teal-800 font-mono tracking-wider shrink-0">ВЫЗОВ {{ activeOrder.id }}</span>
-        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 truncate">
-          {{ getStatusText(activeOrder.status) }}
-        </span>
-      </div>
+    <div v-if="activeOrder" class="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-md border-t border-slate-200 bg-white/95 p-3 backdrop-blur"><a :href="navigatorUrl" target="_blank" class="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-slate-950 text-sm font-black text-white"><Navigation class="h-5 w-5 text-teal-400" /> Маршрут к пациенту</a></div>
 
-      <div class="space-y-0.5 min-w-0 truncate">
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Науқас / Пациент</div>
-        <div class="text-base font-bold text-slate-900 tracking-tight truncate">{{ activeOrder.patientName }} ({{ activeOrder.patientPhone }})</div>
-      </div>
-
-      <div class="space-y-0.5 min-w-0">
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Адрес вызова</div>
-        <div class="text-xs font-semibold text-slate-800 flex items-start gap-1.5">
-          <MapPin class="w-4 h-4 text-teal-800 shrink-0 mt-0.5" />
-          <span class="leading-relaxed break-words min-w-0">{{ activeOrder.address }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mobile-First Touch Status Buttons Grid (Big 52px Touch Targets) -->
-    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-xs relative z-10">
-      <h2 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{{ langStore.t('1clickStatus') }}</h2>
-
-      <div class="grid grid-cols-2 gap-2">
-        <button 
-          @click="setStatus('ACCEPTED')"
-          :class="[
-            'py-3.5 px-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
-            activeOrder.status === 'ACCEPTED' ? 'bg-amber-600 text-white border-amber-500 shadow-xs scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
-          ]"
-        >
-          {{ langStore.t('accepted') }}
-        </button>
-
-        <button 
-          @click="setStatus('EN_ROUTE')"
-          :class="[
-            'py-3.5 px-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
-            activeOrder.status === 'EN_ROUTE' ? 'bg-rose-700 text-white border-rose-600 shadow-xs animate-pulse scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
-          ]"
-        >
-          {{ langStore.t('enRoute') }}
-        </button>
-
-        <button 
-          @click="setStatus('ARRIVED')"
-          :class="[
-            'py-3.5 px-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
-            activeOrder.status === 'ARRIVED' ? 'bg-teal-800 text-white border-teal-700 shadow-xs scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
-          ]"
-        >
-          {{ langStore.t('arrived') }}
-        </button>
-
-        <button 
-          @click="setStatus('HOSPITAL_TRANSPORT')"
-          :class="[
-            'py-3.5 px-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-center active:scale-95 shadow-xs min-h-[50px] flex items-center justify-center',
-            activeOrder.status === 'HOSPITAL_TRANSPORT' ? 'bg-slate-800 text-white border-slate-700 shadow-xs scale-[1.02]' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
-          ]"
-        >
-          {{ langStore.t('hospitalTransport') }}
-        </button>
-      </div>
-
-      <!-- Complete Call Button -->
-      <button 
-        @click="setStatus('COMPLETED')"
-        class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 shadow-xs"
-      >
-        <ShieldCheck class="w-5 h-5 text-emerald-400" />
-        <span>{{ langStore.t('completed') }}</span>
-      </button>
-    </div>
-
-    <!-- Live Access Details from Patient -->
-    <div v-if="activeOrder" class="medical-card p-4 rounded-2xl border border-slate-200/80 space-y-3 shadow-xs relative z-10 overflow-hidden">
-      <div class="flex items-center gap-2 text-slate-900 border-b border-slate-100 pb-2.5">
-        <KeyRound class="w-4.5 h-4.5 text-teal-800" />
-        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900">{{ langStore.t('patientDetailsTitle') }}</h2>
-      </div>
-
-      <!-- Symptoms -->
-      <div v-if="activeOrder.symptoms.length > 0" class="space-y-1">
-        <div class="text-[10px] font-bold text-slate-400">{{ langStore.t('symptoms') }}:</div>
-        <div class="flex flex-wrap gap-1.5">
-          <span v-for="symptom in activeOrder.symptoms" :key="symptom" class="text-xs bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-200 font-bold">
-            {{ symptom }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Access items -->
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
-          <span class="text-slate-500 text-[9px] block font-bold uppercase">{{ langStore.t('intercom') }}</span>
-          <strong class="text-slate-900 text-xs font-bold block truncate">{{ activeOrder.accessInfo.intercom || langStore.t('notSpecified') }}</strong>
-        </div>
-
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
-          <span class="text-slate-500 text-[9px] block font-bold uppercase">{{ langStore.t('gateCode') }}</span>
-          <strong class="text-slate-900 text-xs font-bold block truncate">{{ activeOrder.accessInfo.gateCode || langStore.t('notSpecified') }}</strong>
-        </div>
-
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
-          <span class="text-slate-500 text-[9px] block font-bold uppercase">{{ langStore.t('entranceFloor') }}</span>
-          <strong class="text-slate-900 text-xs font-bold block truncate">{{ activeOrder.accessInfo.entrance || '?' }} / {{ activeOrder.accessInfo.floor || '?' }}</strong>
-        </div>
-
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
-          <span class="text-slate-500 text-[9px] block font-bold uppercase">{{ langStore.t('note') }}</span>
-          <strong class="text-slate-700 text-[10px] font-medium block truncate">{{ activeOrder.accessInfo.note || langStore.t('noNote') }}</strong>
-        </div>
-      </div>
-
-      <!-- Photo preview if uploaded -->
-      <div v-if="activeOrder.accessInfo.photoUrl" class="pt-2 border-t border-slate-100">
-        <span class="text-[10px] text-slate-500 block mb-1 font-bold">{{ langStore.t('photoFromPatient') }}</span>
-        <img :src="activeOrder.accessInfo.photoUrl" class="w-full h-36 object-cover rounded-xl border border-slate-200 shadow-xs" />
-      </div>
-    </div>
-
-    <!-- Sticky Bottom Navigator Bar for Driver -->
-    <div v-if="activeOrder" class="fixed bottom-2.5 left-2.5 right-2.5 z-30 max-w-md mx-auto">
-      <a 
-        :href="getNavigatorUrl(activeOrder.destinationLoc)"
-        target="_blank"
-        class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-xl shadow-slate-950/20 cursor-pointer transition-all active:scale-95 border border-slate-800 backdrop-blur-xl"
-      >
-        <Navigation class="w-4 h-4 text-teal-400" />
-        <span>{{ langStore.t('navButton') }}</span>
-      </a>
-    </div>
-  </div>
+    <div v-if="isCompleteConfirmOpen" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4" @click.self="isCompleteConfirmOpen = false"><div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl" role="alertdialog" aria-modal="true" aria-labelledby="complete-title"><div class="grid h-11 w-11 place-items-center rounded-full bg-red-100 text-red-700"><ShieldCheck class="h-5 w-5" /></div><h2 id="complete-title" class="mt-4 text-lg font-black">Завершить вызов?</h2><p class="mt-2 text-sm leading-relaxed text-slate-600">Вызов будет закрыт, а передача геопозиции пациенту прекратится. Отменить это действие нельзя.</p><div class="mt-5 grid grid-cols-2 gap-2"><button class="min-h-12 rounded-xl border border-slate-200 text-xs font-bold" @click="isCompleteConfirmOpen = false">Вернуться</button><button class="min-h-12 rounded-xl bg-red-600 text-xs font-black text-white" @click="confirmComplete">Завершить вызов</button></div></div></div>
+  </main>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useOrderStore } from '@/stores/orderStore';
-import { useLangStore } from '@/stores/langStore';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
-import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect.vue';
-import { Truck, MapPin, KeyRound, ShieldCheck, Navigation } from 'lucide-vue-next';
-import type { OrderStatus, Location } from '@/types';
+import { Ambulance, Building2, CheckCircle2, CircleDot, Hospital, Info, Link2Off, LoaderCircle, LocateFixed, Navigation, Phone, Route, ShieldCheck } from 'lucide-vue-next';
+import type { Location, OrderStatus } from '@/types';
 
-const route = useRoute();
-const router = useRouter();
-const orderStore = useOrderStore();
-const langStore = useLangStore();
-
-const selectedToken = ref<string>((route.query.token as string) || 'demo-track-123');
-
-onMounted(() => {
-  orderStore.joinDispatcherRoom();
-  if (selectedToken.value) {
-    orderStore.joinOrderRoom(selectedToken.value);
-  }
-  startGpsTracking();
-});
-
-const driverOrderOptions = computed<SelectOption[]>(() => {
-  if (orderStore.activeOrders.length === 0) {
-    return [{ value: 'demo-track-123', label: 'Скорая №103 (ORD-7701) — Демо' }];
-  }
-  return orderStore.activeOrders.map(o => ({
-    value: o.token,
-    label: `${o.carNumber} — ${o.patientName} (${o.id})`
-  }));
-});
-
-watch(selectedToken, (newToken) => {
-  if (newToken) {
-    orderStore.joinOrderRoom(newToken);
-    router.replace({ query: { token: newToken } });
-  }
-});
-
-const activeOrder = computed(() => {
-  return orderStore.currentOrder || orderStore.activeOrders.find(o => o.token === selectedToken.value);
-});
-
-const startGpsTracking = () => {
-  if ('geolocation' in navigator) {
-    navigator.geolocation.watchPosition(
-      (pos) => {
-        if (activeOrder.value && activeOrder.value.status === 'EN_ROUTE') {
-          orderStore.sendLocation(selectedToken.value, pos.coords.latitude, pos.coords.longitude);
-        }
-      },
-      (err) => console.log('Geolocation error:', err),
-      { enableHighAccuracy: true }
-    );
-  }
-};
-
-const setStatus = (status: OrderStatus) => {
-  orderStore.updateStatus(selectedToken.value, status);
-};
-
-const getNavigatorUrl = (loc?: Location) => {
-  if (!loc) return 'https://yandex.ru/maps/';
-  return `https://yandex.ru/maps/?rtext=~${loc.lat},${loc.lng}`;
-};
-
-const getStatusText = (status: OrderStatus) => {
-  switch (status) {
-    case 'ACCEPTED': return langStore.t('accepted');
-    case 'EN_ROUTE': return langStore.t('enRoute');
-    case 'ARRIVED': return langStore.t('arrived');
-    case 'HOSPITAL_TRANSPORT': return langStore.t('hospitalTransport');
-    case 'COMPLETED': return langStore.t('completed');
-  }
-};
+const route=useRoute(); const orderStore=useOrderStore(); const selectedToken=ref<string>((route.query.token as string)||''); const isCompleteConfirmOpen=ref(false); const statusMessage=ref(''); const gpsState=ref<'waiting'|'active'|'error'>('waiting'); let gpsWatchId:number|null=null;
+const activeOrder=computed(()=>orderStore.currentOrder?.token===selectedToken.value?orderStore.currentOrder:null);
+const flow:OrderStatus[]=['ACCEPTED','EN_ROUTE','ARRIVED','HOSPITAL_TRANSPORT'];
+const shortLabels:Partial<Record<OrderStatus,string>>={ACCEPTED:'Принят',EN_ROUTE:'В пути',ARRIVED:'Прибыл',HOSPITAL_TRANSPORT:'В клинику'};
+const labels:Record<OrderStatus,string>={ACCEPTED:'Вызов принят',EN_ROUTE:'В пути к пациенту',ARRIVED:'На месте',HOSPITAL_TRANSPORT:'Транспортировка в клинику',COMPLETED:'Вызов завершён'};
+const icons:Record<OrderStatus,any>={ACCEPTED:CircleDot,EN_ROUTE:Route,ARRIVED:CheckCircle2,HOSPITAL_TRANSPORT:Hospital,COMPLETED:ShieldCheck};
+const statusText=computed(()=>activeOrder.value?labels[activeOrder.value.status]:''); const currentStatusIcon=computed(()=>activeOrder.value?icons[activeOrder.value.status]:CircleDot);
+const currentFlowIndex=computed(()=>activeOrder.value?Math.max(0,flow.indexOf(activeOrder.value.status)):0);
+const nextStatus=computed(()=>{if(!activeOrder.value)return null; const index=flow.indexOf(activeOrder.value.status); if(index<0||index>=2)return null; const status=flow[index+1]; return {status,label:({EN_ROUTE:'Начать движение',ARRIVED:'Я прибыл на место'} as Partial<Record<OrderStatus,string>>)[status]!,icon:icons[status]};});
+const statusBadgeClass=computed(()=>activeOrder.value?.status==='EN_ROUTE'||activeOrder.value?.status==='ARRIVED'?'bg-teal-100 text-teal-800':'bg-slate-100 text-slate-700');
+const navigatorUrl=computed(()=>getNavigatorUrl(activeOrder.value?.destinationLoc)); const hasAccessInfo=computed(()=>!!activeOrder.value&&Object.entries(activeOrder.value.accessInfo).some(([key,value])=>key!=='photoUrl'&&!!value));
+const gpsStateText=computed(()=>gpsState.value==='active'?'GPS активен':gpsState.value==='error'?'Ошибка GPS':'GPS…'); const gpsStateClass=computed(()=>gpsState.value==='active'?'text-teal-700':gpsState.value==='error'?'text-red-700':'text-slate-500');
+onMounted(()=>{if(selectedToken.value){orderStore.joinOrderRoom(selectedToken.value);startGpsTracking();}}); onBeforeUnmount(stopGps);
+function startGpsTracking(){if(!('geolocation' in navigator)){gpsState.value='error';return;} gpsWatchId=navigator.geolocation.watchPosition(pos=>{gpsState.value='active';if(activeOrder.value?.status==='EN_ROUTE')orderStore.sendLocation(selectedToken.value,pos.coords.latitude,pos.coords.longitude);},()=>gpsState.value='error',{enableHighAccuracy:true});}
+function stopGps(){if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}}
+function advanceStatus(){if(!nextStatus.value)return;orderStore.updateStatus(selectedToken.value,nextStatus.value.status);statusMessage.value=`Статус обновлён: ${nextStatus.value.label}`;setTimeout(()=>statusMessage.value='',3000);}
+function startTransport(){orderStore.updateStatus(selectedToken.value,'HOSPITAL_TRANSPORT');statusMessage.value='Статус обновлён: транспортировка в клинику';setTimeout(()=>statusMessage.value='',3000);}
+function confirmComplete(){orderStore.updateStatus(selectedToken.value,'COMPLETED');isCompleteConfirmOpen.value=false;statusMessage.value='Вызов завершён';stopGps();}
+function getNavigatorUrl(loc?:Location){return loc?`https://yandex.ru/maps/?rtext=~${loc.lat},${loc.lng}`:'https://yandex.ru/maps/';}
 </script>
+
+<style scoped>.info-cell{border:1px solid #e2e8f0;border-radius:.75rem;background:#f8fafc;padding:.625rem}.info-cell span{display:block;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b}.info-cell strong{display:block;margin-top:.125rem;font-size:.875rem;font-weight:900;color:#0f172a}</style>

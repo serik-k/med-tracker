@@ -9,6 +9,7 @@ export const useOrderStore = defineStore('orders', () => {
   const currentOrder = ref<Order | null>(null);
   const isConnected = ref(false);
   const errorMsg = ref<string | null>(null);
+  const lastLocationUpdate = ref<number | null>(null);
 
   // Initialize socket connection
   function initSocket() {
@@ -37,6 +38,7 @@ export const useOrderStore = defineStore('orders', () => {
 
     socket.value.on('order_data', (order: Order) => {
       currentOrder.value = order;
+      lastLocationUpdate.value = Date.now();
     });
 
     socket.value.on('order_created', (order: Order) => {
@@ -52,14 +54,16 @@ export const useOrderStore = defineStore('orders', () => {
       // Update in currentOrder if viewing single track
       if (currentOrder.value && currentOrder.value.token === token) {
         currentOrder.value.currentLoc = currentLoc;
+        lastLocationUpdate.value = Date.now();
       }
     });
 
-    socket.value.on('status_updated', ({ token, status, expired }: { token: string; status: OrderStatus; expired: boolean }) => {
+    socket.value.on('status_updated', ({ token, status, expired, completedAt }: { token: string; status: OrderStatus; expired: boolean; completedAt?: string }) => {
       const foundInList = activeOrders.value.find(o => o.token === token);
       if (foundInList) {
         foundInList.status = status;
         foundInList.expired = expired;
+        foundInList.completedAt = completedAt;
       }
       if (currentOrder.value && currentOrder.value.token === token) {
         currentOrder.value.status = status;
@@ -171,6 +175,7 @@ export const useOrderStore = defineStore('orders', () => {
     currentOrder,
     isConnected,
     errorMsg,
+    lastLocationUpdate,
     initSocket,
     joinDispatcherRoom,
     createOrder,
