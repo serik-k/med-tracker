@@ -19,9 +19,6 @@ class OrderStore {
       }
     });
     if (repaired) this.persist();
-    if (this.orders.size === 0) {
-      this.initDemoData();
-    }
   }
 
   async initDemoData() {
