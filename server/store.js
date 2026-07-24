@@ -100,6 +100,10 @@ class OrderStore {
     return Array.from(this.orders.values()).filter(o => !o.expired);
   }
 
+  getAllDispatcherOrders() {
+    return Array.from(this.orders.values());
+  }
+
   updateOrderStatus(token, status) {
     const order = this.orders.get(token);
     if (!order) return null;
@@ -107,6 +111,7 @@ class OrderStore {
     order.status = status;
     if (status === 'COMPLETED') {
       order.expired = true;
+      order.completedAt = new Date().toISOString();
     }
     this.persist();
     return order;

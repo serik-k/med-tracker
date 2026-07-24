@@ -13,7 +13,7 @@
     </div>
 
     <!-- Symptom Pills Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+    <div class="grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2 md:grid-cols-3">
       <button
         v-for="symptom in availableSymptoms"
         :key="symptom.name"
@@ -48,11 +48,23 @@
         />
         <button 
           v-if="customSymptomText.trim()"
+          type="button"
           @click="addCustomSymptom" 
           class="text-xs font-extrabold text-white px-3 py-1 bg-rose-600 hover:bg-rose-500 rounded-xl shadow-sm transition-all"
         >
           Добавить
         </button>
+      </div>
+      <p class="mt-1.5 px-1 text-[10px] font-medium text-slate-400">Опишите другой симптом или важную деталь для врача</p>
+    </div>
+
+    <div v-if="customSymptoms.length" class="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+      <p class="text-[10px] font-black uppercase tracking-wider text-slate-500">Добавлено вами</p>
+      <div class="flex flex-wrap gap-2">
+        <span v-for="symptom in customSymptoms" :key="symptom" class="inline-flex max-w-full items-center gap-1.5 rounded-xl bg-white py-1.5 pl-2.5 pr-1.5 text-xs font-bold text-slate-800 shadow-sm ring-1 ring-slate-200">
+          <span class="break-words">{{ symptom }}</span>
+          <button type="button" class="grid h-6 w-6 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" :aria-label="`Удалить симптом: ${symptom}`" @click="removeSymptom(symptom)"><X class="h-3.5 w-3.5" /></button>
+        </span>
       </div>
     </div>
 
@@ -69,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { 
   Stethoscope, 
   HeartPulse, 
@@ -80,7 +92,8 @@ import {
   Pill, 
   AlertCircle,
   CheckCircle2,
-  PlusCircle
+  PlusCircle,
+  X
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -108,6 +121,9 @@ const availableSymptoms = [
   { name: 'Тошнота / Живот', icon: AlertCircle }
 ];
 
+const standardSymptomNames = new Set(availableSymptoms.map(symptom => symptom.name));
+const customSymptoms = computed(() => selectedSymptoms.value.filter(symptom => !standardSymptomNames.has(symptom)));
+
 const toggleSymptom = (name: string) => {
   if (selectedSymptoms.value.includes(name)) {
     selectedSymptoms.value = selectedSymptoms.value.filter(s => s !== name);
@@ -124,5 +140,10 @@ const addCustomSymptom = () => {
     customSymptomText.value = '';
     emit('update', [...selectedSymptoms.value]);
   }
+};
+
+const removeSymptom = (name: string) => {
+  selectedSymptoms.value = selectedSymptoms.value.filter(symptom => symptom !== name);
+  emit('update', [...selectedSymptoms.value]);
 };
 </script>

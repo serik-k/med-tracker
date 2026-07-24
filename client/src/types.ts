@@ -25,9 +25,12 @@ export interface Order {
   status: OrderStatus;
   currentLoc: Location;
   routePath?: Location[];
+  etaMinutes?: number;
+  distanceKm?: number;
   accessInfo: AccessInfo;
   symptoms: string[];
   isSimulating: boolean;
   createdAt: string;
+  completedAt?: string;
   expired: boolean;
 }

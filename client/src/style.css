@@ -53,7 +53,7 @@
   height: 68px;
   border-radius: 50%;
   background: rgba(15, 118, 110, 0.25);
-  animation: pulse-ring 2s infinite cubic-bezier(0.45, 0, 0.55, 1);
+  display: none;
 }
 
 @keyframes pulse-ring {

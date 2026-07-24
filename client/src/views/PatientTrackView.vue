@@ -1,279 +1,41 @@
 <template>
-  <div class="relative w-full min-h-screen bg-slate-50 text-slate-900 font-sans overflow-x-hidden select-none">
-    
-    <!-- Expired or Invalid Link Screen -->
-    <div v-if="orderStore.errorMsg || order?.expired" class="min-h-screen flex flex-col items-center justify-center text-center p-6 space-y-5 relative z-30 max-w-md mx-auto">
-      <div class="p-6 bg-white text-teal-800 rounded-3xl border border-slate-200 shadow-xl">
-        <ShieldCheck class="w-16 h-16 animate-bounce" />
-      </div>
-      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">{{ langStore.t('expiredTitle') }}</h1>
-      <p class="text-xs font-medium text-slate-600 max-w-xs leading-relaxed">
-        {{ langStore.t('expiredDesc') }}
-      </p>
-      <a 
-        href="tel:103" 
-        class="w-full max-w-xs py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"
-      >
-        <PhoneCall class="w-4 h-4" /> {{ langStore.t('callDispatcher') }}
-      </a>
-    </div>
+  <main class="min-h-svh w-full bg-slate-100 text-slate-950">
+    <div v-if="orderStore.errorMsg || order?.expired" class="mx-auto grid min-h-screen max-w-md place-items-center p-6 text-center"><div><div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-slate-200"><ShieldCheck class="h-8 w-8" /></div><h1 class="mt-5 text-xl font-black">Отслеживание завершено</h1><p class="mt-2 text-sm text-slate-600">Вызов завершён или ссылка больше не действует.</p><a href="tel:103" class="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 text-sm font-black text-white"><Phone class="h-4 w-4" /> Позвонить диспетчеру</a></div></div>
+    <div v-else-if="!order" class="grid min-h-screen place-items-center text-center" role="status"><div><LoaderCircle class="mx-auto h-9 w-9 animate-spin text-teal-700" /><p class="mt-3 text-sm font-bold">Получаем информацию о бригаде…</p></div></div>
 
-    <!-- Active 2026 Live Tracking Screen -->
-    <template v-else-if="order">
-      <!-- Full Screen Background Map Canvas -->
-      <div class="fixed inset-0 z-0">
-        <LiveMap 
-          :ambulance-loc="order.currentLoc"
-          :destination-loc="order.destinationLoc"
-          :route-path="order.routePath"
-        />
-      </div>
-
-      <!-- Top Floating Navigation Island Pill (Safe Area & Zero Overflow) -->
-      <div class="fixed top-3 left-3 right-3 z-20 max-w-md mx-auto">
-        <header class="floating-island px-3.5 py-2.5 rounded-2xl flex items-center justify-between gap-2 border border-slate-200/90 shadow-lg">
-          <div class="flex items-center gap-2.5 min-w-0 truncate">
-            <div class="p-1.5 bg-teal-800 text-white rounded-xl shadow-xs shrink-0">
-              <Activity class="w-4 h-4 animate-pulse" />
-            </div>
-            <div class="min-w-0 truncate">
-              <h1 class="text-xs font-bold text-slate-900 tracking-tight flex items-center gap-1 truncate">
-                <span class="truncate">{{ langStore.t('appTitle') }}</span>
-                <span class="text-[9px] bg-teal-50 text-teal-800 font-bold px-1.5 py-0.2 rounded-full border border-teal-200 shrink-0">LIVE</span>
-              </h1>
-              <p class="text-[11px] font-bold text-slate-600 truncate">{{ order.carNumber }}</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-1.5 shrink-0">
-            <LanguageSwitcher />
-            <button 
-              @click="shareWithFamily"
-              class="p-1.5 bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 rounded-xl text-xs font-medium transition-all active:scale-95 shadow-xs"
-              :title="langStore.t('shareFamily')"
-            >
-              <Share2 class="w-3.5 h-3.5 text-slate-700" />
-            </button>
-          </div>
-        </header>
-      </div>
-
-      <!-- Bottom Activity Sheet Drawer -->
-      <div 
-        :class="[
-          'fixed inset-x-0 bottom-0 z-20 max-w-md mx-auto transition-all duration-300 ease-out flex flex-col',
-          isExpanded ? 'h-[88vh]' : 'h-[36vh] sm:h-[40vh]'
-        ]"
-      >
-        <div class="floating-island h-full rounded-t-[32px] border-t border-x border-slate-200/90 shadow-2xl flex flex-col overflow-hidden bg-white/95 backdrop-blur-2xl">
-          
-          <!-- Drawer Drag Handle & Toggle Button -->
-          <div 
-            @click="isExpanded = !isExpanded"
-            class="pt-3 pb-2 px-4 flex flex-col items-center justify-center cursor-pointer select-none hover:bg-slate-50 transition-colors border-b border-slate-100 shrink-0"
-          >
-            <div class="w-10 h-1 bg-slate-300 rounded-full mb-1"></div>
-            <div class="flex items-center gap-1 text-[11px] font-bold text-slate-500">
-              <span>{{ isExpanded ? 'Свернуть карту' : 'Развернуть детали вызова' }}</span>
-              <ChevronUp :class="['w-4 h-4 transition-transform duration-300', isExpanded ? 'rotate-180 text-slate-700' : 'text-slate-400']" />
-            </div>
-          </div>
-
-          <!-- Drawer Bento Content Area -->
-          <div class="flex-1 overflow-y-auto p-4 space-y-4">
-            
-            <!-- Hero ETA Bento Widget -->
-            <div class="bento-card p-4 border border-slate-200/90 space-y-3 shadow-xs">
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 shadow-xs truncate">
-                  <span class="relative flex h-2 w-2 shrink-0">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-600 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-teal-700"></span>
-                  </span>
-                  <span class="text-[10px] font-bold uppercase tracking-wide truncate">{{ getStatusText(order.status) }}</span>
-                </div>
-
-                <a 
-                  href="tel:+77778887766" 
-                  class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[11px] font-bold flex items-center gap-1.5 shadow-xs active:scale-95 transition-all shrink-0"
-                >
-                  <PhoneCall class="w-3.5 h-3.5" />
-                  <span>{{ langStore.t('callOperator') }}</span>
-                </a>
-              </div>
-
-              <!-- Hero ETA Display -->
-              <div class="flex items-center justify-between pt-1">
-                <div class="space-y-0.5 min-w-0 truncate">
-                  <div class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 flex items-baseline gap-1.5 flex-wrap">
-                    <span class="text-teal-800 font-mono">~{{ order.etaMinutes || etaMinutes }}</span>
-                    <span class="text-xs font-bold text-slate-500 uppercase">{{ langStore.t('mins') }}</span>
-                    <span class="text-xs font-semibold text-slate-400">({{ order.distanceKm || distanceKm }} {{ langStore.t('km') }})</span>
-                  </div>
-                  <div class="text-[11px] font-medium text-slate-500 flex items-center gap-1 truncate">
-                    <Navigation class="w-3.5 h-3.5 text-teal-700 shrink-0" />
-                    <span class="truncate">{{ langStore.t('speedInfo') }}</span>
-                  </div>
-                </div>
-
-                <div class="p-2.5 bg-slate-50 rounded-2xl border border-slate-200 text-center shadow-xs shrink-0">
-                  <Truck class="w-6 h-6 text-slate-700 mx-auto" />
-                  <span class="text-[9px] font-bold text-slate-600 block tracking-wider mt-0.5">{{ langStore.t('crewBadge') }}</span>
-                </div>
-              </div>
-
-              <!-- Timeline Stepper -->
-              <div class="space-y-1 pt-2 border-t border-slate-100">
-                <div class="grid grid-cols-4 gap-1.5">
-                  <div 
-                    v-for="(step, idx) in steps" 
-                    :key="step.key"
-                    :class="[
-                      'h-1.5 rounded-full transition-all duration-500',
-                      currentStepIndex >= idx 
-                        ? 'bg-teal-800 shadow-xs' 
-                        : 'bg-slate-200'
-                    ]"
-                  ></div>
-                </div>
-                <div class="flex justify-between text-[9px] font-bold text-slate-500 px-0.5">
-                  <span>Принят</span>
-                  <span>В пути</span>
-                  <span>Прибыл</span>
-                  <span>Клиника</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Sound Alert Pill if close -->
-            <div v-if="distanceKm < 0.6 && order.status === 'EN_ROUTE'" class="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-900 shadow-xs animate-pulse">
-              <div class="p-2 bg-amber-200/60 rounded-xl text-amber-800 shrink-0">
-                <BellRing class="w-5 h-5" />
-              </div>
-              <div class="text-xs font-medium">
-                <strong class="block text-slate-900 font-bold mb-0.5">{{ langStore.t('nearYardWarningTitle') }}</strong>
-                {{ langStore.t('nearYardWarningText') }}
-              </div>
-            </div>
-
-            <!-- Access Details Bento -->
-            <AccessForm 
-              :initial-access-info="order.accessInfo"
-              @update="onUpdateAccess"
-            />
-
-            <!-- Symptoms Selector Bento -->
-            <SymptomSelector 
-              :initial-symptoms="order.symptoms"
-              @update="onUpdateSymptoms"
-            />
-
-            <!-- Pre-Arrival Checklist Bento -->
-            <PreArrivalChecklist />
-
-          </div>
+    <template v-else>
+      <div class="fixed inset-0 z-0"><LiveMap :ambulance-loc="order.currentLoc" :destination-loc="order.destinationLoc" :route-path="order.routePath" /></div>
+      <header class="fixed inset-x-3 top-3 z-[600] mx-auto max-w-md rounded-2xl border border-slate-200 bg-white/95 shadow-lg backdrop-blur"><div class="flex h-16 items-center justify-between px-4"><div class="flex min-w-0 items-center gap-3"><div class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-800 text-white"><Ambulance class="h-5 w-5" /></div><div class="min-w-0"><h1 class="text-sm font-black">MedTracker</h1><p class="truncate text-xs font-semibold text-slate-500">{{ order.carNumber }}</p></div></div><div class="flex items-center gap-2"><button class="grid h-10 w-10 place-items-center rounded-lg bg-slate-100" aria-label="Поделиться" @click="shareWithFamily"><Share2 class="h-4 w-4" /></button><LanguageSwitcher /></div></div></header>
+      <div class="fixed inset-x-0 bottom-0 z-20 mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-t-[28px] border-x border-t border-slate-200 bg-slate-100 shadow-2xl transition-[height] duration-300 ease-out" :class="isSheetExpanded?'h-[88svh]':'h-[30svh]'">
+        <button type="button" class="sticky top-0 z-10 flex min-h-11 shrink-0 flex-col items-center justify-center border-b border-slate-200 bg-white/95 backdrop-blur" :aria-expanded="isSheetExpanded" aria-label="Развернуть или свернуть информацию" @click="isSheetExpanded=!isSheetExpanded"><span class="h-1 w-10 rounded-full bg-slate-300"></span><span class="mt-1 text-[10px] font-bold text-slate-500">{{ isSheetExpanded?'Свернуть':'Показать подробности' }}</span></button>
+        <div class="flex-1 space-y-3 overflow-y-auto overscroll-contain p-3 pb-[max(2rem,env(safe-area-inset-bottom))]">
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex items-center justify-between gap-2"><span class="rounded-md px-2.5 py-1 text-[11px] font-black" :class="statusClass">{{ statusText }}</span><span class="text-[10px] font-bold" :class="gpsIsStale?'text-amber-700':'text-slate-500'">{{ gpsFreshness }}</span></div>
+          <div class="mt-5 text-center"><template v-if="order.status==='EN_ROUTE'"><p class="text-4xl font-black text-teal-900">{{ etaRange }}</p><p class="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">ориентировочно до прибытия</p></template><template v-else><component :is="heroIcon" class="mx-auto h-9 w-9 text-teal-800" /><h2 class="mt-2 text-xl font-black">{{ heroTitle }}</h2><p class="mt-1 text-sm text-slate-500">{{ heroDescription }}</p></template></div>
+          <div class="mt-5 grid grid-cols-4 gap-1"><div v-for="(step,index) in steps" :key="step" class="text-center"><div class="h-1.5 rounded-full" :class="currentStep>=index?'bg-teal-700':'bg-slate-200'"></div><span class="mt-1.5 block text-[9px] font-bold" :class="currentStep>=index?'text-teal-800':'text-slate-400'">{{ step }}</span></div></div>
+          <div v-if="gpsIsStale&&order.status==='EN_ROUTE'" class="mt-4 flex gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900" role="status"><WifiOff class="h-4 w-4 shrink-0" /><span><strong>Координаты временно не обновляются.</strong> Расчёт времени может быть неточным.</span></div>
+        </section>
+        <a href="tel:+77778887766" class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 text-xs font-black text-white"><Phone class="h-4 w-4" /> Позвонить диспетчеру</a>
+        <PatientActionAccordions :order="order" @update-access="onUpdateAccess" @update-symptoms="onUpdateSymptoms" />
         </div>
       </div>
     </template>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { useOrderStore } from '@/stores/orderStore';
-import { useLangStore } from '@/stores/langStore';
-import LiveMap from '@/components/LiveMap.vue';
-import AccessForm from '@/components/AccessForm.vue';
-import SymptomSelector from '@/components/SymptomSelector.vue';
-import PreArrivalChecklist from '@/components/PreArrivalChecklist.vue';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
-import { 
-  Activity, 
-  PhoneCall, 
-  Truck, 
-  Navigation, 
-  ShieldCheck, 
-  BellRing,
-  Share2,
-  ChevronUp
-} from 'lucide-vue-next';
-import type { OrderStatus, AccessInfo } from '@/types';
-
-const route = useRoute();
-const orderStore = useOrderStore();
-const langStore = useLangStore();
-
-const isExpanded = ref(false);
-
-const token = (route.params.token as string) || 'demo-track-123';
-const order = computed(() => orderStore.currentOrder);
-
-onMounted(() => {
-  orderStore.joinOrderRoom(token);
-});
-
-const steps = [
-  { key: 'ACCEPTED', label: 'Принят' },
-  { key: 'EN_ROUTE', label: 'В пути' },
-  { key: 'ARRIVED', label: 'Прибыл' },
-  { key: 'HOSPITAL_TRANSPORT', label: 'Госпитализация' }
-];
-
-const currentStepIndex = computed(() => {
-  if (!order.value) return 0;
-  switch (order.value.status) {
-    case 'ACCEPTED': return 0;
-    case 'EN_ROUTE': return 1;
-    case 'ARRIVED': return 2;
-    case 'HOSPITAL_TRANSPORT': return 3;
-    case 'COMPLETED': return 3;
-    default: return 0;
-  }
-});
-
-const distanceKm = computed(() => {
-  if (!order.value) return 2.4;
-  const amb = order.value.currentLoc;
-  const dest = order.value.destinationLoc;
-  if (!amb || !dest) return 2.4;
-
-  const dLat = (dest.lat - amb.lat) * 111;
-  const dLng = (dest.lng - amb.lng) * 111 * Math.cos((amb.lat * Math.PI) / 180);
-  const dist = Math.sqrt(dLat * dLat + dLng * dLng);
-  return parseFloat(dist.toFixed(1));
-});
-
-const etaMinutes = computed(() => {
-  const mins = Math.ceil(distanceKm.value * 2.5 + 1);
-  return mins < 1 ? 1 : mins;
-});
-
-const onUpdateAccess = (accessInfo: Partial<AccessInfo>) => {
-  orderStore.updateAccessInfo(token, accessInfo);
-};
-
-const onUpdateSymptoms = (symptoms: string[]) => {
-  orderStore.updateSymptoms(token, symptoms);
-};
-
-const shareWithFamily = () => {
-  const url = window.location.href;
-  const text = `MedTracker live: ${url}`;
-  if (navigator.share) {
-    navigator.share({ title: 'MedTracker', text, url });
-  } else {
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-  }
-};
-
-const getStatusText = (status: OrderStatus) => {
-  switch (status) {
-    case 'ACCEPTED': return langStore.t('callStatusAccepted');
-    case 'EN_ROUTE': return langStore.t('callStatusEnRoute');
-    case 'ARRIVED': return langStore.t('callStatusArrived');
-    case 'HOSPITAL_TRANSPORT': return langStore.t('callStatusHospitalTransport');
-    case 'COMPLETED': return langStore.t('callStatusCompleted');
-  }
-};
+import PatientActionAccordions from '@/components/PatientActionAccordions.vue';
+import { computed,onBeforeUnmount,onMounted,ref } from 'vue'; import { useRoute } from 'vue-router'; import { useOrderStore } from '@/stores/orderStore'; import LiveMap from '@/components/LiveMap.vue'; import AccessForm from '@/components/AccessForm.vue'; import SymptomSelector from '@/components/SymptomSelector.vue'; import PreArrivalChecklist from '@/components/PreArrivalChecklist.vue'; import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue'; import { Ambulance,CheckCircle2,ChevronDown,ClipboardCheck,HeartPulse,KeyRound,LoaderCircle,MapPinCheck,Phone,Share2,ShieldCheck,Stethoscope,WifiOff } from 'lucide-vue-next'; import type { AccessInfo,OrderStatus } from '@/types';
+const route=useRoute(),orderStore=useOrderStore(),token=(route.params.token as string)||''; const openPanels=ref(new Set<string>()),isSheetExpanded=ref(false),isWorseDialogOpen=ref(false),now=ref(Date.now()); let timer=0; const order=computed(()=>orderStore.currentOrder?.token===token?orderStore.currentOrder:null); onMounted(()=>{orderStore.joinOrderRoom(token);timer=window.setInterval(()=>now.value=Date.now(),10000)});onBeforeUnmount(()=>clearInterval(timer));
+function togglePanel(key:string){const next=new Set(openPanels.value);if(next.has(key))next.delete(key);else next.add(key);openPanels.value=next;}
+const labels:Record<OrderStatus,string>={ACCEPTED:'Вызов принят',EN_ROUTE:'Бригада в пути',ARRIVED:'Бригада прибыла',HOSPITAL_TRANSPORT:'Транспортировка',COMPLETED:'Вызов завершён'};const statusText=computed(()=>order.value?labels[order.value.status]:'');const statusClass=computed(()=>order.value?.status==='EN_ROUTE'||order.value?.status==='ARRIVED'?'bg-teal-100 text-teal-800':'bg-slate-100 text-slate-700');const steps=['Принят','В пути','Прибыл','В клинику'];const currentStep=computed(()=>order.value?Math.min(3,Math.max(0,['ACCEPTED','EN_ROUTE','ARRIVED','HOSPITAL_TRANSPORT','COMPLETED'].indexOf(order.value.status))):0);
+const distance=computed(()=>{if(!order.value)return null;const a=order.value.currentLoc,d=order.value.destinationLoc;if(!a||!d)return null;const lat=(d.lat-a.lat)*111,lng=(d.lng-a.lng)*111*Math.cos(a.lat*Math.PI/180);return Math.sqrt(lat*lat+lng*lng)});const etaRange=computed(()=>{const eta=order.value?.etaMinutes||(distance.value===null?null:Math.max(2,Math.ceil(distance.value*2.5)));return eta?`${Math.max(1,eta-2)}–${eta+3} мин`:'Время уточняется'});const age=computed(()=>orderStore.lastLocationUpdate?Math.floor((now.value-orderStore.lastLocationUpdate)/1000):null);const gpsIsStale=computed(()=>age.value===null||age.value>60);const gpsFreshness=computed(()=>age.value===null?'GPS уточняется':age.value<10?'GPS обновлён сейчас':age.value<60?`GPS обновлён ${age.value} сек назад`:`GPS обновлялся ${Math.floor(age.value/60)} мин назад`);
+const heroTitle=computed(()=>order.value?.status==='ARRIVED'?'Бригада уже на месте':order.value?.status==='HOSPITAL_TRANSPORT'?'Пациент едет в клинику':'Вызов принят');const heroDescription=computed(()=>order.value?.status==='ARRIVED'?'Проверьте, открыт ли вход для врачей':order.value?.status==='HOSPITAL_TRANSPORT'?'Отслеживание маршрута продолжается':'Бригада готовится к выезду');const heroIcon=computed(()=>order.value?.status==='ARRIVED'?MapPinCheck:CheckCircle2);const panels=[{key:'access',title:'Уточнить доступ',icon:KeyRound,color:'bg-teal-50 text-teal-800'},{key:'symptoms',title:'Передать симптомы',icon:Stethoscope,color:'bg-rose-50 text-rose-700'},{key:'ready',title:'Подготовиться к приезду',icon:ClipboardCheck,color:'bg-amber-50 text-amber-700'}];const onUpdateAccess=(v:Partial<AccessInfo>)=>orderStore.updateAccessInfo(token,v);const onUpdateSymptoms=(v:string[])=>orderStore.updateSymptoms(token,v);async function shareWithFamily(){const url=location.href;if(navigator.share)await navigator.share({title:'Отслеживание скорой помощи',url});else window.open(`https://wa.me/?text=${encodeURIComponent(url)}`,'_blank')}
 </script>
+
+<style scoped>
+@media (min-width: 768px) {
+  header { max-width: 42rem; }
+  main > div.fixed.inset-x-0.bottom-0 { max-width: 42rem; }
+}
+</style>
