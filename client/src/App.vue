@@ -5,4 +5,6 @@
 </template>
 
 <script setup lang="ts">
+import { useThemeStore } from '@/stores/themeStore';
+useThemeStore().initTheme();
 </script>

@@ -44,7 +44,8 @@
           @keydown.enter.prevent="addCustomSymptom"
           type="text" 
           placeholder="Свой симптом (нажмите Enter)..."
-          class="w-full bg-transparent text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none"
+          maxlength="160"
+          class="min-w-0 w-full bg-transparent text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none"
         />
         <button 
           v-if="customSymptomText.trim()"
@@ -62,7 +63,7 @@
       <p class="text-[10px] font-black uppercase tracking-wider text-slate-500">Добавлено вами</p>
       <div class="flex flex-wrap gap-2">
         <span v-for="symptom in customSymptoms" :key="symptom" class="inline-flex max-w-full items-center gap-1.5 rounded-xl bg-white py-1.5 pl-2.5 pr-1.5 text-xs font-bold text-slate-800 shadow-sm ring-1 ring-slate-200">
-          <span class="break-words">{{ symptom }}</span>
+          <span class="break-anywhere">{{ symptom }}</span>
           <button type="button" class="grid h-6 w-6 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" :aria-label="`Удалить симптом: ${symptom}`" @click="removeSymptom(symptom)"><X class="h-3.5 w-3.5" /></button>
         </span>
       </div>
