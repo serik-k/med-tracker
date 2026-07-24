@@ -10,7 +10,7 @@
       </div>
     </header>
 
-    <main class="mx-auto max-w-[1800px] p-3 lg:p-4">
+    <main class="mx-auto max-w-[1800px] p-3 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden lg:p-4">
       <section class="mb-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
         <div class="ops-stat"><span>Активные</span><strong>{{ activeOrders.length }}</strong></div>
         <div class="ops-stat"><span>Без бригады</span><strong :class="unassignedCount ? 'text-red-600' : ''">{{ unassignedCount }}</strong></div>
@@ -18,12 +18,12 @@
         <div class="ops-stat"><span>Свободные бригады</span><strong class="text-teal-700">{{ availableCrews }}</strong></div>
       </section>
 
-      <div class="grid min-h-[calc(100vh-156px)] grid-cols-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:grid-cols-[390px_minmax(0,1fr)]">
-        <aside class="flex min-h-[560px] flex-col border-b border-slate-200 lg:border-b-0 lg:border-r">
+      <div class="grid min-h-[calc(100vh-156px)] grid-cols-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-[calc(100dvh-10.75rem)] lg:min-h-0 lg:grid-cols-[390px_minmax(0,1fr)]">
+        <aside class="flex min-h-[560px] flex-col overflow-hidden border-b border-slate-200 lg:min-h-0 lg:border-b-0 lg:border-r">
           <div class="border-b border-slate-200 p-3"><div class="mb-3 flex items-center justify-between"><h2 class="text-sm font-extrabold">Очередь вызовов</h2><span class="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs font-bold">{{ filteredOrders.length }}</span></div>
             <div class="flex gap-1 overflow-x-auto" role="tablist" aria-label="Фильтр вызовов"><button v-for="filter in filters" :key="filter.value" class="whitespace-nowrap rounded-md px-3 py-2 text-xs font-bold" :class="activeFilter === filter.value ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" @click="activeFilter = filter.value">{{ filter.label }}</button></div>
           </div>
-          <div v-if="filteredOrders.length" class="flex-1 overflow-y-auto">
+          <div v-if="filteredOrders.length" class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
             <button v-for="order in filteredOrders" :key="order.token" class="block w-full border-b border-slate-100 p-3 text-left" :class="selectedToken === order.token ? 'bg-teal-50 ring-2 ring-inset ring-teal-700' : 'hover:bg-slate-50'" @click="selectedToken = order.token">
               <div class="mb-2 flex items-start justify-between gap-3"><div class="flex min-w-0 items-center gap-2"><span class="rounded px-1.5 py-1 text-[10px] font-black" :class="priorityClass(order)">{{ priorityLabel(order) }}</span><span class="font-mono text-xs font-extrabold">{{ order.id }}</span><span class="truncate text-xs font-bold text-slate-500">{{ statusText(order.status) }}</span></div><span class="shrink-0 font-mono text-xs font-black" :class="waitMinutes(order) >= 10 ? 'text-red-600' : 'text-slate-700'">{{ elapsed(order) }}</span></div>
               <p class="truncate text-sm font-extrabold">{{ order.patientName }}</p><p class="mt-1 flex items-center gap-1.5 truncate text-xs text-slate-600"><MapPin class="h-3.5 w-3.5 shrink-0" />{{ order.address }}</p>
@@ -33,7 +33,7 @@
           <div v-else class="grid flex-1 place-items-center p-8 text-center text-sm text-slate-500"><div><CircleCheck class="mx-auto mb-2 h-8 w-8 text-teal-600" /><p class="font-bold">В этой очереди вызовов нет</p></div></div>
         </aside>
 
-        <section class="relative min-h-[620px] bg-slate-200">
+        <section class="relative min-h-[620px] bg-slate-200 lg:min-h-0">
           <LiveMap :orders="activeOrders" :focused-token="selectedToken" @select-order="selectedToken = $event" />
           <article v-if="selectedOrder" class="absolute bottom-3 left-3 right-3 z-[500] rounded-xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur lg:left-auto lg:w-[420px]">
             <div class="mb-3 flex items-start justify-between gap-3"><div class="min-w-0"><div class="mb-1 flex items-center gap-2"><span class="rounded px-1.5 py-1 text-[10px] font-black" :class="priorityClass(selectedOrder)">{{ priorityLabel(selectedOrder) }}</span><span class="font-mono text-xs font-bold">{{ selectedOrder.id }}</span></div><h3 class="truncate text-base font-extrabold">{{ selectedOrder.patientName }}</h3><p class="mt-1 text-xs text-slate-600">{{ selectedOrder.patientPhone }}</p></div><button class="rounded-md p-2 hover:bg-slate-100" aria-label="Закрыть" @click="selectedToken = null"><X class="h-4 w-4" /></button></div>

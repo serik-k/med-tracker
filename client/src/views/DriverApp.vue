@@ -2,7 +2,7 @@
   <main class="mx-auto min-h-svh w-full max-w-md bg-slate-100 pb-28 text-slate-950">
     <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur">
       <div class="flex min-w-0 items-center gap-3"><div class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-800 text-white"><Ambulance class="h-5 w-5" /></div><div class="min-w-0"><h1 class="text-sm font-black">Экипаж</h1><p class="truncate text-xs font-bold text-teal-800">{{ activeOrder?.carNumber || 'Вызов не назначен' }}</p></div></div>
-      <div class="flex items-center gap-2"><span class="flex items-center gap-1.5 text-[10px] font-bold" :class="gpsStateClass"><LocateFixed class="h-3.5 w-3.5" />{{ gpsStateText }}</span><LanguageSwitcher /></div>
+      <div class="flex items-center gap-2"><span v-if="activeOrder" class="flex items-center gap-1.5 text-[10px] font-bold" :class="gpsStateClass"><LocateFixed class="h-3.5 w-3.5" />{{ gpsStateText }}</span><LanguageSwitcher /></div>
     </header>
 
     <div class="space-y-3 p-3">
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useOrderStore } from '@/stores/orderStore';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
@@ -62,9 +62,10 @@ const nextStatus=computed(()=>{if(!activeOrder.value)return null; const index=fl
 const statusBadgeClass=computed(()=>activeOrder.value?.status==='EN_ROUTE'||activeOrder.value?.status==='ARRIVED'?'bg-teal-100 text-teal-800':'bg-slate-100 text-slate-700');
 const navigatorUrl=computed(()=>getNavigatorUrl(activeOrder.value?.destinationLoc)); const hasAccessInfo=computed(()=>!!activeOrder.value&&Object.entries(activeOrder.value.accessInfo).some(([key,value])=>!['photoUrl','residenceType'].includes(key)&&!!value));
 const gpsStateText=computed(()=>gpsState.value==='active'?'GPS активен':gpsState.value==='error'?'Ошибка GPS':'GPS…'); const gpsStateClass=computed(()=>gpsState.value==='active'?'text-teal-700':gpsState.value==='error'?'text-red-700':'text-slate-500');
-onMounted(()=>{if(crewId)orderStore.joinCrewRoom(crewId);else if(selectedToken.value)orderStore.joinOrderRoom(selectedToken.value);if(crewId||selectedToken.value)startGpsTracking();}); onBeforeUnmount(stopGps);
-function startGpsTracking(){if(!('geolocation' in navigator)){gpsState.value='error';return;} gpsWatchId=navigator.geolocation.watchPosition(pos=>{gpsState.value='active';if(activeOrder.value?.status==='EN_ROUTE')orderStore.sendLocation(activeOrder.value.token,pos.coords.latitude,pos.coords.longitude);},()=>gpsState.value='error',{enableHighAccuracy:true});}
-function stopGps(){if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}}
+onMounted(()=>{if(crewId)orderStore.joinCrewRoom(crewId);else if(selectedToken.value)orderStore.joinOrderRoom(selectedToken.value);}); onBeforeUnmount(stopGps);
+watch(activeOrder,(order)=>{if(order)startGpsTracking();else stopGps();},{immediate:true});
+function startGpsTracking(){if(gpsWatchId!==null)return;gpsState.value='waiting';if(!('geolocation' in navigator)){gpsState.value='error';return;} gpsWatchId=navigator.geolocation.watchPosition(pos=>{gpsState.value='active';if(activeOrder.value?.status==='EN_ROUTE')orderStore.sendLocation(activeOrder.value.token,pos.coords.latitude,pos.coords.longitude);},()=>gpsState.value='error',{enableHighAccuracy:true});}
+function stopGps(){if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}gpsState.value='waiting';}
 function advanceStatus(){if(!nextStatus.value||!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,nextStatus.value.status);statusMessage.value=`Статус обновлён: ${nextStatus.value.label}`;setTimeout(()=>statusMessage.value='',3000);}
 function startTransport(){if(!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,'HOSPITAL_TRANSPORT');statusMessage.value='Статус обновлён: транспортировка в клинику';setTimeout(()=>statusMessage.value='',3000);}
 function confirmComplete(){if(!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,'COMPLETED');isCompleteConfirmOpen.value=false;statusMessage.value='Вызов завершён';stopGps();}
