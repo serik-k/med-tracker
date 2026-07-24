@@ -6,6 +6,7 @@ export interface Location {
 }
 
 export interface AccessInfo {
+  residenceType?: 'apartment' | 'house';
   intercom: string;
   gateCode: string;
   entrance: string;

@@ -16,7 +16,7 @@ const router = createRouter({
       component: DispatcherDashboard
     },
     {
-      path: '/driver',
+      path: '/driver/:crewId?',
       name: 'driver',
       component: DriverApp
     },

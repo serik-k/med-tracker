@@ -10,6 +10,7 @@ export const useOrderStore = defineStore('orders', () => {
   const isConnected = ref(false);
   const errorMsg = ref<string | null>(null);
   const lastLocationUpdate = ref<number | null>(null);
+  const joinedCrewId = ref<string | null>(null);
 
   // Initialize socket connection
   function initSocket() {
@@ -38,7 +39,18 @@ export const useOrderStore = defineStore('orders', () => {
 
     socket.value.on('order_data', (order: Order) => {
       currentOrder.value = order;
+      errorMsg.value = order.expired ? 'Вызов уже завершён.' : null;
       lastLocationUpdate.value = Date.now();
+    });
+
+    socket.value.on('crew_order', (order: Order) => {
+      currentOrder.value = order;
+      lastLocationUpdate.value = Date.now();
+      socket.value?.emit('join_order', order.token);
+    });
+
+    socket.value.on('crew_order_cleared', ({ token }: { token: string }) => {
+      if (currentOrder.value?.token === token) currentOrder.value = null;
     });
 
     socket.value.on('order_created', (order: Order) => {
@@ -66,8 +78,13 @@ export const useOrderStore = defineStore('orders', () => {
         foundInList.completedAt = completedAt;
       }
       if (currentOrder.value && currentOrder.value.token === token) {
-        currentOrder.value.status = status;
-        currentOrder.value.expired = expired;
+        if (status === 'COMPLETED' && joinedCrewId.value) {
+          currentOrder.value = null;
+        } else {
+          currentOrder.value.status = status;
+          currentOrder.value.expired = expired;
+          currentOrder.value.completedAt = completedAt;
+        }
       }
     });
 
@@ -103,7 +120,29 @@ export const useOrderStore = defineStore('orders', () => {
   // Dispatcher actions
   function joinDispatcherRoom() {
     initSocket();
+    joinedCrewId.value = null;
     socket.value?.emit('join_dispatcher');
+  }
+
+  function joinCrewRoom(crewId: string) {
+    initSocket();
+    joinedCrewId.value = crewId;
+    const join = () => socket.value?.emit('join_crew', crewId);
+    if (socket.value?.connected) join();
+    else socket.value?.once('connect', join);
+
+    fetch(`/api/crews/${encodeURIComponent(crewId)}/active-order`)
+      .then(res => res.status === 204 ? null : res.ok ? res.json() : Promise.reject(new Error('Failed to load crew order')))
+      .then((order: Order | null) => {
+        if (!order) {
+          currentOrder.value = null;
+          return;
+        }
+        currentOrder.value = order;
+        lastLocationUpdate.value = Date.now();
+        socket.value?.emit('join_order', order.token);
+      })
+      .catch(err => console.error('[Crew] Failed to load active order:', err));
   }
 
   async function createOrder(payload: { patientPhone: string; patientName: string; address: string; carNumber?: string; lat?: number; lng?: number }) {
@@ -125,6 +164,9 @@ export const useOrderStore = defineStore('orders', () => {
   // Patient / Driver actions
   function joinOrderRoom(token: string) {
     initSocket();
+    joinedCrewId.value = null;
+    errorMsg.value = null;
+    currentOrder.value = null;
     socket.value?.emit('join_order', token);
     
     // Fetch initial state via REST API to ensure immediate load
@@ -178,6 +220,7 @@ export const useOrderStore = defineStore('orders', () => {
     lastLocationUpdate,
     initSocket,
     joinDispatcherRoom,
+    joinCrewRoom,
     createOrder,
     joinOrderRoom,
     sendLocation,
