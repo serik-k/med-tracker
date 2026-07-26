@@ -39,6 +39,40 @@
     <div v-if="activeOrder" class="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-md border-t border-slate-200 bg-white/95 p-3 backdrop-blur"><a :href="navigatorUrl" target="_blank" class="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-slate-950 text-sm font-black text-white"><Navigation class="h-5 w-5 text-teal-400" /> Маршрут к пациенту</a></div>
 
     <div v-if="isCompleteConfirmOpen" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4" @click.self="isCompleteConfirmOpen = false"><div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl" role="alertdialog" aria-modal="true" aria-labelledby="complete-title"><div class="grid h-11 w-11 place-items-center rounded-full bg-red-100 text-red-700"><ShieldCheck class="h-5 w-5" /></div><h2 id="complete-title" class="mt-4 text-lg font-black">Завершить вызов?</h2><p class="mt-2 text-sm leading-relaxed text-slate-600">Вызов будет закрыт, а передача геопозиции пациенту прекратится. Отменить это действие нельзя.</p><div class="mt-5 grid grid-cols-2 gap-2"><button class="min-h-12 rounded-xl border border-slate-200 text-xs font-bold" @click="isCompleteConfirmOpen = false">Вернуться</button><button class="min-h-12 rounded-xl bg-red-600 text-xs font-black text-white" @click="confirmComplete">Завершить вызов</button></div></div></div>
+
+    <!-- Hospital Selector Modal -->
+    <div v-if="isHospitalSelectOpen" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4" @click.self="isHospitalSelectOpen = false">
+      <div class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="grid h-10 w-10 place-items-center rounded-xl bg-teal-100 text-teal-800">
+            <Hospital class="h-5 w-5" />
+          </div>
+          <div>
+            <h2 class="text-base font-black text-slate-900">Выберите стационар</h2>
+            <p class="text-xs text-slate-500">Куда доставляется пациент?</p>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <button
+            v-for="h in hospitalOptions"
+            :key="h"
+            @click="confirmHospitalTransport(h)"
+            class="w-full text-left p-3 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 text-xs font-bold text-slate-800 transition-all flex items-center justify-between"
+          >
+            <span>{{ h }}</span>
+            <ChevronRight class="h-4 w-4 text-slate-400" />
+          </button>
+        </div>
+
+        <button
+          @click="isHospitalSelectOpen = false"
+          class="w-full py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600"
+        >
+          Отмена
+        </button>
+      </div>
+    </div>
   </main>
 </template>
 
@@ -48,10 +82,10 @@ import { useRoute } from 'vue-router';
 import { useOrderStore } from '@/stores/orderStore';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
-import { Ambulance, Building2, CheckCircle2, CircleDot, Hospital, Info, Link2Off, LoaderCircle, LocateFixed, Navigation, Phone, Route, ShieldCheck } from 'lucide-vue-next';
+import { Ambulance, Building2, CheckCircle2, ChevronRight, CircleDot, Hospital, Info, Link2Off, LoaderCircle, LocateFixed, Navigation, Phone, Route, ShieldCheck } from 'lucide-vue-next';
 import type { Location, OrderStatus } from '@/types';
 
-const route=useRoute(); const orderStore=useOrderStore(); const crewId=String(route.params.crewId||'').replace(/\D/g,''); const selectedToken=ref<string>((route.query.token as string)||''); const isCompleteConfirmOpen=ref(false); const statusMessage=ref(''); const gpsState=ref<'waiting'|'active'|'error'>('waiting'); let gpsWatchId:number|null=null;
+const route=useRoute(); const orderStore=useOrderStore(); const crewId=String(route.params.crewId||'').replace(/\D/g,''); const selectedToken=ref<string>((route.query.token as string)||''); const isCompleteConfirmOpen=ref(false); const isHospitalSelectOpen=ref(false); const statusMessage=ref(''); const gpsState=ref<'waiting'|'active'|'error'>('waiting'); let gpsWatchId:number|null=null;
 const activeOrder=computed(()=>crewId?orderStore.currentOrder:(orderStore.currentOrder?.token===selectedToken.value?orderStore.currentOrder:null));
 const flow:OrderStatus[]=['ACCEPTED','EN_ROUTE','ARRIVED','HOSPITAL_TRANSPORT'];
 const shortLabels:Partial<Record<OrderStatus,string>>={ACCEPTED:'Принят',EN_ROUTE:'В пути',ARRIVED:'Прибыл',HOSPITAL_TRANSPORT:'В клинику'};
@@ -63,14 +97,31 @@ const nextStatus=computed(()=>{if(!activeOrder.value)return null; const index=fl
 const statusBadgeClass=computed(()=>activeOrder.value?.status==='EN_ROUTE'||activeOrder.value?.status==='ARRIVED'?'bg-teal-100 text-teal-800':'bg-slate-100 text-slate-700');
 const navigatorUrl=computed(()=>getNavigatorUrl(activeOrder.value?.destinationLoc)); const hasAccessInfo=computed(()=>!!activeOrder.value&&Object.entries(activeOrder.value.accessInfo).some(([key,value])=>!['photoUrl','residenceType'].includes(key)&&!!value));
 const gpsStateText=computed(()=>gpsState.value==='active'?'GPS активен':gpsState.value==='error'?'Ошибка GPS':'GPS…'); const gpsStateClass=computed(()=>gpsState.value==='active'?'text-teal-700':gpsState.value==='error'?'text-red-700':'text-slate-500');
+
+const hospitalOptions = [
+  'ГКБ №7 (мкр. Калкаман)',
+  'ЦКБ / Совминка (ул. Шевченко)',
+  'Городская Клиническая Больница №1 (ул. Калдаякова)',
+  'Детская Городская Больница №1 (ул. Манаса)',
+  'Стационар клиники MedClinic'
+];
+
 onMounted(()=>{if(crewId)orderStore.joinCrewRoom(crewId);else if(selectedToken.value)orderStore.joinOrderRoom(selectedToken.value);}); onBeforeUnmount(stopGps);
 watch(activeOrder,(order)=>{if(order)startGpsTracking();else stopGps();},{immediate:true});
 function startGpsTracking(){if(gpsWatchId!==null)return;gpsState.value='waiting';if(!('geolocation' in navigator)){gpsState.value='error';return;} gpsWatchId=navigator.geolocation.watchPosition(pos=>{gpsState.value='active';if(activeOrder.value?.status==='EN_ROUTE')orderStore.sendLocation(activeOrder.value.token,pos.coords.latitude,pos.coords.longitude);},()=>gpsState.value='error',{enableHighAccuracy:true});}
 function stopGps(){if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}gpsState.value='waiting';}
 function advanceStatus(){if(!nextStatus.value||!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,nextStatus.value.status);statusMessage.value=`Статус обновлён: ${nextStatus.value.label}`;setTimeout(()=>statusMessage.value='',3000);}
-function startTransport(){if(!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,'HOSPITAL_TRANSPORT');statusMessage.value='Статус обновлён: транспортировка в клинику';setTimeout(()=>statusMessage.value='',3000);}
+function startTransport(){if(!activeOrder.value)return; isHospitalSelectOpen.value = true; }
+function confirmHospitalTransport(hospitalName: string) {
+  if (!activeOrder.value) return;
+  orderStore.updateStatus(activeOrder.value.token, 'HOSPITAL_TRANSPORT', hospitalName);
+  isHospitalSelectOpen.value = false;
+  statusMessage.value = `Статус обновлён: Госпитализация в ${hospitalName}`;
+  setTimeout(()=>statusMessage.value='', 3000);
+}
 function confirmComplete(){if(!activeOrder.value)return;orderStore.updateStatus(activeOrder.value.token,'COMPLETED');isCompleteConfirmOpen.value=false;statusMessage.value='Вызов завершён';stopGps();}
 function getNavigatorUrl(loc?:Location){return loc?`https://yandex.ru/maps/?rtext=~${loc.lat},${loc.lng}`:'https://yandex.ru/maps/';}
 </script>
 
 <style scoped>.info-cell{min-width:0;overflow:hidden;border:1px solid #e2e8f0;border-radius:.75rem;background:#f8fafc;padding:.625rem}.info-cell span{display:block;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b}.info-cell strong{display:block;min-width:0;margin-top:.125rem;overflow-wrap:anywhere;word-break:break-word;font-size:.875rem;font-weight:900;color:#0f172a}</style>
+

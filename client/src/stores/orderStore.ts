@@ -115,6 +115,18 @@ export const useOrderStore = defineStore('orders', () => {
         currentOrder.value.isSimulating = isSimulating;
       }
     });
+
+    socket.value.on('sos_triggered', ({ token, sosAlert, sosTime }: { token: string; sosAlert: boolean; sosTime: string }) => {
+      const foundInList = activeOrders.value.find(o => o.token === token);
+      if (foundInList) {
+        foundInList.sosAlert = sosAlert;
+        foundInList.sosTime = sosTime;
+      }
+      if (currentOrder.value && currentOrder.value.token === token) {
+        currentOrder.value.sosAlert = sosAlert;
+        currentOrder.value.sosTime = sosTime;
+      }
+    });
   }
 
   // Dispatcher actions
@@ -145,7 +157,7 @@ export const useOrderStore = defineStore('orders', () => {
       .catch(err => console.error('[Crew] Failed to load active order:', err));
   }
 
-  async function createOrder(payload: { patientPhone: string; patientName: string; address: string; carNumber?: string; lat?: number; lng?: number }) {
+  async function createOrder(payload: { patientPhone: string; patientName: string; address: string; carNumber?: string; priority?: string; lat?: number; lng?: number }) {
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -195,8 +207,12 @@ export const useOrderStore = defineStore('orders', () => {
     socket.value?.emit('update_location', { token, lat, lng });
   }
 
-  function updateStatus(token: string, status: OrderStatus) {
-    socket.value?.emit('update_status', { token, status });
+  function updateStatus(token: string, status: OrderStatus, hospitalName?: string) {
+    socket.value?.emit('update_status', { token, status, hospitalName });
+  }
+
+  function triggerSos(token: string, note?: string) {
+    socket.value?.emit('trigger_sos', { token, note });
   }
 
   function updateAccessInfo(token: string, accessInfo: Partial<AccessInfo>) {
@@ -218,6 +234,7 @@ export const useOrderStore = defineStore('orders', () => {
     isConnected,
     errorMsg,
     lastLocationUpdate,
+    joinedCrewId,
     initSocket,
     joinDispatcherRoom,
     joinCrewRoom,
@@ -225,6 +242,7 @@ export const useOrderStore = defineStore('orders', () => {
     joinOrderRoom,
     sendLocation,
     updateStatus,
+    triggerSos,
     updateAccessInfo,
     updateSymptoms,
     toggleSimulation

@@ -8,7 +8,6 @@
     "dev": "node --watch index.js"
   },
   "dependencies": {
-    "ambulance-tracker-workspace": "file:..",
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "socket.io": "^4.8.0"
