@@ -19,6 +19,29 @@ const io = new Server(httpServer, {
 const getCrewId = (carNumber = '') => carNumber.match(/№\s*(\d+)/)?.[1] || carNumber.match(/\b(\d{3})\b/)?.[1] || null;
 
 // REST Endpoints
+app.get('/api/crews', (req, res) => {
+  res.json(orderStore.getAllCrews());
+});
+
+app.post('/api/crews', (req, res) => {
+  const crew = orderStore.addCrew(req.body);
+  io.to('dispatcher_room').emit('crew_added', crew);
+  res.status(201).json(crew);
+});
+
+app.put('/api/crews/:id', (req, res) => {
+  const updated = orderStore.updateCrew(req.params.id, req.body);
+  if (!updated) return res.status(404).json({ error: 'Бригада не найдена' });
+  io.to('dispatcher_room').emit('crew_updated', updated);
+  res.json(updated);
+});
+
+app.delete('/api/crews/:id', (req, res) => {
+  orderStore.deleteCrew(req.params.id);
+  io.to('dispatcher_room').emit('crew_deleted', req.params.id);
+  res.status(204).end();
+});
+
 app.get('/api/orders', (req, res) => {
   res.json(orderStore.getAllActiveOrders());
 });
@@ -58,6 +81,7 @@ io.on('connection', (socket) => {
   socket.on('join_dispatcher', () => {
     socket.join('dispatcher_room');
     socket.emit('all_orders', orderStore.getAllDispatcherOrders());
+    socket.emit('all_crews', orderStore.getAllCrews());
   });
 
   socket.on('join_order', (token) => {
@@ -88,12 +112,14 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('update_status', ({ token, status }) => {
-    const updated = orderStore.updateOrderStatus(token, status);
+  socket.on('update_status', ({ token, status, hospitalName }) => {
+    const updated = orderStore.updateOrderStatus(token, status, hospitalName);
     if (updated) {
       io.to(`order_${token}`).to('dispatcher_room').emit('status_updated', {
         token,
         status: updated.status,
+        hospitalName: updated.hospitalName || null,
+        auditLogs: updated.auditLogs,
         expired: updated.expired,
         completedAt: updated.completedAt || null
       });
@@ -104,12 +130,25 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('trigger_sos', ({ token, note }) => {
+    const updated = orderStore.addSosAlert(token, note);
+    if (updated) {
+      io.to(`order_${token}`).to('dispatcher_room').emit('sos_triggered', {
+        token,
+        sosAlert: true,
+        sosTime: updated.sosTime,
+        auditLogs: updated.auditLogs
+      });
+    }
+  });
+
   socket.on('update_access', ({ token, accessInfo }) => {
     const updated = orderStore.updateAccessInfo(token, accessInfo);
     if (updated) {
       io.to(`order_${token}`).to('dispatcher_room').emit('access_updated', {
         token,
-        accessInfo: updated.accessInfo
+        accessInfo: updated.accessInfo,
+        auditLogs: updated.auditLogs
       });
     }
   });
@@ -119,7 +158,8 @@ io.on('connection', (socket) => {
     if (updated) {
       io.to(`order_${token}`).to('dispatcher_room').emit('symptoms_updated', {
         token,
-        symptoms: updated.symptoms
+        symptoms: updated.symptoms,
+        auditLogs: updated.auditLogs
       });
     }
   });

@@ -10,7 +10,7 @@
       "lng": 76.9408606
     },
     "carNumber": "Скорая №105 (02 KZ 555 VIP)",
-    "status": "ARRIVED",
+    "status": "HOSPITAL_TRANSPORT",
     "currentLoc": {
       "lat": 43.23581021676058,
       "lng": 76.93067767258208
@@ -267,6 +267,26 @@
     ],
     "isSimulating": false,
     "createdAt": "2026-07-24T16:21:39.044Z",
-    "expired": false
+    "expired": false,
+    "sosAlert": true,
+    "sosTime": "2026-07-26T17:03:10.463Z",
+    "auditLogs": [
+      {
+        "timestamp": "2026-07-26T16:47:03.494Z",
+        "event": "SOS_ALERT",
+        "text": "🚨 ВНИМАНИЕ: Пациент нажал SOS (Состояние ухудшилось!)"
+      },
+      {
+        "timestamp": "2026-07-26T16:47:25.846Z",
+        "event": "HOSPITAL_TRANSPORT",
+        "text": "Госпитализация в ГКБ №7 (мкр. Калкаман)"
+      },
+      {
+        "timestamp": "2026-07-26T17:03:10.463Z",
+        "event": "SOS_ALERT",
+        "text": "🚨 ВНИМАНИЕ: Пациент нажал SOS (Состояние ухудшилось!)"
+      }
+    ],
+    "hospitalName": "ГКБ №7 (мкр. Калкаман)"
   }
 }

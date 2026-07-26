@@ -18,7 +18,46 @@ class OrderStore {
         repaired = true;
       }
     });
+
+    this.crews = [
+      { id: '101', name: 'Бригада №101', carPlate: '01 KZ 101 MED', type: 'РЕАНИМАЦИЯ', driverName: 'Алмасов К.', status: 'ON_DUTY', pin: '101' },
+      { id: '102', name: 'Бригада №102', carPlate: '02 KZ 102 MED', type: 'ПЕДИАТРИЧЕСКАЯ', driverName: 'Иванов С.', status: 'ON_DUTY', pin: '102' },
+      { id: '103', name: 'Бригада №103', carPlate: '02 KZ 777 ABC', type: 'ЛИНЕЙНАЯ', driverName: 'Нурланов Б.', status: 'ON_DUTY', pin: '103' }
+    ];
+
     if (repaired) this.persist();
+  }
+
+  getAllCrews() {
+    return this.crews;
+  }
+
+  addCrew(crewData) {
+    const newCrew = {
+      id: String(crewData.id || Math.floor(100 + Math.random() * 900)),
+      name: crewData.name || `Бригада №${Math.floor(100 + Math.random() * 900)}`,
+      carPlate: crewData.carPlate || '02 KZ 000 MED',
+      type: crewData.type || 'ЛИНЕЙНАЯ',
+      driverName: crewData.driverName || 'Водитель',
+      status: crewData.status || 'ON_DUTY',
+      pin: crewData.pin || '123'
+    };
+    this.crews.push(newCrew);
+    return newCrew;
+  }
+
+  updateCrew(id, crewData) {
+    const index = this.crews.findIndex(c => c.id === String(id));
+    if (index !== -1) {
+      this.crews[index] = { ...this.crews[index], ...crewData };
+      return this.crews[index];
+    }
+    return null;
+  }
+
+  deleteCrew(id) {
+    this.crews = this.crews.filter(c => c.id !== String(id));
+    return true;
   }
 
   async initDemoData() {
@@ -34,7 +73,8 @@ class OrderStore {
       patientName: 'Алексей Мусинов',
       address: 'г. Алматы, пр. Аль-Фараби, д. 77/7, кв. 45',
       destinationLoc: destLoc,
-      carNumber: 'Скорая №103 (02 KZ 777 ABC)',
+      carNumber: 'Бригада №103 (02 KZ 777 ABC)',
+      priority: 'EMERGENCY',
       status: 'EN_ROUTE',
       currentLoc: startLoc,
       routePath: realRoute.path,
@@ -50,7 +90,11 @@ class OrderStore {
       symptoms: ['Боль в груди', 'Одышка'],
       isSimulating: true,
       createdAt: new Date().toISOString(),
-      expired: false
+      expired: false,
+      auditLogs: [
+        { timestamp: new Date(Date.now() - 300000).toISOString(), event: 'CREATED', text: 'Вызов создан диспетчером' },
+        { timestamp: new Date(Date.now() - 240000).toISOString(), event: 'EN_ROUTE', text: 'Бригада №103 выехала по маршруту' }
+      ]
     };
 
     this.orders.set(demoToken, demoOrder);
@@ -85,7 +129,8 @@ class OrderStore {
       patientName: data.patientName || 'Пациент',
       address: data.address || 'г. Алматы, Медеуский район',
       destinationLoc: destLoc,
-      carNumber: data.carNumber || 'Скорая №103 (02 KZ 777 ABC)',
+      carNumber: data.carNumber || 'Бригада №103 (02 KZ 777 ABC)',
+      priority: data.priority || 'EMERGENCY',
       status: 'ACCEPTED',
       currentLoc: startLoc,
       routePath: realRoute.path,
@@ -95,7 +140,10 @@ class OrderStore {
       symptoms: [],
       isSimulating: false,
       createdAt: new Date().toISOString(),
-      expired: false
+      expired: false,
+      auditLogs: [
+        { timestamp: new Date().toISOString(), event: 'CREATED', text: `Вызов создан (${data.priority || 'Экстренный'})` }
+      ]
     };
 
     this.orders.set(token, newOrder);
@@ -115,12 +163,29 @@ class OrderStore {
     return Array.from(this.orders.values());
   }
 
-  updateOrderStatus(token, status) {
+  updateOrderStatus(token, status, hospitalName = null) {
     const order = this.orders.get(token);
     if (!order) return null;
     if (order.expired && order.status === 'COMPLETED' && status !== 'COMPLETED') return null;
 
     order.status = status;
+    if (hospitalName) order.hospitalName = hospitalName;
+
+    const logTextMap = {
+      ACCEPTED: 'Бригада приняла вызов',
+      EN_ROUTE: 'Скорая помощь выехала к пациенту',
+      ARRIVED: 'Бригада прибыла по адресу',
+      HOSPITAL_TRANSPORT: `Госпитализация в ${hospitalName || 'стационар'}`,
+      COMPLETED: 'Вызов успешно завершен'
+    };
+
+    order.auditLogs = order.auditLogs || [];
+    order.auditLogs.push({
+      timestamp: new Date().toISOString(),
+      event: status,
+      text: logTextMap[status] || `Статус изменен на ${status}`
+    });
+
     if (status === 'COMPLETED') {
       order.expired = true;
       order.completedAt = new Date().toISOString();
@@ -146,6 +211,12 @@ class OrderStore {
     if (!order || order.expired) return null;
 
     order.accessInfo = { ...order.accessInfo, ...accessData };
+    order.auditLogs = order.auditLogs || [];
+    order.auditLogs.push({
+      timestamp: new Date().toISOString(),
+      event: 'ACCESS_UPDATED',
+      text: 'Пациент уточнил информацию о доступе'
+    });
     this.persist();
     return order;
   }
@@ -155,6 +226,28 @@ class OrderStore {
     if (!order || order.expired) return null;
 
     order.symptoms = symptoms;
+    order.auditLogs = order.auditLogs || [];
+    order.auditLogs.push({
+      timestamp: new Date().toISOString(),
+      event: 'SYMPTOMS_UPDATED',
+      text: `Обновлены симптомы (${symptoms.join(', ')})`
+    });
+    this.persist();
+    return order;
+  }
+
+  addSosAlert(token, note = '') {
+    const order = this.orders.get(token);
+    if (!order || order.expired) return null;
+
+    order.sosAlert = true;
+    order.sosTime = new Date().toISOString();
+    order.auditLogs = order.auditLogs || [];
+    order.auditLogs.push({
+      timestamp: new Date().toISOString(),
+      event: 'SOS_ALERT',
+      text: '🚨 ВНИМАНИЕ: Пациент нажал SOS (Состояние ухудшилось!)'
+    });
     this.persist();
     return order;
   }

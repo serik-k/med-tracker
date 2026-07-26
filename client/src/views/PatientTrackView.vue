@@ -15,8 +15,45 @@
           <div class="mt-5 grid grid-cols-4 gap-1"><div v-for="(step,index) in steps" :key="step" class="text-center"><div class="h-1.5 rounded-full" :class="currentStep>=index?'bg-teal-700':'bg-slate-200'"></div><span class="mt-1.5 block text-[9px] font-bold" :class="currentStep>=index?'text-teal-800':'text-slate-400'">{{ step }}</span></div></div>
           <div v-if="gpsIsStale&&order.status==='EN_ROUTE'" class="mt-4 flex gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900" role="status"><WifiOff class="h-4 w-4 shrink-0" /><span><strong>Координаты временно не обновляются.</strong> Расчёт времени может быть неточным.</span></div>
         </section>
+
+        <!-- Emergency SOS Button -->
+        <button
+          @click="isWorseDialogOpen = true"
+          class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 active:scale-98 text-xs font-black text-white shadow-lg transition-all"
+        >
+          <AlertTriangle class="h-4 w-4 text-white animate-pulse" />
+          <span>🚨 Состояние ухудшилось (SOS)</span>
+        </button>
+
         <a href="tel:+77778887766" class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 text-xs font-black text-white"><Phone class="h-4 w-4" /> Позвонить диспетчеру</a>
         <PatientActionAccordions :order="order" @update-access="onUpdateAccess" @update-symptoms="onUpdateSymptoms" />
+        </div>
+      </div>
+
+      <!-- SOS Confirmation Modal -->
+      <div v-if="isWorseDialogOpen" class="fixed inset-0 z-[1000] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-sm shadow-2xl text-center space-y-4">
+          <div class="w-14 h-14 rounded-2xl bg-red-100 border border-red-200 flex items-center justify-center text-red-600 mx-auto">
+            <AlertTriangle class="w-8 h-8 animate-bounce" />
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-slate-900">Состояние ухудшилось?</h3>
+            <p class="text-xs text-slate-600 mt-1">Это мгновенно передаст приоритетный SOS-сигнал диспетчеру скорой помощи!</p>
+          </div>
+          <div class="flex flex-col gap-2 pt-2">
+            <button
+              @click="confirmSos"
+              class="w-full py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-lg shadow-red-600/30"
+            >
+              Да, срочно оповестить диспетчера
+            </button>
+            <button
+              @click="isWorseDialogOpen = false"
+              class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs"
+            >
+              Отмена
+            </button>
+          </div>
         </div>
       </div>
     </template>
@@ -26,9 +63,10 @@
 <script setup lang="ts">
 import PatientActionAccordions from '@/components/PatientActionAccordions.vue';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
-import { computed,onBeforeUnmount,onMounted,ref } from 'vue'; import { useRoute } from 'vue-router'; import { useOrderStore } from '@/stores/orderStore'; import LiveMap from '@/components/LiveMap.vue'; import AccessForm from '@/components/AccessForm.vue'; import SymptomSelector from '@/components/SymptomSelector.vue'; import PreArrivalChecklist from '@/components/PreArrivalChecklist.vue'; import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue'; import { Ambulance,CheckCircle2,ChevronDown,ClipboardCheck,HeartPulse,KeyRound,LoaderCircle,MapPinCheck,Phone,Share2,ShieldCheck,Stethoscope,WifiOff } from 'lucide-vue-next'; import type { AccessInfo,OrderStatus } from '@/types';
+import { computed,onBeforeUnmount,onMounted,ref } from 'vue'; import { useRoute } from 'vue-router'; import { useOrderStore } from '@/stores/orderStore'; import LiveMap from '@/components/LiveMap.vue'; import AccessForm from '@/components/AccessForm.vue'; import SymptomSelector from '@/components/SymptomSelector.vue'; import PreArrivalChecklist from '@/components/PreArrivalChecklist.vue'; import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue'; import { AlertTriangle, Ambulance,CheckCircle2,ChevronDown,ClipboardCheck,HeartPulse,KeyRound,LoaderCircle,MapPinCheck,Phone,Share2,ShieldCheck,Stethoscope,WifiOff } from 'lucide-vue-next'; import type { AccessInfo,OrderStatus } from '@/types';
 const route=useRoute(),orderStore=useOrderStore(),token=(route.params.token as string)||''; const openPanels=ref(new Set<string>()),isSheetExpanded=ref(false),isWorseDialogOpen=ref(false),now=ref(Date.now()); let timer=0; const order=computed(()=>orderStore.currentOrder?.token===token?orderStore.currentOrder:null); onMounted(()=>{orderStore.joinOrderRoom(token);timer=window.setInterval(()=>now.value=Date.now(),10000)});onBeforeUnmount(()=>clearInterval(timer));
 function togglePanel(key:string){const next=new Set(openPanels.value);if(next.has(key))next.delete(key);else next.add(key);openPanels.value=next;}
+function confirmSos() { if (token) { orderStore.triggerSos(token); } isWorseDialogOpen.value = false; }
 const labels:Record<OrderStatus,string>={ACCEPTED:'Вызов принят',EN_ROUTE:'Бригада в пути',ARRIVED:'Бригада прибыла',HOSPITAL_TRANSPORT:'Транспортировка',COMPLETED:'Вызов завершён'};const statusText=computed(()=>order.value?labels[order.value.status]:'');const statusClass=computed(()=>order.value?.status==='EN_ROUTE'||order.value?.status==='ARRIVED'?'bg-teal-100 text-teal-800':'bg-slate-100 text-slate-700');const steps=['Принят','В пути','Прибыл','В клинику'];const currentStep=computed(()=>order.value?Math.min(3,Math.max(0,['ACCEPTED','EN_ROUTE','ARRIVED','HOSPITAL_TRANSPORT','COMPLETED'].indexOf(order.value.status))):0);
 const distance=computed(()=>{if(!order.value)return null;const a=order.value.currentLoc,d=order.value.destinationLoc;if(!a||!d)return null;const lat=(d.lat-a.lat)*111,lng=(d.lng-a.lng)*111*Math.cos(a.lat*Math.PI/180);return Math.sqrt(lat*lat+lng*lng)});const etaRange=computed(()=>{const eta=order.value?.etaMinutes||(distance.value===null?null:Math.max(2,Math.ceil(distance.value*2.5)));return eta?`${Math.max(1,eta-2)}–${eta+3} мин`:'Время уточняется'});const age=computed(()=>orderStore.lastLocationUpdate?Math.floor((now.value-orderStore.lastLocationUpdate)/1000):null);const gpsIsStale=computed(()=>age.value===null||age.value>60);const gpsFreshness=computed(()=>age.value===null?'GPS уточняется':age.value<10?'GPS обновлён сейчас':age.value<60?`GPS обновлён ${age.value} сек назад`:`GPS обновлялся ${Math.floor(age.value/60)} мин назад`);
 const heroTitle=computed(()=>order.value?.status==='ARRIVED'?'Бригада уже на месте':order.value?.status==='HOSPITAL_TRANSPORT'?'Пациент едет в клинику':'Вызов принят');const heroDescription=computed(()=>order.value?.status==='ARRIVED'?'Проверьте, открыт ли вход для врачей':order.value?.status==='HOSPITAL_TRANSPORT'?'Отслеживание маршрута продолжается':'Бригада готовится к выезду');const heroIcon=computed(()=>order.value?.status==='ARRIVED'?MapPinCheck:CheckCircle2);const panels=[{key:'access',title:'Уточнить доступ',icon:KeyRound,color:'bg-teal-50 text-teal-800'},{key:'symptoms',title:'Передать симптомы',icon:Stethoscope,color:'bg-rose-50 text-rose-700'},{key:'ready',title:'Подготовиться к приезду',icon:ClipboardCheck,color:'bg-amber-50 text-amber-700'}];const onUpdateAccess=(v:Partial<AccessInfo>)=>orderStore.updateAccessInfo(token,v);const onUpdateSymptoms=(v:string[])=>orderStore.updateSymptoms(token,v);async function shareWithFamily(){const url=location.href;if(navigator.share)await navigator.share({title:'Отслеживание скорой помощи',url});else window.open(`https://wa.me/?text=${encodeURIComponent(url)}`,'_blank')}
