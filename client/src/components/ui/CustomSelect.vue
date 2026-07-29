@@ -1,6 +1,6 @@
 <template>
   <div class="relative w-full" :class="isOpen ? 'z-40' : 'z-10'" ref="selectRef">
-    <label v-if="label" class="block text-xs font-extrabold text-slate-700 mb-1 flex items-center justify-between">
+    <label v-if="label" :class="['block text-xs font-extrabold mb-1 flex items-center justify-between', dark ? 'text-slate-400' : 'text-slate-700']">
       <span>{{ label }}</span>
     </label>
 
@@ -8,15 +8,18 @@
     <div
       @click="isOpen = !isOpen"
       :class="[
-        'w-full bg-slate-50 border rounded-2xl px-3.5 py-2.5 text-xs font-bold text-slate-900 flex items-center justify-between cursor-pointer transition-all duration-200 shadow-sm select-none',
-        isOpen ? 'border-teal-600 bg-white ring-2 ring-teal-500/20 shadow-md' : 'border-slate-200 hover:border-slate-300 hover:bg-white'
+        'w-full border px-3.5 py-2.5 text-xs font-bold flex items-center justify-between cursor-pointer transition-all duration-200 shadow-sm select-none',
+        dark ? 'rounded-xl bg-slate-950 text-white' : 'rounded-2xl bg-slate-50 text-slate-900',
+        isOpen
+          ? dark ? 'border-emerald-400 ring-2 ring-emerald-500/15 shadow-md' : 'border-teal-600 bg-white ring-2 ring-teal-500/20 shadow-md'
+          : dark ? 'border-slate-700 hover:border-slate-600' : 'border-slate-200 hover:border-slate-300 hover:bg-white'
       ]"
     >
       <div class="flex items-center gap-2.5 truncate">
         <component :is="icon" v-if="icon" class="w-4 h-4 text-teal-600 shrink-0" />
         <span class="truncate">{{ selectedOption?.label || placeholder }}</span>
       </div>
-      <ChevronDown :class="['w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200', isOpen ? 'rotate-180 text-teal-600' : '']" />
+      <ChevronDown :class="['w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200', isOpen ? `rotate-180 ${dark ? 'text-emerald-400' : 'text-teal-600'}` : '']" />
     </div>
 
     <!-- Dropdown Menu -->
@@ -30,7 +33,7 @@
     >
       <div
         v-if="isOpen"
-        class="absolute left-0 right-0 z-50 w-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden max-h-56 overflow-y-auto divide-y divide-slate-100"
+        :class="['absolute left-0 right-0 z-50 w-full mt-1.5 border shadow-xl overflow-hidden max-h-56 overflow-y-auto', dark ? 'bg-slate-950 border-slate-700 rounded-xl divide-y divide-slate-800' : 'bg-white border-slate-200 rounded-2xl divide-y divide-slate-100']"
       >
         <div
           v-for="opt in options"
@@ -39,14 +42,14 @@
           :class="[
             'px-3.5 py-2.5 text-xs font-semibold flex items-center justify-between cursor-pointer transition-colors',
             modelValue === opt.value
-              ? 'bg-teal-50 text-teal-900 border-l-4 border-teal-600 font-extrabold'
-              : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+              ? dark ? 'bg-emerald-500/10 text-emerald-300 border-l-4 border-emerald-400 font-extrabold' : 'bg-teal-50 text-teal-900 border-l-4 border-teal-600 font-extrabold'
+              : dark ? 'text-slate-300 hover:bg-slate-800 hover:text-white' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
           ]"
         >
           <div class="flex items-center gap-2">
             <span>{{ opt.label }}</span>
           </div>
-          <Check v-if="modelValue === opt.value" class="w-4 h-4 text-teal-600 shrink-0" />
+          <Check v-if="modelValue === opt.value" :class="['w-4 h-4 shrink-0', dark ? 'text-emerald-400' : 'text-teal-600']" />
         </div>
       </div>
     </transition>
@@ -69,6 +72,7 @@ const props = defineProps<{
   label?: string;
   placeholder?: string;
   icon?: any;
+  theme?: 'light' | 'dark';
 }>();
 
 const emit = defineEmits<{
@@ -77,6 +81,7 @@ const emit = defineEmits<{
 
 const isOpen = ref(false);
 const selectRef = ref<HTMLElement | null>(null);
+const dark = computed(() => props.theme === 'dark');
 
 const selectedOption = computed(() => props.options.find(o => o.value === props.modelValue));
 
