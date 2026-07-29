@@ -265,11 +265,11 @@
       "Тошнота / Живот",
       "Высокая температура"
     ],
-    "isSimulating": false,
+    "isSimulating": true,
     "createdAt": "2026-07-24T16:21:39.044Z",
     "expired": false,
     "sosAlert": true,
-    "sosTime": "2026-07-26T17:03:10.463Z",
+    "sosTime": "2026-07-29T10:16:20.729Z",
     "auditLogs": [
       {
         "timestamp": "2026-07-26T16:47:03.494Z",
@@ -285,8 +285,69 @@
         "timestamp": "2026-07-26T17:03:10.463Z",
         "event": "SOS_ALERT",
         "text": "🚨 ВНИМАНИЕ: Пациент нажал SOS (Состояние ухудшилось!)"
+      },
+      {
+        "timestamp": "2026-07-29T10:16:20.729Z",
+        "event": "SOS_ALERT",
+        "text": "🚨 ВНИМАНИЕ: Пациент нажал SOS (Состояние ухудшилось!)"
       }
     ],
-    "hospitalName": "ГКБ №7 (мкр. Калкаман)"
+    "hospitalName": "ГКБ №7 (мкр. Калкаман)",
+    "clinicId": "clinic_medclinic_almaty"
+  },
+  "trk_wZNWWi4MdhayXwJ6gzQ3G96mxRUYmzQy": {
+    "id": "ORD-2509",
+    "token": "trk_wZNWWi4MdhayXwJ6gzQ3G96mxRUYmzQy",
+    "clinicId": "clinic_medclinic_almaty",
+    "clinicName": "MedClinic Almaty",
+    "patientPhone": "+7 (777) 777-77-77",
+    "patientName": "test",
+    "address": "test",
+    "destinationLoc": {
+      "lat": 43.23013217755712,
+      "lng": 76.94428284523597
+    },
+    "carNumber": "Бригада №103 (02 KZ 777 ABC)",
+    "priority": "STANDARD",
+    "status": "ACCEPTED",
+    "currentLoc": {
+      "lat": 43.218587156208315,
+      "lng": 76.9330588578299
+    },
+    "routePath": [
+      {
+        "lat": 43.218587156208315,
+        "lng": 76.9330588578299
+      },
+      {
+        "lat": 43.22435966688272,
+        "lng": 76.93867085153295
+      },
+      {
+        "lat": 43.23013217755712,
+        "lng": 76.94428284523597
+      }
+    ],
+    "distanceKm": 2.5,
+    "etaMinutes": 7,
+    "accessInfo": {
+      "residenceType": "apartment",
+      "intercom": "",
+      "gateCode": "",
+      "entrance": "",
+      "floor": "",
+      "note": ""
+    },
+    "symptoms": [],
+    "isSimulating": false,
+    "createdAt": "2026-07-29T10:17:40.077Z",
+    "expired": false,
+    "auditLogs": [
+      {
+        "timestamp": "2026-07-29T10:17:40.077Z",
+        "event": "CREATED",
+        "text": "Вызов создан (STANDARD)"
+      }
+    ]
   }
 }

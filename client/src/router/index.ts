@@ -5,6 +5,8 @@ import ClinicAdminDashboard from '@/views/ClinicAdminDashboard.vue';
 import DispatcherDashboard from '@/views/DispatcherDashboard.vue';
 import DriverApp from '@/views/DriverApp.vue';
 import PatientTrackView from '@/views/PatientTrackView.vue';
+import PlatformAdminDashboard from '@/views/PlatformAdminDashboard.vue';
+import { useAuthStore } from '@/stores/authStore';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -22,15 +24,17 @@ const router = createRouter({
     {
       path: '/admin',
       name: 'admin',
-      component: ClinicAdminDashboard
+      component: ClinicAdminDashboard,
+      meta: { roles: ['clinic_owner', 'clinic_admin'] }
     },
     {
       path: '/dispatcher',
       name: 'dispatcher',
-      component: DispatcherDashboard
+      component: DispatcherDashboard,
+      meta: { roles: ['clinic_owner', 'clinic_admin', 'dispatcher'] }
     },
     {
-      path: '/driver/:crewId?',
+      path: '/driver-access/:accessToken',
       name: 'driver',
       component: DriverApp
     },
@@ -38,9 +42,24 @@ const router = createRouter({
       path: '/track/:token',
       name: 'patient-track',
       component: PatientTrackView
+    },
+    {
+      path: '/platform',
+      name: 'platform',
+      component: PlatformAdminDashboard,
+      meta: { roles: ['platform_admin'] }
     }
   ]
 });
 
-export default router;
+router.beforeEach(async to => {
+  const roles = to.meta.roles as string[] | undefined;
+  if (!roles) return true;
+  const auth = useAuthStore();
+  await auth.restore();
+  if (!auth.user) return { name: 'login', query: { redirect: to.fullPath } };
+  if (!roles.includes(auth.user.role)) return auth.user.role === 'platform_admin' ? '/platform' : '/dispatcher';
+  return true;
+});
 
+export default router;

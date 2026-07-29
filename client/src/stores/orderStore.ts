@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { io, Socket } from 'socket.io-client';
 import type { Order, OrderStatus, AccessInfo } from '@/types';
+import { apiFetch } from '@/services/api';
 
 export const useOrderStore = defineStore('orders', () => {
   const socket = ref<Socket | null>(null);
@@ -11,15 +12,21 @@ export const useOrderStore = defineStore('orders', () => {
   const errorMsg = ref<string | null>(null);
   const lastLocationUpdate = ref<number | null>(null);
   const joinedCrewId = ref<string | null>(null);
+  let socketAuthKey = '';
 
   // Initialize socket connection
-  function initSocket() {
-    if (socket.value) return;
+  function initSocket(auth: Record<string, string> = {}) {
+    const authKey = JSON.stringify(auth);
+    if (socket.value && socketAuthKey === authKey) return;
+    if (socket.value) socket.value.disconnect();
+    socketAuthKey = authKey;
 
     // Use current origin or local dev backend server
     const serverUrl = window.location.hostname === 'localhost' ? 'http://localhost:3001' : window.location.origin;
     socket.value = io(serverUrl, {
-      reconnectionAttempts: 5
+      reconnectionAttempts: 5,
+      withCredentials: true,
+      auth
     });
 
     socket.value.on('connect', () => {
@@ -136,14 +143,14 @@ export const useOrderStore = defineStore('orders', () => {
     socket.value?.emit('join_dispatcher');
   }
 
-  function joinCrewRoom(crewId: string) {
-    initSocket();
-    joinedCrewId.value = crewId;
-    const join = () => socket.value?.emit('join_crew', crewId);
+  function joinCrewRoom(accessToken: string) {
+    initSocket({ driverToken: accessToken });
+    joinedCrewId.value = accessToken;
+    const join = () => socket.value?.emit('join_crew');
     if (socket.value?.connected) join();
     else socket.value?.once('connect', join);
 
-    fetch(`/api/crews/${encodeURIComponent(crewId)}/active-order`)
+    fetch(`/api/driver-access/${encodeURIComponent(accessToken)}/active-order`)
       .then(res => res.status === 204 ? null : res.ok ? res.json() : Promise.reject(new Error('Failed to load crew order')))
       .then((order: Order | null) => {
         if (!order) {
@@ -159,7 +166,7 @@ export const useOrderStore = defineStore('orders', () => {
 
   async function createOrder(payload: { patientPhone: string; patientName: string; address: string; carNumber?: string; priority?: string; lat?: number; lng?: number }) {
     try {
-      const res = await fetch('/api/orders', {
+      const res = await apiFetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -175,7 +182,7 @@ export const useOrderStore = defineStore('orders', () => {
 
   // Patient / Driver actions
   function joinOrderRoom(token: string) {
-    initSocket();
+    initSocket({ patientToken: token });
     joinedCrewId.value = null;
     errorMsg.value = null;
     currentOrder.value = null;

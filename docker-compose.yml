@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+  database:
+    image: postgres:16-alpine
+    container_name: medtracker-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-medtracker}
+      POSTGRES_USER: ${POSTGRES_USER:-medtracker_owner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?Set POSTGRES_APP_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./server/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   backend:
     build:
       context: ./server
@@ -14,8 +32,15 @@ services:
     environment:
       - PORT=3001
       - NODE_ENV=production
+      - DATABASE_URL=postgresql://medtracker_app:${POSTGRES_APP_PASSWORD}@database:5432/${POSTGRES_DB:-medtracker}
+      - DATABASE_ADMIN_URL=postgresql://${POSTGRES_USER:-medtracker_owner}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-medtracker}
+      - LEGACY_DB_DIR=/app/legacy-db
+    depends_on:
+      database:
+        condition: service_healthy
+    command: sh -c "npm run db:migrate && node index.js"
     volumes:
-      - medtracker-data:/app/db
+      - medtracker-data:/app/legacy-db
 
   frontend:
     build:
@@ -32,4 +57,4 @@ services:
 
 volumes:
   medtracker-data:
-
+  postgres-data:

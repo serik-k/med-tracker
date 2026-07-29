@@ -11,7 +11,7 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="text-sm font-extrabold text-white">MedClinic Almaty</h1>
+              <h1 class="text-sm font-extrabold text-white">{{ auth.user?.clinicName }}</h1>
               <span class="px-2 py-0.5 text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md font-mono font-bold uppercase">
                 Fleet Management
               </span>
@@ -31,7 +31,7 @@
           </button>
 
           <button
-            @click="router.push('/')"
+            @click="logout"
             class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer"
             title="Главная страница"
           >
@@ -83,6 +83,8 @@
         </div>
       </div>
 
+      <ClinicTeamCard />
+
       <!-- Fleet Crew Management Section -->
       <div class="bg-slate-900/80 border border-slate-800/90 rounded-3xl p-6 shadow-2xl backdrop-blur-xl space-y-6">
         
@@ -129,7 +131,6 @@
                 <th class="p-4">Тип Медицинской Смены</th>
                 <th class="p-4">Водитель / Врач</th>
                 <th class="p-4">Статус</th>
-                <th class="p-4">PIN Водителя</th>
                 <th class="p-4 text-right">Действия</th>
               </tr>
             </thead>
@@ -170,18 +171,12 @@
                   </span>
                 </td>
 
-                <td class="p-4 font-mono text-slate-400">
-                  <span class="bg-slate-950 px-2 py-1 rounded border border-slate-800 text-[11px]">
-                    PIN: {{ crew.pin }}
-                  </span>
-                </td>
-
                 <td class="p-4 text-right space-x-2">
                   <button
-                    @click="router.push(`/driver/${crew.id}`)"
+                    @click="copyDriverLink(crew.id)"
                     class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-all text-[11px] font-bold cursor-pointer"
                   >
-                    Открыть PWA
+                    {{ copiedCrewId === crew.id ? 'Ссылка скопирована' : 'Ссылка водителю' }}
                   </button>
                   <button
                     @click="openDeleteModal(crew)"
@@ -246,15 +241,6 @@
             />
           </div>
 
-          <div>
-            <label class="block font-bold text-slate-400 mb-1">PIN-код для входа водителя</label>
-            <input
-              v-model="form.pin"
-              type="text"
-              placeholder="104"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-emerald-400 font-mono"
-            />
-          </div>
         </div>
 
         <div class="pt-3 flex justify-end gap-2 border-t border-slate-800">
@@ -329,8 +315,11 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCrewStore } from '../stores/crewStore';
+import { useAuthStore } from '@/stores/authStore';
 import CustomSelect, { type SelectOption } from '../components/ui/CustomSelect.vue';
 import type { Crew } from '../types';
+import { apiFetch } from '@/services/api';
+import ClinicTeamCard from '@/components/ClinicTeamCard.vue';
 import {
   Building2,
   Headphones,
@@ -348,6 +337,7 @@ import {
 
 const router = useRouter();
 const crewStore = useCrewStore();
+const auth = useAuthStore();
 
 const showModal = ref(false);
 const searchQuery = ref('');
@@ -356,6 +346,7 @@ const saving = ref(false);
 const crewToDelete = ref<Crew | null>(null);
 const deleting = ref(false);
 const deleteError = ref('');
+const copiedCrewId = ref('');
 
 const crewTypeOptions: SelectOption[] = [
   { value: 'ЛИНЕЙНАЯ', label: 'ЛИНЕЙНАЯ (Стандарт)' },
@@ -367,8 +358,7 @@ const form = ref({
   name: '',
   carPlate: '',
   type: 'ЛИНЕЙНАЯ',
-  driverName: '',
-  pin: ''
+  driverName: ''
 });
 
 onMounted(() => {
@@ -389,8 +379,7 @@ function openAddModal() {
     name: `Бригада №${nextNum}`,
     carPlate: `02 KZ ${nextNum} MED`,
     type: 'ЛИНЕЙНАЯ',
-    driverName: 'Касымов Р.',
-    pin: String(nextNum)
+    driverName: 'Касымов Р.'
   };
   formError.value = '';
   showModal.value = true;
@@ -409,7 +398,6 @@ async function saveCrew() {
       carPlate: form.value.carPlate.trim(),
       type: form.value.type,
       driverName: form.value.driverName.trim(),
-      pin: form.value.pin.trim(),
       status: 'ON_DUTY'
     });
     showModal.value = false;
@@ -443,5 +431,19 @@ async function confirmDeleteCrew() {
   } finally {
     deleting.value = false;
   }
+}
+
+async function copyDriverLink(crewId: string) {
+  const res = await apiFetch(`/api/crews/${crewId}/access-link`, { method: 'POST' });
+  const data = await res.json();
+  if (!res.ok) return alert(data.error || 'Не удалось создать ссылку');
+  await navigator.clipboard.writeText(`${location.origin}${data.path}`);
+  copiedCrewId.value = crewId;
+  window.setTimeout(() => { copiedCrewId.value = ''; }, 2500);
+}
+
+async function logout() {
+  await auth.logout();
+  router.replace('/login');
 }
 </script>

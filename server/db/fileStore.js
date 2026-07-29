@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const dbFilePath = path.join(__dirname, 'orders_store.json');
-const crewsFilePath = path.join(__dirname, 'crews_store.json');
+const dataDirectory = process.env.LEGACY_DB_DIR || __dirname;
+const dbFilePath = path.join(dataDirectory, 'orders_store.json');
 
 export function loadSavedOrders() {
   try {
@@ -26,25 +26,5 @@ export function saveOrdersToFile(ordersMap) {
     fs.writeFileSync(dbFilePath, JSON.stringify(obj, null, 2), 'utf8');
   } catch (err) {
     console.error('[FileStore] Failed to persist orders to file:', err.message);
-  }
-}
-
-export function loadSavedCrews(defaultCrews) {
-  try {
-    if (fs.existsSync(crewsFilePath)) {
-      const data = JSON.parse(fs.readFileSync(crewsFilePath, 'utf8'));
-      if (Array.isArray(data)) return data;
-    }
-  } catch (err) {
-    console.error('[FileStore] Failed to load saved crews:', err.message);
-  }
-  return defaultCrews;
-}
-
-export function saveCrewsToFile(crews) {
-  try {
-    fs.writeFileSync(crewsFilePath, JSON.stringify(crews, null, 2), 'utf8');
-  } catch (err) {
-    console.error('[FileStore] Failed to persist crews to file:', err.message);
   }
 }

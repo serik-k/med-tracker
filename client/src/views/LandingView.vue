@@ -186,8 +186,8 @@
                 <h3 class="text-sm font-bold text-white">Интерфейс Водителя Скорой</h3>
                 <p class="text-xs text-slate-400">Переключение статусов в 1 клик и прокладка маршрута</p>
               </div>
-              <button @click="router.push('/driver/103')" class="px-3 py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs hover:bg-cyan-400">
-                Открыть Водитель №103
+              <button @click="router.push('/login')" class="px-3 py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs hover:bg-cyan-400">
+                Получить ссылку у диспетчера
               </button>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs text-center font-bold">
