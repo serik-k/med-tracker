@@ -24,7 +24,14 @@ app.get('/api/crews', (req, res) => {
 });
 
 app.post('/api/crews', (req, res) => {
-  const crew = orderStore.addCrew(req.body);
+  const crewData = req.body || {};
+  const requiredFields = ['name', 'carPlate', 'type', 'driverName', 'pin'];
+  const missingField = requiredFields.find(field => !String(crewData[field] || '').trim());
+  if (missingField) return res.status(400).json({ error: 'Заполните все поля бригады' });
+  if (orderStore.getAllCrews().some(crew => crew.pin === String(crewData.pin).trim())) {
+    return res.status(409).json({ error: 'Бригада с таким PIN уже существует' });
+  }
+  const crew = orderStore.addCrew(crewData);
   io.to('dispatcher_room').emit('crew_added', crew);
   res.status(201).json(crew);
 });
@@ -37,7 +44,8 @@ app.put('/api/crews/:id', (req, res) => {
 });
 
 app.delete('/api/crews/:id', (req, res) => {
-  orderStore.deleteCrew(req.params.id);
+  const deleted = orderStore.deleteCrew(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Бригада не найдена' });
   io.to('dispatcher_room').emit('crew_deleted', req.params.id);
   res.status(204).end();
 });

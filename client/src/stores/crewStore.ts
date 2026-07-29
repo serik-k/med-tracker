@@ -27,14 +27,15 @@ export const useCrewStore = defineStore('crew', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(crew)
       });
-      if (res.ok) {
-        const created = await res.json();
-        const idx = crews.value.findIndex(c => c.id === created.id);
-        if (idx === -1) crews.value.push(created);
-        return created;
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Не удалось добавить бригаду');
+      const created = data as Crew;
+      const idx = crews.value.findIndex(c => c.id === created.id);
+      if (idx === -1) crews.value.push(created);
+      return created;
     } catch (e) {
       console.error('Failed to add crew', e);
+      throw e;
     }
   }
 
@@ -59,11 +60,14 @@ export const useCrewStore = defineStore('crew', () => {
   async function deleteCrew(id: string) {
     try {
       const res = await fetch(`/api/crews/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        crews.value = crews.value.filter(c => c.id !== id);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Не удалось удалить бригаду');
       }
+      crews.value = crews.value.filter(c => c.id !== id);
     } catch (e) {
       console.error('Failed to delete crew', e);
+      throw e;
     }
   }
 

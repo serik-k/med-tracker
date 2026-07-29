@@ -1,6 +1,6 @@
 import { geocodeAlmatyAddress } from './services/geocoding.js';
 import { fetchRealRoadRoute } from './services/routing.js';
-import { loadSavedOrders, saveOrdersToFile } from './db/fileStore.js';
+import { loadSavedOrders, saveOrdersToFile, loadSavedCrews, saveCrewsToFile } from './db/fileStore.js';
 
 class OrderStore {
   constructor() {
@@ -19,11 +19,11 @@ class OrderStore {
       }
     });
 
-    this.crews = [
+    this.crews = loadSavedCrews([
       { id: '101', name: 'Бригада №101', carPlate: '01 KZ 101 MED', type: 'РЕАНИМАЦИЯ', driverName: 'Алмасов К.', status: 'ON_DUTY', pin: '101' },
       { id: '102', name: 'Бригада №102', carPlate: '02 KZ 102 MED', type: 'ПЕДИАТРИЧЕСКАЯ', driverName: 'Иванов С.', status: 'ON_DUTY', pin: '102' },
       { id: '103', name: 'Бригада №103', carPlate: '02 KZ 777 ABC', type: 'ЛИНЕЙНАЯ', driverName: 'Нурланов Б.', status: 'ON_DUTY', pin: '103' }
-    ];
+    ]);
 
     if (repaired) this.persist();
   }
@@ -33,8 +33,11 @@ class OrderStore {
   }
 
   addCrew(crewData) {
+    const usedIds = new Set(this.crews.map(crew => Number(crew.id)).filter(Number.isFinite));
+    let nextId = 101;
+    while (usedIds.has(nextId)) nextId += 1;
     const newCrew = {
-      id: String(crewData.id || Math.floor(100 + Math.random() * 900)),
+      id: String(nextId),
       name: crewData.name || `Бригада №${Math.floor(100 + Math.random() * 900)}`,
       carPlate: crewData.carPlate || '02 KZ 000 MED',
       type: crewData.type || 'ЛИНЕЙНАЯ',
@@ -43,6 +46,7 @@ class OrderStore {
       pin: crewData.pin || '123'
     };
     this.crews.push(newCrew);
+    saveCrewsToFile(this.crews);
     return newCrew;
   }
 
@@ -50,13 +54,17 @@ class OrderStore {
     const index = this.crews.findIndex(c => c.id === String(id));
     if (index !== -1) {
       this.crews[index] = { ...this.crews[index], ...crewData };
+      saveCrewsToFile(this.crews);
       return this.crews[index];
     }
     return null;
   }
 
   deleteCrew(id) {
-    this.crews = this.crews.filter(c => c.id !== String(id));
+    const index = this.crews.findIndex(c => c.id === String(id));
+    if (index === -1) return false;
+    this.crews.splice(index, 1);
+    saveCrewsToFile(this.crews);
     return true;
   }
 

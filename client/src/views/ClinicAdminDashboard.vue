@@ -184,7 +184,7 @@
                     Открыть PWA
                   </button>
                   <button
-                    @click="deleteCrew(crew.id)"
+                    @click="openDeleteModal(crew)"
                     class="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all cursor-pointer"
                     title="Удалить из реестра"
                   >
@@ -229,14 +229,11 @@
 
           <div>
             <label class="block font-bold text-slate-400 mb-1">Тип медицинской бригады</label>
-            <select
+            <CustomSelect
               v-model="form.type"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-emerald-400"
-            >
-              <option value="ЛИНЕЙНАЯ">ЛИНЕЙНАЯ (Стандарт)</option>
-              <option value="РЕАНИМАЦИЯ">РЕАНИМАЦИЯ (ИВЛ / ОРИТ)</option>
-              <option value="ПЕДИАТРИЧЕСКАЯ">ПЕДИАТРИЧЕСКАЯ</option>
-            </select>
+              :options="crewTypeOptions"
+              theme="dark"
+            />
           </div>
 
           <div>
@@ -261,6 +258,7 @@
         </div>
 
         <div class="pt-3 flex justify-end gap-2 border-t border-slate-800">
+          <p v-if="formError" class="mr-auto self-center text-xs text-red-400">{{ formError }}</p>
           <button
             @click="showModal = false"
             class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer"
@@ -269,9 +267,57 @@
           </button>
           <button
             @click="saveCrew"
-            class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 cursor-pointer"
+            :disabled="saving"
+            class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 cursor-pointer"
           >
-            Сохранить бригаду
+            {{ saving ? 'Сохранение...' : 'Сохранить бригаду' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Crew Confirmation -->
+    <div
+      v-if="crewToDelete"
+      class="fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4"
+      @click.self="closeDeleteModal"
+    >
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+        <div class="flex items-start justify-between gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+            <AlertTriangle class="w-6 h-6 text-red-400" />
+          </div>
+          <button
+            @click="closeDeleteModal"
+            :disabled="deleting"
+            class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
+            aria-label="Закрыть"
+          >
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+
+        <h3 class="mt-5 text-lg font-black text-white">Удалить бригаду?</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-400">
+          Бригада <span class="font-bold text-slate-200">{{ crewToDelete.name }}</span> будет удалена из реестра автопарка.
+        </p>
+        <p v-if="deleteError" class="mt-3 text-xs text-red-400">{{ deleteError }}</p>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            @click="closeDeleteModal"
+            :disabled="deleting"
+            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer disabled:opacity-50"
+          >
+            Отмена
+          </button>
+          <button
+            @click="confirmDeleteCrew"
+            :disabled="deleting"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-400 text-white font-black text-xs shadow-lg shadow-red-500/20 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <Trash2 class="w-4 h-4" />
+            {{ deleting ? 'Удаление...' : 'Удалить' }}
           </button>
         </div>
       </div>
@@ -283,6 +329,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCrewStore } from '../stores/crewStore';
+import CustomSelect, { type SelectOption } from '../components/ui/CustomSelect.vue';
+import type { Crew } from '../types';
 import {
   Building2,
   Headphones,
@@ -293,7 +341,9 @@ import {
   Users,
   Plus,
   Trash2,
-  Search
+  Search,
+  AlertTriangle,
+  X
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -301,6 +351,17 @@ const crewStore = useCrewStore();
 
 const showModal = ref(false);
 const searchQuery = ref('');
+const formError = ref('');
+const saving = ref(false);
+const crewToDelete = ref<Crew | null>(null);
+const deleting = ref(false);
+const deleteError = ref('');
+
+const crewTypeOptions: SelectOption[] = [
+  { value: 'ЛИНЕЙНАЯ', label: 'ЛИНЕЙНАЯ (Стандарт)' },
+  { value: 'РЕАНИМАЦИЯ', label: 'РЕАНИМАЦИЯ (ИВЛ / ОРИТ)' },
+  { value: 'ПЕДИАТРИЧЕСКАЯ', label: 'ПЕДИАТРИЧЕСКАЯ' }
+];
 
 const form = ref({
   name: '',
@@ -331,24 +392,56 @@ function openAddModal() {
     driverName: 'Касымов Р.',
     pin: String(nextNum)
   };
+  formError.value = '';
   showModal.value = true;
 }
 
 async function saveCrew() {
-  await crewStore.addCrew({
-    name: form.value.name,
-    carPlate: form.value.carPlate,
-    type: form.value.type,
-    driverName: form.value.driverName,
-    pin: form.value.pin,
-    status: 'ON_DUTY'
-  });
-  showModal.value = false;
+  formError.value = '';
+  if (Object.values(form.value).some(value => !value.trim())) {
+    formError.value = 'Заполните все поля';
+    return;
+  }
+  saving.value = true;
+  try {
+    await crewStore.addCrew({
+      name: form.value.name.trim(),
+      carPlate: form.value.carPlate.trim(),
+      type: form.value.type,
+      driverName: form.value.driverName.trim(),
+      pin: form.value.pin.trim(),
+      status: 'ON_DUTY'
+    });
+    showModal.value = false;
+  } catch (error) {
+    formError.value = error instanceof Error ? error.message : 'Не удалось сохранить бригаду';
+  } finally {
+    saving.value = false;
+  }
 }
 
-async function deleteCrew(id: string) {
-  if (confirm('Вы уверены, что хотите удалить эту бригаду из реестра автопарка?')) {
-    await crewStore.deleteCrew(id);
+function openDeleteModal(crew: Crew) {
+  crewToDelete.value = crew;
+  deleteError.value = '';
+}
+
+function closeDeleteModal() {
+  if (deleting.value) return;
+  crewToDelete.value = null;
+  deleteError.value = '';
+}
+
+async function confirmDeleteCrew() {
+  if (!crewToDelete.value) return;
+  deleting.value = true;
+  deleteError.value = '';
+  try {
+    await crewStore.deleteCrew(crewToDelete.value.id);
+    crewToDelete.value = null;
+  } catch (error) {
+    deleteError.value = error instanceof Error ? error.message : 'Не удалось удалить бригаду';
+  } finally {
+    deleting.value = false;
   }
 }
 </script>
