@@ -29,7 +29,6 @@ export interface Crew {
   type: string;
   driverName: string;
   status: 'ON_DUTY' | 'ON_CALL' | 'BREAK' | 'OFF_DUTY';
-  pin: string;
 }
 
 export interface Order {
@@ -55,6 +54,7 @@ export interface Order {
   createdAt: string;
   completedAt?: string;
   expired: boolean;
+  clinicId?: string;
+  clinicName?: string;
   auditLogs?: AuditLogEntry[];
 }
-

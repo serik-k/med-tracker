@@ -1,12 +1,20 @@
 import { geocodeAlmatyAddress } from './services/geocoding.js';
 import { fetchRealRoadRoute } from './services/routing.js';
-import { loadSavedOrders, saveOrdersToFile, loadSavedCrews, saveCrewsToFile } from './db/fileStore.js';
+import { loadSavedOrders, saveOrdersToFile } from './db/fileStore.js';
+import { tenantStore } from './db/tenantStore.js';
+import crypto from 'crypto';
+
+const DEFAULT_CLINIC_ID = 'clinic_medclinic_almaty';
 
 class OrderStore {
   constructor() {
     this.orders = loadSavedOrders();
     let repaired = false;
     this.orders.forEach(order => {
+      if (!order.clinicId) {
+        order.clinicId = DEFAULT_CLINIC_ID;
+        repaired = true;
+      }
       if (order.status !== 'COMPLETED' && order.expired) {
         order.expired = false;
         delete order.completedAt;
@@ -19,53 +27,23 @@ class OrderStore {
       }
     });
 
-    this.crews = loadSavedCrews([
-      { id: '101', name: 'Бригада №101', carPlate: '01 KZ 101 MED', type: 'РЕАНИМАЦИЯ', driverName: 'Алмасов К.', status: 'ON_DUTY', pin: '101' },
-      { id: '102', name: 'Бригада №102', carPlate: '02 KZ 102 MED', type: 'ПЕДИАТРИЧЕСКАЯ', driverName: 'Иванов С.', status: 'ON_DUTY', pin: '102' },
-      { id: '103', name: 'Бригада №103', carPlate: '02 KZ 777 ABC', type: 'ЛИНЕЙНАЯ', driverName: 'Нурланов Б.', status: 'ON_DUTY', pin: '103' }
-    ]);
-
     if (repaired) this.persist();
   }
 
-  getAllCrews() {
-    return this.crews;
+  getAllCrews(clinicId) {
+    return tenantStore.getCrews(clinicId);
   }
 
-  addCrew(crewData) {
-    const usedIds = new Set(this.crews.map(crew => Number(crew.id)).filter(Number.isFinite));
-    let nextId = 101;
-    while (usedIds.has(nextId)) nextId += 1;
-    const newCrew = {
-      id: String(nextId),
-      name: crewData.name || `Бригада №${Math.floor(100 + Math.random() * 900)}`,
-      carPlate: crewData.carPlate || '02 KZ 000 MED',
-      type: crewData.type || 'ЛИНЕЙНАЯ',
-      driverName: crewData.driverName || 'Водитель',
-      status: crewData.status || 'ON_DUTY',
-      pin: crewData.pin || '123'
-    };
-    this.crews.push(newCrew);
-    saveCrewsToFile(this.crews);
-    return newCrew;
+  addCrew(clinicId, crewData) {
+    return tenantStore.createCrew(clinicId, crewData);
   }
 
-  updateCrew(id, crewData) {
-    const index = this.crews.findIndex(c => c.id === String(id));
-    if (index !== -1) {
-      this.crews[index] = { ...this.crews[index], ...crewData };
-      saveCrewsToFile(this.crews);
-      return this.crews[index];
-    }
-    return null;
+  updateCrew(clinicId, id, crewData) {
+    return tenantStore.updateCrew(clinicId, id, crewData);
   }
 
-  deleteCrew(id) {
-    const index = this.crews.findIndex(c => c.id === String(id));
-    if (index === -1) return false;
-    this.crews.splice(index, 1);
-    saveCrewsToFile(this.crews);
-    return true;
+  deleteCrew(clinicId, id) {
+    return tenantStore.deleteCrew(clinicId, id);
   }
 
   async initDemoData() {
@@ -109,8 +87,8 @@ class OrderStore {
     this.persist();
   }
 
-  async createOrder(data) {
-    const token = 'trk_' + Math.random().toString(36).substring(2, 10);
+  async createOrder(clinicId, data) {
+    const token = 'trk_' + crypto.randomBytes(24).toString('base64url');
     const id = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
     
     // Real geocoding for Almaty address if coordinates not provided
@@ -133,6 +111,8 @@ class OrderStore {
     const newOrder = {
       id,
       token,
+      clinicId,
+      clinicName: tenantStore.getClinic(clinicId)?.name || '',
       patientPhone: data.patientPhone || '',
       patientName: data.patientName || 'Пациент',
       address: data.address || 'г. Алматы, Медеуский район',
@@ -163,21 +143,29 @@ class OrderStore {
     return this.orders.get(token);
   }
 
-  getAllActiveOrders() {
-    return Array.from(this.orders.values()).filter(o => !o.expired);
+  getAllActiveOrders(clinicId = null) {
+    return Array.from(this.orders.values()).filter(o => !o.expired && (!clinicId || o.clinicId === clinicId));
   }
 
-  getAllDispatcherOrders() {
-    return Array.from(this.orders.values());
+  getAllDispatcherOrders(clinicId) {
+    return Array.from(this.orders.values()).filter(order => order.clinicId === clinicId);
   }
 
   updateOrderStatus(token, status, hospitalName = null) {
     const order = this.orders.get(token);
     if (!order) return null;
     if (order.expired && order.status === 'COMPLETED' && status !== 'COMPLETED') return null;
+    const transitions = {
+      ACCEPTED: ['EN_ROUTE'],
+      EN_ROUTE: ['ARRIVED'],
+      ARRIVED: ['HOSPITAL_TRANSPORT', 'COMPLETED'],
+      HOSPITAL_TRANSPORT: ['COMPLETED'],
+      COMPLETED: []
+    };
+    if (status !== order.status && !transitions[order.status]?.includes(status)) return null;
 
     order.status = status;
-    if (hospitalName) order.hospitalName = hospitalName;
+    if (hospitalName) order.hospitalName = String(hospitalName).trim().slice(0, 160);
 
     const logTextMap = {
       ACCEPTED: 'Бригада приняла вызов',
@@ -208,8 +196,10 @@ class OrderStore {
   updateLocation(token, lat, lng) {
     const order = this.orders.get(token);
     if (!order || order.expired) return null;
-
-    order.currentLoc = { lat: parseFloat(lat), lng: parseFloat(lng) };
+    const parsedLat = Number(lat);
+    const parsedLng = Number(lng);
+    if (!Number.isFinite(parsedLat) || !Number.isFinite(parsedLng) || Math.abs(parsedLat) > 90 || Math.abs(parsedLng) > 180) return null;
+    order.currentLoc = { lat: parsedLat, lng: parsedLng };
     this.persist();
     return order;
   }

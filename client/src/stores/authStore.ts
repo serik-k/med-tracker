@@ -1,41 +1,51 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { apiFetch } from '@/services/api';
 
-export type UserRole = 'admin' | 'dispatcher' | 'driver' | null;
+export type UserRole = 'platform_admin' | 'clinic_owner' | 'clinic_admin' | 'dispatcher';
 
 export interface User {
   id: string;
   name: string;
   role: UserRole;
-  crewId?: string;
-  clinicName: string;
+  clinicId: string | null;
+  clinicName: string | null;
+  email: string;
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>({
-    id: 'u1',
-    name: 'Администратор Клиники',
-    role: 'dispatcher',
-    clinicName: 'MedClinic Almaty'
-  });
+  const user = ref<User | null>(null);
+  const initialized = ref(false);
 
-  function login(role: UserRole, name?: string, crewId?: string) {
-    user.value = {
-      id: 'u_' + Math.random().toString(36).substring(2, 6),
-      name: name || (role === 'admin' ? 'Главный Врач' : role === 'dispatcher' ? 'Диспетчер Смены' : `Водитель №${crewId || '103'}`),
-      role,
-      crewId,
-      clinicName: 'MedClinic Almaty'
-    };
+  async function login(email: string, password: string) {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Не удалось войти');
+    user.value = data.user;
+    initialized.value = true;
+    return data.user as User;
   }
 
-  function logout() {
+  async function restore() {
+    if (initialized.value) return user.value;
+    const res = await apiFetch('/api/auth/me');
+    if (res.ok) user.value = await res.json();
+    initialized.value = true;
+    return user.value;
+  }
+
+  async function logout() {
+    await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
     user.value = null;
   }
 
   return {
     user,
+    initialized,
     login,
+    restore,
     logout
   };
 });

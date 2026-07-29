@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-slate-100 text-slate-950">
     <header class="border-b border-slate-200 bg-white px-4 py-3 lg:h-16 lg:px-6 lg:py-0">
       <div class="mx-auto flex h-full max-w-[1800px] flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3"><div class="grid h-9 w-9 place-items-center rounded-lg bg-red-600 text-white"><Cross class="h-5 w-5" /></div><div><h1 class="text-sm font-extrabold">MedTracker · Диспетчерская</h1><p class="text-xs text-slate-500">Алматы · оперативная смена</p></div></div>
+        <div class="flex items-center gap-3"><div class="grid h-9 w-9 place-items-center rounded-lg bg-red-600 text-white"><Cross class="h-5 w-5" /></div><div><h1 class="text-sm font-extrabold">{{ auth.user?.clinicName }} · Диспетчерская</h1><p class="text-xs text-slate-500">MedTracker · оперативная смена</p></div></div>
         <div class="flex items-center gap-2">
           <div class="hidden items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold sm:flex" :class="orderStore.isConnected ? 'border-teal-200 bg-teal-50 text-teal-800' : 'border-red-200 bg-red-50 text-red-800'"><span class="h-2 w-2 rounded-full" :class="orderStore.isConnected ? 'bg-teal-600' : 'bg-red-500'"></span>{{ orderStore.isConnected ? 'Связь стабильна' : 'Нет связи' }}</div>
           <ThemeToggle /><LanguageSwitcher /><button class="inline-flex h-10 items-center gap-2 rounded-lg bg-red-600 px-4 text-xs font-extrabold text-white hover:bg-red-700" @click="isCreateOpen = true"><Plus class="h-4 w-4" /> Новый вызов</button>
@@ -113,6 +113,8 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { useOrderStore } from '@/stores/orderStore';
 import { useCrewStore } from '@/stores/crewStore';
+import { useAuthStore } from '@/stores/authStore';
+import { apiFetch } from '@/services/api';
 import LiveMap from '@/components/LiveMap.vue';
 import CustomInput from '@/components/ui/CustomInput.vue';
 import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect.vue';
@@ -124,6 +126,7 @@ import type { Order, OrderStatus, OrderPriority } from '@/types';
 type Filter = 'active' | 'en_route' | 'completed';
 const orderStore = useOrderStore();
 const crewStore = useCrewStore();
+const auth = useAuthStore();
 const loading = ref(false);
 const createError = ref('');
 const copiedToken = ref<string | null>(null);
@@ -196,7 +199,7 @@ const openWhatsApp=(o:Order)=>window.open(`https://wa.me/${o.patientPhone.replac
 async function copyTrackLink(t:string){ await navigator.clipboard.writeText(trackUrl(t)); copiedToken.value=t; setTimeout(()=>copiedToken.value=null,2000); }
 const getCrewId=(carNumber:string)=>carNumber?.match(/№\s*(\d+)/)?.[1]||carNumber?.match(/\b(\d{3})\b/)?.[1]||'';
 const copyText=async(text:string)=>{try{await navigator.clipboard.writeText(text);}catch{const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();}};
-const copyDriverLink=async(o:Order)=>{const crewId=getCrewId(o.carNumber);if(!crewId)return;await copyText(`${window.location.origin}/driver/${crewId}`);copiedCrewId.value=crewId;setTimeout(()=>copiedCrewId.value=null,2000);};
+const copyDriverLink=async(o:Order)=>{const crewId=getCrewId(o.carNumber);if(!crewId)return;const res=await apiFetch(`/api/crews/${crewId}/access-link`,{method:'POST'});const data=await res.json();if(!res.ok)return;await copyText(`${window.location.origin}${data.path}`);copiedCrewId.value=crewId;setTimeout(()=>copiedCrewId.value=null,2000);};
 </script>
 
 <style scoped>

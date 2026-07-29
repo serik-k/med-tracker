@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { Crew } from '../types';
+import { apiFetch } from '@/services/api';
 
 export const useCrewStore = defineStore('crew', () => {
   const crews = ref<Crew[]>([]);
@@ -9,7 +10,7 @@ export const useCrewStore = defineStore('crew', () => {
   async function fetchCrews() {
     try {
       loading.value = true;
-      const res = await fetch('/api/crews');
+      const res = await apiFetch('/api/crews');
       if (res.ok) {
         crews.value = await res.json();
       }
@@ -22,7 +23,7 @@ export const useCrewStore = defineStore('crew', () => {
 
   async function addCrew(crew: Partial<Crew>) {
     try {
-      const res = await fetch('/api/crews', {
+      const res = await apiFetch('/api/crews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(crew)
@@ -41,7 +42,7 @@ export const useCrewStore = defineStore('crew', () => {
 
   async function updateCrew(id: string, crew: Partial<Crew>) {
     try {
-      const res = await fetch(`/api/crews/${id}`, {
+      const res = await apiFetch(`/api/crews/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(crew)
@@ -59,7 +60,7 @@ export const useCrewStore = defineStore('crew', () => {
 
   async function deleteCrew(id: string) {
     try {
-      const res = await fetch(`/api/crews/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/crews/${id}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Не удалось удалить бригаду');

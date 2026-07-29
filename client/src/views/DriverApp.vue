@@ -6,9 +6,9 @@
     </header>
 
     <div class="space-y-3 p-3">
-      <section v-if="!crewId && !selectedToken" class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center"><Link2Off class="mx-auto h-9 w-9 text-amber-700" /><h2 class="mt-3 text-base font-black">Бригада не определена</h2><p class="mt-1 text-sm text-amber-900">Откройте постоянную ссылку вашей бригады, например /driver/103.</p></section>
+      <section v-if="!accessToken" class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center"><Link2Off class="mx-auto h-9 w-9 text-amber-700" /><h2 class="mt-3 text-base font-black">Ссылка недействительна</h2><p class="mt-1 text-sm text-amber-900">Запросите новую защищённую ссылку у диспетчера.</p></section>
       <section v-else-if="!activeOrder && !orderStore.isConnected" class="rounded-2xl border border-slate-200 bg-white p-6 text-center" role="status"><LoaderCircle class="mx-auto h-8 w-8 animate-spin text-teal-700" /><p class="mt-3 text-sm font-bold">Подключаемся к диспетчерской…</p></section>
-      <section v-else-if="!activeOrder" class="rounded-2xl border border-slate-200 bg-white p-6 text-center" role="status"><Ambulance class="mx-auto h-9 w-9 text-teal-700" /><h2 class="mt-3 text-base font-black">Активных вызовов нет</h2><p class="mt-1 text-sm text-slate-500">Экран обновится автоматически, когда диспетчер назначит вызов бригаде №{{ crewId }}.</p></section>
+      <section v-else-if="!activeOrder" class="rounded-2xl border border-slate-200 bg-white p-6 text-center" role="status"><Ambulance class="mx-auto h-9 w-9 text-teal-700" /><h2 class="mt-3 text-base font-black">Активных вызовов нет</h2><p class="mt-1 text-sm text-slate-500">Экран обновится автоматически, когда диспетчер назначит новый вызов.</p></section>
 
       <template v-else>
         <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -85,8 +85,8 @@ import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import { Ambulance, Building2, CheckCircle2, ChevronRight, CircleDot, Hospital, Info, Link2Off, LoaderCircle, LocateFixed, Navigation, Phone, Route, ShieldCheck } from 'lucide-vue-next';
 import type { Location, OrderStatus } from '@/types';
 
-const route=useRoute(); const orderStore=useOrderStore(); const crewId=String(route.params.crewId||'').replace(/\D/g,''); const selectedToken=ref<string>((route.query.token as string)||''); const isCompleteConfirmOpen=ref(false); const isHospitalSelectOpen=ref(false); const statusMessage=ref(''); const gpsState=ref<'waiting'|'active'|'error'>('waiting'); let gpsWatchId:number|null=null;
-const activeOrder=computed(()=>crewId?orderStore.currentOrder:(orderStore.currentOrder?.token===selectedToken.value?orderStore.currentOrder:null));
+const route=useRoute(); const orderStore=useOrderStore(); const accessToken=String(route.params.accessToken||''); const isCompleteConfirmOpen=ref(false); const isHospitalSelectOpen=ref(false); const statusMessage=ref(''); const gpsState=ref<'waiting'|'active'|'error'>('waiting'); let gpsWatchId:number|null=null;
+const activeOrder=computed(()=>orderStore.currentOrder);
 const flow:OrderStatus[]=['ACCEPTED','EN_ROUTE','ARRIVED','HOSPITAL_TRANSPORT'];
 const shortLabels:Partial<Record<OrderStatus,string>>={ACCEPTED:'Принят',EN_ROUTE:'В пути',ARRIVED:'Прибыл',HOSPITAL_TRANSPORT:'В клинику'};
 const labels:Record<OrderStatus,string>={ACCEPTED:'Вызов принят',EN_ROUTE:'В пути к пациенту',ARRIVED:'На месте',HOSPITAL_TRANSPORT:'Транспортировка в клинику',COMPLETED:'Вызов завершён'};
@@ -106,7 +106,7 @@ const hospitalOptions = [
   'Стационар клиники MedClinic'
 ];
 
-onMounted(()=>{if(crewId)orderStore.joinCrewRoom(crewId);else if(selectedToken.value)orderStore.joinOrderRoom(selectedToken.value);}); onBeforeUnmount(stopGps);
+onMounted(()=>{if(accessToken)orderStore.joinCrewRoom(accessToken);}); onBeforeUnmount(stopGps);
 watch(activeOrder,(order)=>{if(order)startGpsTracking();else stopGps();},{immediate:true});
 function startGpsTracking(){if(gpsWatchId!==null)return;gpsState.value='waiting';if(!('geolocation' in navigator)){gpsState.value='error';return;} gpsWatchId=navigator.geolocation.watchPosition(pos=>{gpsState.value='active';if(activeOrder.value?.status==='EN_ROUTE')orderStore.sendLocation(activeOrder.value.token,pos.coords.latitude,pos.coords.longitude);},()=>gpsState.value='error',{enableHighAccuracy:true});}
 function stopGps(){if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}gpsState.value='waiting';}
@@ -124,4 +124,3 @@ function getNavigatorUrl(loc?:Location){return loc?`https://yandex.ru/maps/?rtex
 </script>
 
 <style scoped>.info-cell{min-width:0;overflow:hidden;border:1px solid #e2e8f0;border-radius:.75rem;background:#f8fafc;padding:.625rem}.info-cell span{display:block;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b}.info-cell strong{display:block;min-width:0;margin-top:.125rem;overflow-wrap:anywhere;word-break:break-word;font-size:.875rem;font-weight:900;color:#0f172a}</style>
-
