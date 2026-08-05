@@ -1,0 +1,14 @@
+node_modules/
+npm-debug.log*
+.env
+.env.*
+!.env.example
+.git/
+.gitignore
+coverage/
+test/
+db/orders_store.json
+db/platform_store.json
+db/uploads/
+legacy-db/
+*.log

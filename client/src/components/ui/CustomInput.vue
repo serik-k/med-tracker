@@ -1,90 +1,86 @@
 <template>
-  <div class="w-full space-y-1">
-    <label v-if="label" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600">
-      {{ label }}
+  <div class="w-full space-y-1.5">
+    <label v-if="label" :for="inputId" class="block text-xs font-black text-slate-700 dark:text-slate-200">
+      {{ label }}<span v-if="required" class="ml-0.5 text-red-600 dark:text-red-400" aria-hidden="true">*</span>
     </label>
 
-    <div class="relative flex items-center w-full min-w-0">
-      <div v-if="icon" class="absolute left-3 text-slate-400 pointer-events-none">
-        <component :is="icon" class="w-4 h-4" />
-      </div>
-
+    <div class="relative flex min-w-0 items-center">
+      <component :is="icon" v-if="icon" class="pointer-events-none absolute left-3.5 h-4 w-4 text-slate-400 dark:text-slate-500" aria-hidden="true" />
       <input
+        :id="inputId"
         :type="type || 'text'"
         :value="modelValue"
-        @input="handleInput"
         :placeholder="placeholder"
         :required="required"
+        :autocomplete="autocomplete"
+        :inputmode="inputmode"
+        :disabled="disabled"
+        :aria-invalid="invalid || undefined"
+        :aria-describedby="helpText ? `${inputId}-help` : undefined"
         :class="[
-          'w-full bg-slate-50 border rounded-xl py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 shadow-xs min-w-0 truncate',
-          icon ? 'pl-9' : 'px-3.5',
-          modelValue ? 'pr-8' : 'pr-3.5',
-          'border-slate-200 focus:border-teal-700 focus:bg-white focus:ring-2 focus:ring-teal-700/15'
+          'min-h-11 w-full min-w-0 rounded-xl border bg-white py-2.5 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-400',
+          icon ? 'pl-10' : 'pl-3.5',
+          modelValue && clearable ? 'pr-10' : 'pr-3.5',
+          invalid
+            ? 'border-red-500 hover:border-red-600 focus:border-red-600 dark:border-red-500 dark:hover:border-red-400 dark:focus:border-red-400'
+            : 'border-slate-300 hover:border-slate-400 focus:border-teal-600 dark:border-slate-700 dark:hover:border-slate-600 dark:focus:border-teal-400'
         ]"
+        @input="handleInput"
       />
 
       <button
-        v-if="modelValue"
+        v-if="modelValue && clearable && !disabled"
         type="button"
-        @click="$emit('update:modelValue', '')"
-        class="absolute right-2 text-slate-400 hover:text-slate-600 p-1 rounded-md transition-colors"
+        class="absolute right-2 grid h-7 w-7 place-items-center rounded-lg text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:text-slate-200"
+        :aria-label="`Очистить поле ${label || placeholder || ''}`"
+        @click="emit('update:modelValue', '')"
       >
-        <X class="w-3.5 h-3.5" />
+        <X class="h-4 w-4" aria-hidden="true" />
       </button>
     </div>
+    <p v-if="helpText" :id="`${inputId}-help`" class="text-xs font-medium" :class="invalid ? 'text-red-700 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'">{{ helpText }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useId } from 'vue';
 import { X } from 'lucide-vue-next';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue: string;
   label?: string;
   placeholder?: string;
   type?: string;
   required?: boolean;
-  icon?: any;
-}>();
+  icon?: unknown;
+  autocomplete?: string;
+  inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+  disabled?: boolean;
+  invalid?: boolean;
+  helpText?: string;
+  clearable?: boolean;
+}>(), { clearable: true, required: false, disabled: false, invalid: false });
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', val: string): void;
-}>();
+const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
+const inputId = `field-${useId()}`;
 
-const formatPhoneNumber = (val: string): string => {
-  const digits = val.replace(/\D/g, '');
+function formatPhoneNumber(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
   if (!digits) return '';
-
   let raw = digits;
-  if (raw.startsWith('7') || raw.startsWith('8')) {
-    raw = raw.substring(1);
-  }
-
+  if (raw.startsWith('7') || raw.startsWith('8')) raw = raw.slice(1);
   let formatted = '+7';
-  if (raw.length > 0) {
-    formatted += ' (' + raw.substring(0, 3);
-  }
-  if (raw.length >= 3) {
-    formatted += ') ' + raw.substring(3, 6);
-  }
-  if (raw.length >= 6) {
-    formatted += '-' + raw.substring(6, 8);
-  }
-  if (raw.length >= 8) {
-    formatted += '-' + raw.substring(8, 10);
-  }
+  if (raw.length) formatted += ` (${raw.slice(0, 3)}`;
+  if (raw.length >= 3) formatted += `) ${raw.slice(3, 6)}`;
+  if (raw.length >= 6) formatted += `-${raw.slice(6, 8)}`;
+  if (raw.length >= 8) formatted += `-${raw.slice(8, 10)}`;
   return formatted;
-};
+}
 
-const handleInput = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  let val = target.value;
-
-  if (props.type === 'tel') {
-    val = formatPhoneNumber(val);
-    target.value = val;
-  }
-
-  emit('update:modelValue', val);
-};
+function handleInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const value = props.type === 'tel' ? formatPhoneNumber(target.value) : target.value;
+  if (target.value !== value) target.value = value;
+  emit('update:modelValue', value);
+}
 </script>
