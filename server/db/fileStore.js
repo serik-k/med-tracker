@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { writeJsonFileAtomic } from './atomicFile.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,15 +17,16 @@ export function loadSavedOrders() {
     }
   } catch (err) {
     console.error('[FileStore] Failed to load saved orders:', err.message);
+    throw err;
   }
   return new Map();
 }
 
 export function saveOrdersToFile(ordersMap) {
   try {
-    const obj = Object.fromEntries(ordersMap);
-    fs.writeFileSync(dbFilePath, JSON.stringify(obj, null, 2), 'utf8');
+    writeJsonFileAtomic(dbFilePath, Object.fromEntries(ordersMap));
   } catch (err) {
     console.error('[FileStore] Failed to persist orders to file:', err.message);
+    throw err;
   }
 }

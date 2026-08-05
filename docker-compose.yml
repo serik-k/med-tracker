@@ -1,10 +1,13 @@
-version: '3.8'
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
 
 services:
   database:
     image: postgres:16-alpine
-    container_name: medtracker-postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-medtracker}
       POSTGRES_USER: ${POSTGRES_USER:-medtracker_owner}
@@ -17,44 +20,130 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
+      start_period: 10s
+    stop_grace_period: 30s
+    networks:
+      - data
+    logging: *default-logging
+
+  migrate:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: "no"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://medtracker_app:${POSTGRES_APP_PASSWORD:?Set POSTGRES_APP_PASSWORD in .env}@database:5432/${POSTGRES_DB:-medtracker}
+      DATABASE_ADMIN_URL: postgresql://${POSTGRES_USER:-medtracker_owner}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@database:5432/${POSTGRES_DB:-medtracker}
+      DATABASE_POOL_SIZE: ${DATABASE_POOL_SIZE:-10}
+      DATABASE_SSL: "false"
+    depends_on:
+      database:
+        condition: service_healthy
+    command: ["npm", "run", "db:migrate"]
+    networks:
+      - data
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
 
   backend:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: medtracker-backend
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - "3001:3001"
+    restart: unless-stopped
+    init: true
     environment:
-      - PORT=3001
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://medtracker_app:${POSTGRES_APP_PASSWORD}@database:5432/${POSTGRES_DB:-medtracker}
-      - DATABASE_ADMIN_URL=postgresql://${POSTGRES_USER:-medtracker_owner}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-medtracker}
-      - LEGACY_DB_DIR=/app/legacy-db
+      NODE_ENV: production
+      PORT: 3001
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN in .env}
+      TRUST_PROXY: ${TRUST_PROXY:-2}
+      DATABASE_URL: postgresql://medtracker_app:${POSTGRES_APP_PASSWORD:?Set POSTGRES_APP_PASSWORD in .env}@database:5432/${POSTGRES_DB:-medtracker}
+      DATABASE_POOL_SIZE: ${DATABASE_POOL_SIZE:-10}
+      DATABASE_SSL: "false"
+      SEED_PLATFORM_PASSWORD: ${SEED_PLATFORM_PASSWORD:?Set SEED_PLATFORM_PASSWORD in .env}
+      SEED_CLINIC_PASSWORD: ${SEED_CLINIC_PASSWORD:?Set SEED_CLINIC_PASSWORD in .env}
+      SEED_DISPATCHER_PASSWORD: ${SEED_DISPATCHER_PASSWORD:?Set SEED_DISPATCHER_PASSWORD in .env}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-24}
+      DRIVER_TOKEN_TTL_DAYS: ${DRIVER_TOKEN_TTL_DAYS:-30}
+      PATIENT_TOKEN_TTL_HOURS: ${PATIENT_TOKEN_TTL_HOURS:-72}
+      CREW_LOCATION_MAX_AGE_MINUTES: ${CREW_LOCATION_MAX_AGE_MINUTES:-30}
+      LOGIN_RATE_LIMIT: ${LOGIN_RATE_LIMIT:-10}
+      LOGIN_IP_RATE_LIMIT: ${LOGIN_IP_RATE_LIMIT:-50}
+      ACCESS_LINK_RATE_LIMIT: ${ACCESS_LINK_RATE_LIMIT:-30}
+      PUBLIC_ACCESS_RATE_LIMIT: ${PUBLIC_ACCESS_RATE_LIMIT:-120}
+      SOCKET_CONNECTION_RATE_LIMIT: ${SOCKET_CONNECTION_RATE_LIMIT:-60}
+      SOCKET_JOIN_RATE_LIMIT: ${SOCKET_JOIN_RATE_LIMIT:-30}
+      SOCKET_LOCATION_RATE_LIMIT: ${SOCKET_LOCATION_RATE_LIMIT:-60}
+      SOCKET_MUTATION_RATE_LIMIT: ${SOCKET_MUTATION_RATE_LIMIT:-30}
+      SOCKET_PHOTO_RATE_LIMIT: ${SOCKET_PHOTO_RATE_LIMIT:-6}
+      JSON_BODY_LIMIT: ${JSON_BODY_LIMIT:-256kb}
+      SOCKET_MAX_PAYLOAD_BYTES: ${SOCKET_MAX_PAYLOAD_BYTES:-1100000}
+      MAX_ACCESS_PHOTO_BYTES: ${MAX_ACCESS_PHOTO_BYTES:-768000}
+      GEOCODING_TIMEOUT_MS: ${GEOCODING_TIMEOUT_MS:-5000}
+      GEOCODING_USER_AGENT: ${GEOCODING_USER_AGENT:-MedTracker/1.0}
+      GEOCODING_BASE_URL: ${GEOCODING_BASE_URL:?Set an approved GEOCODING_BASE_URL in .env}
+      ROUTING_TIMEOUT_MS: ${ROUTING_TIMEOUT_MS:-5000}
+      OSRM_BASE_URL: ${OSRM_BASE_URL:?Set an approved OSRM_BASE_URL in .env}
+      TILE_BASE_URL: ${TILE_BASE_URL:?Set an approved TILE_BASE_URL template in .env}
+      TILE_TIMEOUT_MS: ${TILE_TIMEOUT_MS:-5000}
+      MAX_TILE_BYTES: ${MAX_TILE_BYTES:-1048576}
+      TILE_RATE_LIMIT: ${TILE_RATE_LIMIT:-300}
+      TILE_MAX_CONCURRENCY: ${TILE_MAX_CONCURRENCY:-16}
+      TILE_MEMORY_CACHE_SECONDS: ${TILE_MEMORY_CACHE_SECONDS:-3600}
+      TILE_MEMORY_CACHE_BYTES: ${TILE_MEMORY_CACHE_BYTES:-33554432}
+      ENABLE_SIMULATION: "false"
+      SHUTDOWN_TIMEOUT_MS: ${SHUTDOWN_TIMEOUT_MS:-10000}
+      LEGACY_DB_DIR: /app/legacy-db
+      UPLOAD_DIR: /app/legacy-db/uploads
     depends_on:
       database:
         condition: service_healthy
-    command: sh -c "npm run db:migrate && node index.js"
+      migrate:
+        condition: service_completed_successfully
+    command: ["node", "index.js"]
     volumes:
       - medtracker-data:/app/legacy-db
+    expose:
+      - "3001"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 20s
+    networks:
+      - edge
+      - data
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
 
   frontend:
     build:
       context: ./client
       dockerfile: Dockerfile
-    container_name: medtracker-frontend
-    restart: always
-    env_file:
-      - .env
+      args:
+        VITE_TILE_ATTRIBUTION: ${TILE_ATTRIBUTION:?Set the map provider attribution in .env}
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - "${HTTP_BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-8080}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    networks:
+      - edge
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
 
 volumes:
   medtracker-data:
   postgres-data:
+
+networks:
+  edge:
+  data:
+    internal: true

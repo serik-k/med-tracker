@@ -1,12 +1,16 @@
 # Dependencies
 node_modules/
 .pnpm-store/
+.env
+.env.*
+!.env.example
 
 # Build outputs
 dist/
 build/
 *.local
 server/db/platform_store.json
+server/db/orders_store.json
 
 # Logs
 *.log

@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Install backend dependencies
+        run: npm --prefix server ci
+      - name: Check backend syntax
+        run: npm run check:server
+      - name: Run available backend tests
+        run: npm run test:server
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - name: Install frontend dependencies
+        run: npm --prefix client ci
+      - name: Typecheck frontend
+        run: npm run typecheck:client
+      - name: Build frontend
+        run: npm run build:client
+
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      POSTGRES_PASSWORD: ci_database_owner_not_for_deploy_123
+      POSTGRES_APP_PASSWORD: ci_database_app_not_for_deploy_456
+      SEED_PLATFORM_PASSWORD: ci_platform_not_for_deploy_123
+      SEED_CLINIC_PASSWORD: ci_clinic_not_for_deploy_456
+      SEED_DISPATCHER_PASSWORD: ci_dispatch_not_for_deploy_789
+      GEOCODING_BASE_URL: https://geocoding.invalid
+      OSRM_BASE_URL: https://routing.invalid
+      TILE_BASE_URL: "https://tiles.invalid/{z}/{x}/{y}.png"
+      TILE_ATTRIBUTION: CI-only-map-attribution
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Docker Compose
+        run: docker compose --env-file .env.example config --quiet

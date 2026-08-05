@@ -1,352 +1,142 @@
 {
-  "trk_csz4gtwh": {
-    "id": "ORD-4653",
-    "token": "trk_csz4gtwh",
-    "patientPhone": "+7 (777) 743-08-88",
-    "patientName": "Абубакиров Серик ",
-    "address": "ул Желтоксан 80",
-    "destinationLoc": {
-      "lat": 43.2459672,
-      "lng": 76.9408606
-    },
-    "carNumber": "Скорая №105 (02 KZ 555 VIP)",
-    "status": "HOSPITAL_TRANSPORT",
-    "currentLoc": {
-      "lat": 43.23581021676058,
-      "lng": 76.93067767258208
-    },
-    "routePath": [
-      {
-        "lat": 43.235675,
-        "lng": 76.930704
-      },
-      {
-        "lat": 43.235699,
-        "lng": 76.93094
-      },
-      {
-        "lat": 43.235732,
-        "lng": 76.931196
-      },
-      {
-        "lat": 43.235775,
-        "lng": 76.931538
-      },
-      {
-        "lat": 43.235811,
-        "lng": 76.931934
-      },
-      {
-        "lat": 43.235908,
-        "lng": 76.932986
-      },
-      {
-        "lat": 43.235949,
-        "lng": 76.932979
-      },
-      {
-        "lat": 43.236481,
-        "lng": 76.932894
-      },
-      {
-        "lat": 43.236495,
-        "lng": 76.932892
-      },
-      {
-        "lat": 43.236953,
-        "lng": 76.932837
-      },
-      {
-        "lat": 43.237276,
-        "lng": 76.932791
-      },
-      {
-        "lat": 43.23738,
-        "lng": 76.932776
-      },
-      {
-        "lat": 43.237511,
-        "lng": 76.932759
-      },
-      {
-        "lat": 43.237519,
-        "lng": 76.932879
-      },
-      {
-        "lat": 43.237595,
-        "lng": 76.934051
-      },
-      {
-        "lat": 43.237635,
-        "lng": 76.934666
-      },
-      {
-        "lat": 43.237638,
-        "lng": 76.934708
-      },
-      {
-        "lat": 43.237661,
-        "lng": 76.935035
-      },
-      {
-        "lat": 43.237671,
-        "lng": 76.935203
-      },
-      {
-        "lat": 43.237681,
-        "lng": 76.935373
-      },
-      {
-        "lat": 43.23769,
-        "lng": 76.935495
-      },
-      {
-        "lat": 43.237706,
-        "lng": 76.935723
-      },
-      {
-        "lat": 43.237765,
-        "lng": 76.936579
-      },
-      {
-        "lat": 43.237812,
-        "lng": 76.937256
-      },
-      {
-        "lat": 43.237817,
-        "lng": 76.937329
-      },
-      {
-        "lat": 43.237883,
-        "lng": 76.938265
-      },
-      {
-        "lat": 43.237893,
-        "lng": 76.938427
-      },
-      {
-        "lat": 43.237906,
-        "lng": 76.938622
-      },
-      {
-        "lat": 43.237937,
-        "lng": 76.939071
-      },
-      {
-        "lat": 43.237984,
-        "lng": 76.939777
-      },
-      {
-        "lat": 43.238045,
-        "lng": 76.940755
-      },
-      {
-        "lat": 43.238085,
-        "lng": 76.941446
-      },
-      {
-        "lat": 43.2381,
-        "lng": 76.941659
-      },
-      {
-        "lat": 43.238112,
-        "lng": 76.941873
-      },
-      {
-        "lat": 43.238283,
-        "lng": 76.941884
-      },
-      {
-        "lat": 43.2392,
-        "lng": 76.94178
-      },
-      {
-        "lat": 43.239487,
-        "lng": 76.941745
-      },
-      {
-        "lat": 43.239916,
-        "lng": 76.941683
-      },
-      {
-        "lat": 43.240377,
-        "lng": 76.941617
-      },
-      {
-        "lat": 43.241104,
-        "lng": 76.941526
-      },
-      {
-        "lat": 43.241721,
-        "lng": 76.941442
-      },
-      {
-        "lat": 43.24177,
-        "lng": 76.941437
-      },
-      {
-        "lat": 43.241803,
-        "lng": 76.941431
-      },
-      {
-        "lat": 43.241926,
-        "lng": 76.941409
-      },
-      {
-        "lat": 43.24207,
-        "lng": 76.941336
-      },
-      {
-        "lat": 43.242209,
-        "lng": 76.941316
-      },
-      {
-        "lat": 43.242688,
-        "lng": 76.941258
-      },
-      {
-        "lat": 43.242746,
-        "lng": 76.941251
-      },
-      {
-        "lat": 43.242768,
-        "lng": 76.94125
-      },
-      {
-        "lat": 43.243202,
-        "lng": 76.941201
-      },
-      {
-        "lat": 43.24343,
-        "lng": 76.941171
-      },
-      {
-        "lat": 43.244082,
-        "lng": 76.941082
-      },
-      {
-        "lat": 43.244243,
-        "lng": 76.94107
-      },
-      {
-        "lat": 43.244331,
-        "lng": 76.941061
-      },
-      {
-        "lat": 43.244824,
-        "lng": 76.940996
-      },
-      {
-        "lat": 43.245308,
-        "lng": 76.940939
-      },
-      {
-        "lat": 43.24586,
-        "lng": 76.940873
-      },
-      {
-        "lat": 43.245967,
-        "lng": 76.94086
-      }
-    ],
-    "distanceKm": 2,
-    "etaMinutes": 4,
-    "accessInfo": {
-      "residenceType": "apartment",
-      "intercom": "42",
-      "gateCode": "нет",
-      "entrance": "2",
-      "floor": "5",
-      "note": "со стороны двора",
-      "photoUrl": ""
-    },
-    "symptoms": [
-      "Аллергия / Сыпь",
-      "Тошнота / Живот",
-      "Высокая температура"
-    ],
-    "isSimulating": true,
-    "createdAt": "2026-07-24T16:21:39.044Z",
-    "expired": false,
-    "sosAlert": true,
-    "sosTime": "2026-07-29T10:16:20.729Z",
-    "auditLogs": [
-      {
-        "timestamp": "2026-07-26T16:47:03.494Z",
-        "event": "SOS_ALERT",
-        "text": "🚨 ВНИМАНИЕ: Пациент нажал SOS (Состояние ухудшилось!)"
-      },
-      {
-        "timestamp": "2026-07-26T16:47:25.846Z",
-        "event": "HOSPITAL_TRANSPORT",
-        "text": "Госпитализация в ГКБ №7 (мкр. Калкаман)"
-      },
-      {
-        "timestamp": "2026-07-26T17:03:10.463Z",
-        "event": "SOS_ALERT",
-        "text": "🚨 ВНИМАНИЕ: Пациент нажал SOS (Состояние ухудшилось!)"
-      },
-      {
-        "timestamp": "2026-07-29T10:16:20.729Z",
-        "event": "SOS_ALERT",
-        "text": "🚨 ВНИМАНИЕ: Пациент нажал SOS (Состояние ухудшилось!)"
-      }
-    ],
-    "hospitalName": "ГКБ №7 (мкр. Калкаман)",
-    "clinicId": "clinic_medclinic_almaty"
-  },
-  "trk_wZNWWi4MdhayXwJ6gzQ3G96mxRUYmzQy": {
-    "id": "ORD-2509",
-    "token": "trk_wZNWWi4MdhayXwJ6gzQ3G96mxRUYmzQy",
+  "ord_BvH912nIPU6vDCH2p1HvPkx4": {
+    "accessId": "ord_BvH912nIPU6vDCH2p1HvPkx4",
+    "id": "ORD-FAC20614",
     "clinicId": "clinic_medclinic_almaty",
     "clinicName": "MedClinic Almaty",
-    "patientPhone": "+7 (777) 777-77-77",
-    "patientName": "test",
-    "address": "test",
-    "destinationLoc": {
-      "lat": 43.23013217755712,
-      "lng": 76.94428284523597
+    "clinicStatus": "ACTIVE",
+    "clinicContactPhone": "+7 727 000 00 00",
+    "hospitalOptions": [],
+    "clinicHospitals": [],
+    "crewId": "103",
+    "assignedCrew": {
+      "id": "103",
+      "clinicId": "clinic_medclinic_almaty",
+      "name": "Бригада №103",
+      "carPlate": "02 KZ 777 ABC",
+      "type": "ЛИНЕЙНАЯ",
+      "driverName": "Нурланов Б.",
+      "status": "ON_DUTY",
+      "currentLoc": null,
+      "locationUpdatedAt": null,
+      "hospitalOptions": [],
+      "clinicHospitals": [],
+      "archivedAt": null
     },
     "carNumber": "Бригада №103 (02 KZ 777 ABC)",
+    "patientName": "Kappar Serik",
+    "patientPhone": "+7 (777) 743-07-75",
+    "address": "ул габдуллина 59",
     "priority": "STANDARD",
-    "status": "ACCEPTED",
-    "currentLoc": {
-      "lat": 43.218587156208315,
-      "lng": 76.9330588578299
+    "status": "ARRIVED",
+    "hospitalName": null,
+    "destinationLoc": {
+      "lat": 43.2287305,
+      "lng": 76.9121864
     },
-    "routePath": [
-      {
-        "lat": 43.218587156208315,
-        "lng": 76.9330588578299
-      },
-      {
-        "lat": 43.22435966688272,
-        "lng": 76.93867085153295
-      },
-      {
-        "lat": 43.23013217755712,
-        "lng": 76.94428284523597
-      }
-    ],
-    "distanceKm": 2.5,
-    "etaMinutes": 7,
+    "hospitalLocation": null,
+    "currentLoc": {
+      "lat": 43.22853137320563,
+      "lng": 76.91210035308916
+    },
+    "routePath": [],
+    "etaMinutes": null,
+    "distanceKm": null,
     "accessInfo": {
       "residenceType": "apartment",
-      "intercom": "",
-      "gateCode": "",
-      "entrance": "",
-      "floor": "",
-      "note": ""
+      "intercom": "123213",
+      "gateCode": "213213",
+      "entrance": "213213",
+      "floor": "213123",
+      "note": "2131231",
+      "photoUrl": "/api/access-photos/YTmZCtLFJfXbUQc9sdtyW1gi69Qc07Bx-zU9AIzxbVE"
     },
-    "symptoms": [],
+    "symptoms": [
+      "Боль в груди",
+      "Аллергия / Сыпь",
+      "ыфвыфвыфвыфвфыв"
+    ],
+    "sosAlert": false,
+    "sosTime": null,
+    "sosAcknowledgedAt": null,
+    "sosAcknowledgedBy": null,
     "isSimulating": false,
-    "createdAt": "2026-07-29T10:17:40.077Z",
+    "assignedAt": "2026-08-05T15:53:23.743Z",
+    "locationUpdatedAt": "2026-08-05T16:26:26.148Z",
+    "etaUpdatedAt": null,
+    "createdAt": "2026-08-05T15:53:23.743Z",
+    "updatedAt": "2026-08-05T16:44:13.976Z",
+    "completedAt": null,
+    "cancelledAt": null,
+    "cancelReason": null,
+    "idempotencyKey": "f2630c13-5305-4edb-aaac-561a3c9e8de5",
+    "idempotencyFingerprint": "fcb54a1d045a1ff89d8eaf52a94307931ceee83a31ec964b200cdad91555e3de",
+    "patientTokenHash": "3a7f97497abfd75e56441ca5494bbe09977201996dc8f58c82d6733498bf8042",
+    "patientAccessExpiresAt": "2026-08-08T15:53:23.743Z",
     "expired": false,
+    "viewerTokenHash": null,
+    "viewerAccessExpiresAt": null,
     "auditLogs": [
       {
-        "timestamp": "2026-07-29T10:17:40.077Z",
+        "timestamp": "2026-08-05T15:53:23.743Z",
         "event": "CREATED",
-        "text": "Вызов создан (STANDARD)"
+        "text": "Вызов создан (Стандартный)",
+        "metadata": {
+          "actorUserId": "user_med_dispatcher",
+          "crewId": "103"
+        }
+      },
+      {
+        "timestamp": "2026-08-05T15:54:30.039Z",
+        "event": "EN_ROUTE",
+        "text": "Бригада выехала к пациенту",
+        "metadata": {
+          "crewId": "103"
+        }
+      },
+      {
+        "timestamp": "2026-08-05T16:26:26.673Z",
+        "event": "ARRIVED",
+        "text": "Бригада прибыла по адресу",
+        "metadata": {
+          "crewId": "103"
+        }
+      },
+      {
+        "timestamp": "2026-08-05T16:41:23.693Z",
+        "event": "ACCESS_UPDATED",
+        "text": "Пациент уточнил информацию о доступе",
+        "metadata": {}
+      },
+      {
+        "timestamp": "2026-08-05T16:41:29.388Z",
+        "event": "SYMPTOMS_UPDATED",
+        "text": "Обновлены симптомы (Боль в груди)",
+        "metadata": {}
+      },
+      {
+        "timestamp": "2026-08-05T16:41:29.997Z",
+        "event": "SYMPTOMS_UPDATED",
+        "text": "Обновлены симптомы (Боль в груди, Аллергия / Сыпь)",
+        "metadata": {}
+      },
+      {
+        "timestamp": "2026-08-05T16:41:53.199Z",
+        "event": "SYMPTOMS_UPDATED",
+        "text": "Обновлены симптомы (Боль в груди, Аллергия / Сыпь, ууфцвфцвфцв)",
+        "metadata": {}
+      },
+      {
+        "timestamp": "2026-08-05T16:43:45.364Z",
+        "event": "SYMPTOMS_UPDATED",
+        "text": "Обновлены симптомы (Боль в груди, Аллергия / Сыпь)",
+        "metadata": {}
+      },
+      {
+        "timestamp": "2026-08-05T16:44:13.976Z",
+        "event": "SYMPTOMS_UPDATED",
+        "text": "Обновлены симптомы (Боль в груди, Аллергия / Сыпь, ыфвыфвыфвыфвфыв)",
+        "metadata": {}
       }
     ]
   }
