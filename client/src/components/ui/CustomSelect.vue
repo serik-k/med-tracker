@@ -1,5 +1,5 @@
 <template>
-  <div ref="containerRef" class="relative w-full space-y-1.5">
+  <div ref="containerRef" class="relative w-full space-y-1.5" :class="{ 'z-40': isOpen }">
     <label v-if="label" :for="selectId" class="block text-xs font-black text-slate-700 dark:text-slate-200">{{ label }}</label>
     
     <!-- Select Trigger Button -->
