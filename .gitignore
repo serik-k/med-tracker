@@ -4,6 +4,7 @@ node_modules/
 .env
 .env.*
 !.env.example
+ACCOUNTS_AND_LOGINS.md
 
 # Build outputs
 dist/

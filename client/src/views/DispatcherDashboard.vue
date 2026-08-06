@@ -26,8 +26,28 @@
         <div class="ops-stat"><span>Свободные бригады</span><strong class="text-teal-700">{{ availableCrews.length }}</strong></div>
       </section>
 
+      <!-- Mobile Tab Switcher (< lg) -->
+      <div class="mb-3 flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm lg:hidden">
+        <button
+          type="button"
+          class="flex-1 py-2.5 text-xs font-black rounded-lg transition-all"
+          :class="mobileTab === 'orders' ? 'bg-teal-700 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'"
+          @click="mobileTab = 'orders'"
+        >
+          📋 Очередь ({{ filteredOrders.length }})
+        </button>
+        <button
+          type="button"
+          class="flex-1 py-2.5 text-xs font-black rounded-lg transition-all"
+          :class="mobileTab === 'map' ? 'bg-teal-700 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'"
+          @click="mobileTab = 'map'"
+        >
+          🗺️ Карта {{ selectedOrder ? '· Вызов выбрано' : '' }}
+        </button>
+      </div>
+
       <div class="grid min-h-[calc(100vh-156px)] grid-cols-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:h-[calc(100dvh-10.75rem)] lg:min-h-0 lg:grid-cols-[400px_minmax(0,1fr)]">
-        <aside class="flex min-h-[580px] flex-col overflow-hidden border-b border-slate-200 lg:min-h-0 lg:border-b-0 lg:border-r" aria-label="Очередь вызовов">
+        <aside :class="[ mobileTab === 'map' ? 'hidden lg:flex' : 'flex' ]" class="min-h-[580px] flex-col overflow-hidden border-b border-slate-200 lg:min-h-0 lg:border-b-0 lg:border-r" aria-label="Очередь вызовов">
           <div class="border-b border-slate-200 p-3">
             <div class="mb-3 flex items-center justify-between"><div><h2 class="text-sm font-extrabold">Очередь вызовов</h2><p class="mt-0.5 text-[11px] text-slate-500">Экстренные вызовы всегда сверху</p></div><span class="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs font-bold">{{ filteredOrders.length }}</span></div>
             <label class="relative mb-2 block"><Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><span class="sr-only">Найти вызов</span><input v-model.trim="searchQuery" type="search" placeholder="Пациент, адрес или номер" class="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-xs font-semibold outline-none focus:border-teal-600 focus:bg-white focus:ring-2 focus:ring-teal-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-teal-400" /></label>
@@ -44,7 +64,7 @@
           <div v-else class="grid flex-1 place-items-center p-8 text-center text-sm text-slate-500"><div><CircleCheck class="mx-auto mb-2 h-8 w-8 text-teal-600" /><p class="font-bold">Подходящих вызовов нет</p><p class="mt-1 text-xs">Измените фильтр или поисковый запрос</p></div></div>
         </aside>
 
-        <section class="relative min-h-[650px] bg-slate-200 lg:min-h-0">
+        <section :class="[ mobileTab === 'orders' ? 'hidden lg:block' : 'block' ]" class="relative min-h-[650px] bg-slate-200 lg:min-h-0">
           <LiveMap :orders="activeOrders" :focused-token="selectedToken" @select-order="selectOrder" />
           <article v-if="selectedOrder" class="absolute bottom-3 left-3 right-3 z-[500] max-h-[88%] overflow-y-auto rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-2xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 lg:left-auto lg:w-[460px]" aria-live="polite">
             <div class="mb-3 flex items-start justify-between gap-3"><div class="min-w-0"><div class="mb-1 flex items-center gap-2"><span class="rounded px-1.5 py-1 text-[10px] font-black" :class="priorityClass(selectedOrder)">{{ priorityLabel(selectedOrder) }}</span><span class="font-mono text-xs font-bold">{{ selectedOrder.id }}</span></div><h3 class="truncate text-base font-extrabold">{{ selectedOrder.patientName }}</h3><a :href="`tel:${selectedOrder.patientPhone}`" class="mt-1 inline-flex text-xs font-semibold text-teal-800 hover:underline dark:text-teal-400">{{ selectedOrder.patientPhone }}</a></div><button type="button" class="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Закрыть карточку" @click="selectedToken=null"><X class="h-4 w-4" /></button></div>
@@ -53,8 +73,8 @@
 
             <section v-if="!isClosed(selectedOrder)" class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50" aria-labelledby="assignment-title">
               <div class="mb-2 flex items-center justify-between"><h4 id="assignment-title" class="text-xs font-black">Назначение бригады</h4><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">Только свободные на дежурстве</span></div>
-              <CustomSelect v-model="assignmentCrewId" :options="assignmentSelectOptions" placeholder="Без назначения" />
-              <div class="mt-2 grid grid-cols-[1fr_auto] gap-2"><button type="button" :disabled="assigning||assignmentCrewId===(selectedOrder.crewId||'')" class="min-h-11 rounded-lg bg-teal-800 px-3 text-xs font-black text-white disabled:bg-slate-200 disabled:text-slate-500 dark:bg-teal-600 dark:disabled:bg-slate-800 dark:disabled:text-slate-600" @click="saveAssignment">{{ assigning?'Сохраняем…':selectedOrder.crewId?'Переназначить':'Назначить бригаду' }}</button><button v-if="selectedOrder.crewId" type="button" class="min-h-11 rounded-lg border border-slate-300 px-3 text-xs font-bold dark:border-slate-700" @click="assignmentCrewId=''">Снять</button></div>
+              <CustomSelect v-model="assignmentCrewId" :options="assignmentSelectOptions" placeholder="Выберите бригаду" />
+              <div class="mt-2 flex gap-2"><button type="button" :disabled="assigning||assignmentCrewId===(selectedOrder.crewId||'')" class="min-h-11 w-full rounded-xl bg-emerald-600 px-3 text-xs font-black text-white shadow-md transition hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-500 dark:bg-emerald-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-600" @click="saveAssignment">{{ assigning?'Сохраняем…':selectedOrder.crewId?'Переназначить':'Назначить бригаду' }}</button></div>
             </section>
 
             <div v-if="selectedOrder.accessInfo?.photoUrl&&!isClosed(selectedOrder)" class="mt-3"><p class="mb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-500">Фото подъезда</p><a v-if="selectedPhotoUrl" :href="selectedPhotoUrl" target="_blank" rel="noopener"><img :src="selectedPhotoUrl" alt="Фото подъезда, переданное пациентом" class="h-28 w-full rounded-xl border border-slate-200 object-cover" /></a><p v-else-if="selectedPhotoLoading" class="rounded-xl bg-slate-50 p-3 text-xs font-bold text-slate-500" role="status">Загружаем защищённое фото…</p><p v-else-if="selectedPhotoError" class="rounded-xl bg-amber-50 p-3 text-xs font-bold text-amber-900" role="status">Фото временно недоступно.</p></div>
@@ -67,9 +87,8 @@
             <div class="grid grid-cols-2 gap-2">
               <template v-if="!isClosed(selectedOrder)">
                 <button type="button" :disabled="Boolean(linkPending)" class="ops-action bg-slate-950 text-white disabled:opacity-50" @click="openWhatsApp(selectedOrder)"><MessageSquare class="h-4 w-4" />{{ linkPending==='whatsapp'?'Готовим…':'WhatsApp' }}</button>
-                <button type="button" :disabled="Boolean(linkPending)" class="ops-action border border-slate-200 bg-white disabled:opacity-50" @click="copyPatientLink(selectedOrder)"><Copy class="h-4 w-4" />{{ copiedToken===selectedOrder.token?'Скопировано':linkPending==='patient'?'Создаём…':hasPatientPath(selectedOrder)?'Ссылка пациенту':'Перевыпустить ссылку пациенту' }}</button>
-                <button v-if="selectedOrder.crewId" type="button" :disabled="Boolean(linkPending)" class="ops-action col-span-2 border border-teal-200 bg-teal-50 text-teal-900 disabled:opacity-50" @click="copyDriverLink(selectedOrder)"><Copy class="h-4 w-4" />{{ copiedCrewId===selectedOrder.crewId?'Ссылка скопирована':linkPending==='driver'?'Перевыпускаем…':'Перевыпустить ссылку экипажа' }}</button>
-                <button v-if="simulationAvailable" type="button" class="ops-action col-span-2 border border-slate-200 bg-white" @click="toggleSimulation(selectedOrder)"><Play class="h-4 w-4" />{{ selectedOrder.isSimulating?'Остановить демо-движение':'Запустить демо-движение' }}</button>
+                <button type="button" :disabled="Boolean(linkPending)" class="ops-action border border-slate-200 bg-white disabled:opacity-50" @click="copyPatientLink(selectedOrder)"><Copy class="h-4 w-4" />{{ copiedToken===selectedOrder.token?'Скопировано':linkPending==='patient'?'Создаём…':'Ссылка пациенту' }}</button>
+                <button v-if="selectedOrder.crewId" type="button" :disabled="Boolean(linkPending)" class="ops-action col-span-2 border border-teal-200 bg-teal-50 text-teal-900 disabled:opacity-50" @click="copyDriverLink(selectedOrder)"><Copy class="h-4 w-4" />{{ copiedCrewId===selectedOrder.crewId?'Ссылка скопирована':linkPending==='driver'?'Копируем…':'Ссылка экипажа' }}</button>
                 <button type="button" class="ops-action col-span-2 border border-red-200 bg-red-50 text-red-800" @click="openCancelDialog"><Ban class="h-4 w-4" /> Отменить вызов</button>
               </template>
               <p v-else class="col-span-2 rounded-lg bg-slate-50 p-3 text-center text-xs font-semibold text-slate-500">Защищённые ссылки этого вызова больше не действуют.</p>
@@ -181,7 +200,14 @@ const busyCrewIds=computed(()=>new Set(activeOrders.value.map(order=>order.crewI
 const availableCrews=computed(()=>crewStore.crews.filter(crew=>crew.status==='ON_DUTY'&&!busyCrewIds.value.has(crew.id)));
 const selectedBusyCrewIds=computed(()=>new Set(activeOrders.value.filter(order=>order.token!==selectedOrder.value?.token).map(order=>order.crewId).filter((id):id is string=>Boolean(id))));
 const assignmentOptions=computed(()=>crewStore.crews.map(crew=>{const busy=selectedBusyCrewIds.value.has(crew.id), unavailable=crew.status!=='ON_DUTY'&&crew.id!==selectedOrder.value?.crewId;return{crew,disabled:busy||unavailable,label:`${crew.name} · ${crew.carPlate}${busy?' · занята':unavailable?` · ${crewStatus(crew.status)}`:''}`};}));
-const assignmentSelectOptions=computed<SelectOption[]>(()=>[{value:'',label:'Без назначения'},...assignmentOptions.value.map(opt=>({value:opt.crew.id,label:opt.label,disabled:opt.disabled}))]);
+const assignmentSelectOptions=computed<SelectOption[]>(()=>{
+  const options: SelectOption[] = [];
+  if (!selectedOrder.value?.crewId) {
+    options.push({ value: '', label: 'Без назначения' });
+  }
+  options.push(...assignmentOptions.value.map(opt => ({ value: opt.crew.id, label: opt.label, disabled: opt.disabled })));
+  return options;
+});
 const filters:{value:Filter;label:string}[]=[{value:'active',label:'Активные'},{value:'unassigned',label:'Без бригады'},{value:'en_route',label:'В пути'},{value:'completed',label:'Архив'}];
 const priorityRank:Record<OrderPriority,number>={EMERGENCY:0,URGENT:1,STANDARD:2};
 const filteredOrders=computed(()=>allOrders.value.filter(order=>{const query=searchQuery.value.toLocaleLowerCase();const matches=!query||[order.id,order.patientName,order.address,order.patientPhone,order.carNumber].some(value=>String(value||'').toLocaleLowerCase().includes(query));if(!matches)return false;if(activeFilter.value==='completed')return isClosed(order);if(isClosed(order))return false;if(activeFilter.value==='unassigned')return isUnassigned(order);if(activeFilter.value==='en_route')return order.status==='EN_ROUTE'||order.status==='HOSPITAL_TRANSPORT';return true;}).sort((a,b)=>(priorityRank[a.priority||'STANDARD']-priorityRank[b.priority||'STANDARD'])||Number(isUnassigned(b))-Number(isUnassigned(a))||+new Date(a.createdAt)-+new Date(b.createdAt)));
@@ -198,8 +224,10 @@ watch(filteredOrders,orders=>{if(selectedToken.value&&!orders.some(order=>order.
 watch([()=>auth.user?.id,()=>auth.logoutPending],([userId,logoutPending])=>{if(!userId||logoutPending)clearLocalSensitiveState();});
 watch([()=>selectedOrder.value?.accessInfo?.photoUrl,()=>selectedOrder.value?.status],()=>void loadSelectedPhoto(),{immediate:true});
 
+const mobileTab = ref<'orders' | 'map'>('orders');
+
 async function refreshData(){await Promise.all([orderStore.joinDispatcherRoom(),crewStore.fetchCrews()]);}
-function selectOrder(token:string){selectedToken.value=token;actionError.value='';actionNotice.value='';}
+function selectOrder(token:string){selectedToken.value=token;actionError.value='';actionNotice.value='';mobileTab.value='map';}
 function waitMinutes(order:Order){return Math.max(0,Math.floor((now.value-new Date(order.createdAt).getTime())/60000)||0);}
 function elapsed(order:Order){const end=isClosed(order)?new Date(order.completedAt||order.cancelledAt||order.updatedAt||now.value).getTime():now.value;const minutes=Math.max(0,Math.floor((end-new Date(order.createdAt).getTime())/60000)||0);return `${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;}
 function formatTime(value:string){return new Date(value).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
@@ -226,73 +254,151 @@ function finishPasswordDialog(){isPasswordOpen.value=false;Object.assign(passwor
 function closePasswordDialog(){if(!passwordSaving.value)finishPasswordDialog();}
 function onKeydown(event:KeyboardEvent){if(event.key==='Tab'){if(isPasswordOpen.value)trapModalFocus(event,passwordDialog.value);else if(isCancelOpen.value)trapModalFocus(event,cancelDialog.value);else if(isCreateOpen.value)trapModalFocus(event,createDialog.value);return;}if(event.key!=='Escape')return;if(isPasswordOpen.value)closePasswordDialog();else if(isCancelOpen.value)closeCancelDialog();else if(isCreateOpen.value)closeCreateDialog();}
 
-async function submitPasswordChange(){passwordError.value='';if(passwordForm.newPassword.length<10){passwordError.value='Новый пароль должен содержать минимум 10 символов.';return;}if(passwordForm.newPassword!==passwordForm.confirmPassword){passwordError.value='Новые пароли не совпадают.';return;}passwordSaving.value=true;try{await auth.changePassword(passwordForm.currentPassword,passwordForm.newPassword);Object.assign(passwordForm,{currentPassword:'',newPassword:'',confirmPassword:''});isPasswordOpen.value=false;await router.replace({path:'/login',query:{passwordChanged:'1'}});}catch(error){passwordError.value=errorMessage(error,'Не удалось сменить пароль');}finally{passwordSaving.value=false;}}
+import { z } from 'zod';
 
-async function handleCreateOrder(){createError.value='';creating.value=true;createIdempotencyKey||=newRequestKey();try{const created=await orderStore.createOrder({patientName:newOrderForm.patientName,patientPhone:newOrderForm.patientPhone,address:newOrderForm.address,crewId:newOrderForm.crewId||null,priority:newOrderForm.priority},createIdempotencyKey);rememberPatientPath(created);Object.assign(newOrderForm,{patientName:'',patientPhone:'',address:'',lat:'',lng:'',crewId:'',priority:'EMERGENCY'});showCoordinates.value=false;selectedToken.value=created.token;finishCreateDialog();setNotice(created.crewId?'Вызов создан и передан бригаде':'Вызов создан без назначения');}catch(error){createError.value=errorMessage(error,'Не удалось создать вызов');}finally{creating.value=false;}}
+const createOrderSchema = z.object({
+  patientName: z.string().min(2, 'Укажите ФИО пациента или контактное лицо'),
+  patientPhone: z.string().min(6, 'Укажите корректный контактный номер телефона'),
+  address: z.string().min(3, 'Укажите подробный адрес вызова')
+});
+
+const passwordChangeSchema = z.object({
+  currentPassword: z.string().min(1, 'Укажите текущий пароль'),
+  newPassword: z.string().min(10, 'Новый пароль должен содержать минимум 10 символов'),
+  confirmPassword: z.string().min(10, 'Подтверждение пароля должно содержать минимум 10 символов')
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: 'Новые пароли не совпадают',
+  path: ['confirmPassword']
+});
+
+async function submitPasswordChange(){
+  passwordError.value='';
+  const result = passwordChangeSchema.safeParse(passwordForm);
+  if (!result.success) {
+    passwordError.value = result.error.issues[0]?.message || 'Ошибка заполнения формы';
+    return;
+  }
+  passwordSaving.value=true;
+  try{
+    await auth.changePassword(passwordForm.currentPassword,passwordForm.newPassword);
+    Object.assign(passwordForm,{currentPassword:'',newPassword:'',confirmPassword:''});
+    isPasswordOpen.value=false;
+    await router.replace({path:'/login',query:{passwordChanged:'1'}});
+  }catch(error){
+    passwordError.value=errorMessage(error,'Не удалось сменить пароль');
+  }finally{
+    passwordSaving.value=false;
+  }
+}
+
+async function handleCreateOrder(){
+  createError.value='';
+  const result = createOrderSchema.safeParse(newOrderForm);
+  if (!result.success) {
+    createError.value = result.error.issues[0]?.message || 'Ошибка заполнения формы';
+    return;
+  }
+  creating.value=true;
+  createIdempotencyKey||=newRequestKey();
+  try{
+    const created=await orderStore.createOrder({patientName:newOrderForm.patientName,patientPhone:newOrderForm.patientPhone,address:newOrderForm.address,crewId:newOrderForm.crewId||null,priority:newOrderForm.priority},createIdempotencyKey);
+    rememberPatientPath(created);
+    Object.assign(newOrderForm,{patientName:'',patientPhone:'',address:'',lat:'',lng:'',crewId:'',priority:'EMERGENCY'});
+    showCoordinates.value=false;
+    selectedToken.value=created.token;
+    finishCreateDialog();
+    setNotice(created.crewId?'Вызов создан и передан бригаде':'Вызов создан без назначения');
+  }catch(error){
+    createError.value=errorMessage(error,'Не удалось создать вызов');
+  }finally{
+    creating.value=false;
+  }
+}
 function rememberPatientPath(created:CreatedOrder){if(created.patientAccessPath){const next=new Map(patientPaths.value);next.set(created.token,created.patientAccessPath);patientPaths.value=next;}}
-async function saveAssignment(){if(!selectedOrder.value)return;assigning.value=true;actionError.value='';try{await orderStore.assignOrder(selectedOrder.value.token,assignmentCrewId.value||null);setNotice(assignmentCrewId.value?'Бригада назначена':'Вызов оставлен без назначения');}catch(error){actionError.value=errorMessage(error,'Не удалось изменить назначение');assignmentCrewId.value=selectedOrder.value.crewId||'';}finally{assigning.value=false;}}
+async function executeSaveAssignment(){if(!selectedOrder.value||!assignmentCrewId.value)return;const hadCrew=Boolean(selectedOrder.value.crewId);assigning.value=true;actionError.value='';try{await orderStore.assignOrder(selectedOrder.value.token,assignmentCrewId.value);setNotice(hadCrew?'Вызов переназначен на новую бригаду':'Бригада назначена на вызов');}catch(error){actionError.value=errorMessage(error,'Не удалось изменить назначение');assignmentCrewId.value=selectedOrder.value.crewId||'';}finally{assigning.value=false;}}
+
+function saveAssignment(){
+  if(!selectedOrder.value||!assignmentCrewId.value)return;
+  if(assignmentCrewId.value === selectedOrder.value.crewId)return;
+
+  const isEnRoute = ['EN_ROUTE','ARRIVED','HOSPITAL_TRANSPORT'].includes(selectedOrder.value.status);
+  if(isEnRoute){
+    const currentCrew = selectedOrder.value.carNumber || 'текущий экипаж';
+    const statusText = selectedOrder.value.status === 'EN_ROUTE' ? 'уже выехал к пациенту' : selectedOrder.value.status === 'ARRIVED' ? 'уже прибыл на место' : 'госпитализирует пациента';
+    triggerConfirmModal({
+      title: 'Передать активный вызов другой бригаде?',
+      description: `Экипаж ${currentCrew} ${statusText}. Передача вызова отозовёт маршрут у текущего экипажа и передаст вызов новой бригаде. Вы уверены?`,
+      variant: 'warning',
+      confirmText: 'Передать вызов',
+      onConfirm: () => executeSaveAssignment()
+    });
+  } else {
+    void executeSaveAssignment();
+  }
+}
 async function confirmCancel(){if(!selectedOrder.value)return;cancelling.value=true;cancelError.value='';try{await orderStore.cancelOrder(selectedOrder.value.token,cancelReason.value);finishCancelDialog();setNotice('Вызов отменён, бригада уведомлена');}catch(error){cancelError.value=errorMessage(error,'Не удалось отменить вызов');}finally{cancelling.value=false;}}
 
 async function patientPath(order:Order){const cached=patientPaths.value.get(order.token);if(cached)return cached;const access=await orderStore.createPatientAccessLink(order.token);if(!access.patientAccessPath)throw new Error('Сервер не вернул ссылку пациента');const next=new Map(patientPaths.value);next.set(order.token,access.patientAccessPath);patientPaths.value=next;return access.patientAccessPath;}
 function hasPatientPath(order:Order){return patientPaths.value.has(order.token);}
 async function copyText(text:string){try{await navigator.clipboard.writeText(text);}catch{const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();}}
 
-async function executeCopyPatientLink(order:Order){linkPending.value='patient';actionError.value='';try{const path=await patientPath(order);await copyText(`${window.location.origin}${path}`);copiedToken.value=order.token;window.setTimeout(()=>copiedToken.value=null,2200);}catch(error){actionError.value=errorMessage(error,'Не удалось создать ссылку пациента');}finally{linkPending.value=null;}}
-
-function copyPatientLink(order:Order){
-  if(hasPatientPath(order)){void executeCopyPatientLink(order);return;}
-  triggerConfirmModal({
-    title:'Перевыпустить ссылку пациента?',
-    description:'Текущая ссылка сразу перестанет работать, и пациенту нужно будет отправить новую.',
-    variant:'warning',
-    confirmText:'Перевыпустить ссылку',
-    onConfirm:()=>executeCopyPatientLink(order)
-  });
+async function copyPatientLink(order:Order){
+  linkPending.value='patient';
+  actionError.value='';
+  try{
+    const path=await patientPath(order);
+    await copyText(`${window.location.origin}${path}`);
+    copiedToken.value=order.token;
+    window.setTimeout(()=>copiedToken.value=null,2200);
+  }catch(error){
+    actionError.value=errorMessage(error,'Не удалось скопировать ссылку пациента');
+  }finally{
+    linkPending.value=null;
+  }
 }
 
 function copyViewerLink(order:Order){
-  triggerConfirmModal({
-    title:'Создать новую ссылку для близких?',
-    description:'Ранее отправленная ссылка для просмотра сразу перестанет работать.',
-    variant:'warning',
-    confirmText:'Перевыпустить ссылку',
-    onConfirm:async()=>{
-      linkPending.value='viewer';actionError.value='';
-      try{const access=await orderStore.createViewerAccessLink(order.token);await copyText(`${window.location.origin}${access.path}`);copiedViewerToken.value=order.token;window.setTimeout(()=>copiedViewerToken.value=null,2200);}catch(error){actionError.value=errorMessage(error,'Не удалось создать ссылку для близких');}finally{linkPending.value=null;}
-    }
+  linkPending.value='viewer';actionError.value='';
+  orderStore.createViewerAccessLink(order.token).then(access=>{
+    return copyText(`${window.location.origin}${access.path}`);
+  }).then(()=>{
+    copiedViewerToken.value=order.token;
+    window.setTimeout(()=>copiedViewerToken.value=null,2200);
+  }).catch(error=>{
+    actionError.value=errorMessage(error,'Не удалось создать ссылку для близких');
+  }).finally(()=>{
+    linkPending.value=null;
   });
 }
 
-async function executeOpenWhatsApp(order:Order){
+async function openWhatsApp(order:Order){
   const popup=window.open('about:blank','_blank');if(popup)popup.opener=null;linkPending.value='whatsapp';actionError.value='';
-  try{const path=await patientPath(order);const text=`Здравствуйте, ${order.patientName}. ${order.carNumber?`К вам направлена ${order.carNumber}.`:'Бригада назначается.'} Отслеживание вызова: ${window.location.origin}${path}`;const url=`https://wa.me/${order.patientPhone.replace(/\D/g,'')}?text=${encodeURIComponent(text)}`;if(popup)popup.location.href=url;else window.open(url,'_blank','noopener');}catch(error){popup?.close();actionError.value=errorMessage(error,'Не удалось подготовить сообщение');}finally{linkPending.value=null;}
+  try{
+    const path=await patientPath(order);
+    const text=`Здравствуйте, ${order.patientName}. ${order.carNumber?`К вам направлена ${order.carNumber}.`:'Бригада назначается.'} Отслеживание вызова: ${window.location.origin}${path}`;
+    const url=`https://wa.me/${order.patientPhone.replace(/\D/g,'')}?text=${encodeURIComponent(text)}`;
+    if(popup)popup.location.href=url;else window.open(url,'_blank','noopener');
+  }catch(error){
+    popup?.close();
+    actionError.value=errorMessage(error,'Не удалось подготовить сообщение');
+  }finally{
+    linkPending.value=null;
+  }
 }
 
-function openWhatsApp(order:Order){
-  if(hasPatientPath(order)){void executeOpenWhatsApp(order);return;}
-  triggerConfirmModal({
-    title:'Перевыпустить ссылку пациента?',
-    description:'Текущая ссылка сразу перестанет работать, и пациенту нужно будет отправить новую.',
-    variant:'warning',
-    confirmText:'Перевыпустить и открыть WhatsApp',
-    onConfirm:()=>executeOpenWhatsApp(order)
-  });
-}
-
-function copyDriverLink(order:Order){
+async function copyDriverLink(order:Order){
   if(!order.crewId)return;
-  const crew=crewStore.crews.find(item=>item.id===order.crewId);
-  const warning=crew?.status==='ON_CALL'?' Текущее приложение водителя отключится, передача GPS остановится до открытия новой ссылки.':'';
-  triggerConfirmModal({
-    title:'Перевыпустить ссылку экипажа?',
-    description:`Старая ссылка сразу перестанет работать.${warning}`,
-    variant:'warning',
-    confirmText:'Перевыпустить ссылку',
-    onConfirm:async()=>{
-      linkPending.value='driver';actionError.value='';
-      try{const access=await orderStore.getCrewAccessLink(order.crewId!);await copyText(`${window.location.origin}${access.path}`);copiedCrewId.value=order.crewId;window.setTimeout(()=>copiedCrewId.value=null,2200);}catch(error){actionError.value=errorMessage(error,'Не удалось создать ссылку экипажа');}finally{linkPending.value=null;}
-    }
-  });
+  linkPending.value='driver';actionError.value='';
+  try{
+    const access=await orderStore.getCrewAccessLink(order.crewId);
+    await copyText(`${window.location.origin}${access.path}`);
+    copiedCrewId.value=order.crewId;
+    window.setTimeout(()=>copiedCrewId.value=null,2200);
+  }catch(error){
+    actionError.value=errorMessage(error,'Не удалось скопировать ссылку экипажа');
+  }finally{
+    linkPending.value=null;
+  }
 }
 async function toggleSimulation(order:Order){actionError.value='';try{await orderStore.toggleSimulation(order.token,!order.isSimulating);setNotice(order.isSimulating?'Демо-движение остановлено':'Демо-движение запущено');}catch(error){actionError.value=errorMessage(error,'Демо-режим недоступен');}}
 async function logout(){logoutError.value='';try{await auth.logout();await router.replace('/login');}catch(error){logoutError.value=errorMessage(error,'Не удалось завершить серверную сессию. Повторите выход перед тем, как оставить устройство.');}}

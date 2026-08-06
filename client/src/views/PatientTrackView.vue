@@ -23,30 +23,8 @@
 
           <div class="flex items-center gap-1">
             <ThemeToggle />
-            <button
-              type="button"
-              class="flex h-9 items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-100 px-2.5 text-xs font-black text-slate-700 hover:bg-slate-200 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200"
-              :aria-expanded="showSettingsPopover"
-              aria-label="Сменить язык"
-              @click="showSettingsPopover = !showSettingsPopover"
-            >
-              <Globe class="h-4 w-4 text-teal-600 dark:text-teal-400" />
-              <span class="uppercase">{{ lang.currentLang }}</span>
-            </button>
+            <LanguageSwitcher />
           </div>
-        </div>
-
-        <div
-          v-if="showSettingsPopover"
-          class="absolute right-0 top-14 z-50 rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl backdrop-blur dark:border-slate-800 dark:bg-slate-900"
-        >
-          <div class="mb-2 flex items-center justify-between text-xs font-bold text-slate-500">
-            <span>Язык интерфейса</span>
-            <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" @click="showSettingsPopover = false">
-              <X class="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <LanguageSwitcher />
         </div>
       </header>
 
@@ -87,7 +65,7 @@ import { errorMessage } from '@/services/api';
 import { clearPublicAccessSecret, consumePublicAccessSecret } from '@/utils/publicAccess';
 
 const route=useRoute(), orderStore=useOrderStore(), lang=useLangStore();
-const showSettingsPopover=ref(false), isSheetExpanded=ref(false), now=ref(Date.now());
+const isSheetExpanded=ref(false), now=ref(Date.now());
 const actionNotice=ref(''), actionError=ref('');
 let timer=0, noticeTimer=0, symptomsTimer=0;
 const patientSecret=ref(consumePublicAccessSecret('patient',route.params.token));
