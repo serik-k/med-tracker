@@ -10,7 +10,6 @@
           <div class="hidden items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold sm:flex" :class="connectionClass"><span class="h-2 w-2 rounded-full" :class="orderStore.isConnected ? 'bg-emerald-500' : 'bg-amber-500'"></span>{{ connectionLabel }}</div>
           <LanguageSwitcher />
           <ThemeToggle />
-          <button type="button" class="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50" aria-label="Сменить пароль" title="Сменить пароль" @click="openPasswordDialog"><KeyRound class="h-4 w-4" /></button>
           <button type="button" class="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50" aria-label="Выйти из диспетчерской" title="Выйти" @click="logout"><LogOut class="h-4 w-4" /></button>
           <button type="button" class="inline-flex h-10 items-center gap-2 rounded-lg bg-red-600 px-4 text-xs font-extrabold text-white shadow-sm hover:bg-red-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200" @click="openCreateDialog"><Plus class="h-4 w-4" /> Новый вызов</button>
         </div>
@@ -104,8 +103,6 @@
 
     <div v-if="isCancelOpen&&selectedOrder" class="fixed inset-0 z-[1100] grid place-items-center bg-slate-950/60 p-4 backdrop-blur-sm" @click.self="closeCancelDialog"><div ref="cancelDialog" tabindex="-1" class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100" role="alertdialog" aria-modal="true" aria-labelledby="cancel-title" aria-describedby="cancel-desc"><div class="grid h-11 w-11 place-items-center rounded-full bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400"><Ban class="h-5 w-5" /></div><h2 id="cancel-title" class="mt-4 text-lg font-black">Отменить вызов {{ selectedOrder.id }}?</h2><p id="cancel-desc" class="mt-2 text-sm text-slate-600 dark:text-slate-400">Бригада и пациент сразу увидят отмену. Действие попадёт в журнал.</p><label for="cancel-reason" class="mt-4 block text-xs font-bold text-slate-700 dark:text-slate-200">Причина отмены <span class="font-normal text-slate-400 dark:text-slate-500">(необязательно)</span></label><textarea id="cancel-reason" v-model="cancelReason" rows="3" maxlength="300" class="mt-1 w-full resize-none rounded-xl border border-slate-300 p-3 text-sm outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder="Например: вызов отменён пациентом"></textarea><p v-if="cancelError" class="mt-2 text-xs font-bold text-red-700 dark:text-red-400" role="alert">{{ cancelError }}</p><div class="mt-5 grid grid-cols-2 gap-2"><button type="button" class="min-h-12 rounded-xl border border-slate-200 text-xs font-bold dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300" @click="closeCancelDialog">Вернуться</button><button type="button" :disabled="cancelling" class="min-h-12 rounded-xl bg-red-600 text-xs font-black text-white disabled:opacity-50" @click="confirmCancel">{{ cancelling?'Отменяем…':'Отменить вызов' }}</button></div></div></div>
 
-    <div v-if="isPasswordOpen" class="fixed inset-0 z-[1200] grid place-items-center bg-slate-950/60 p-4 backdrop-blur-sm" @click.self="closePasswordDialog"><form ref="passwordDialog" tabindex="-1" class="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100" role="dialog" aria-modal="true" aria-labelledby="password-title" aria-describedby="password-desc" @submit.prevent="submitPasswordChange"><div class="grid h-11 w-11 place-items-center rounded-full bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-400"><KeyRound class="h-5 w-5" /></div><h2 id="password-title" class="mt-4 text-lg font-black">Сменить пароль</h2><p id="password-desc" class="mt-1 text-sm text-slate-600 dark:text-slate-400">После смены пароля все рабочие сессии завершатся. Потребуется войти снова.</p><div class="mt-4 space-y-3"><label for="current-password" class="block text-xs font-bold text-slate-700 dark:text-slate-200">Текущий пароль</label><input id="current-password" v-model="passwordForm.currentPassword" type="password" autocomplete="current-password" required class="min-h-12 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" /><label for="new-password" class="block text-xs font-bold text-slate-700 dark:text-slate-200">Новый пароль <span class="font-normal text-slate-400 dark:text-slate-500">(минимум 10 символов)</span></label><input id="new-password" v-model="passwordForm.newPassword" type="password" autocomplete="new-password" minlength="10" required class="min-h-12 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" /><label for="confirm-password" class="block text-xs font-bold text-slate-700 dark:text-slate-200">Повторите новый пароль</label><input id="confirm-password" v-model="passwordForm.confirmPassword" type="password" autocomplete="new-password" minlength="10" required class="min-h-12 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" /></div><p v-if="passwordError" class="mt-3 rounded-xl bg-red-50 p-3 text-xs font-bold text-red-700 dark:bg-red-950/40 dark:text-red-300" role="alert">{{ passwordError }}</p><div class="mt-5 grid grid-cols-2 gap-2"><button type="button" :disabled="passwordSaving" class="min-h-12 rounded-xl border border-slate-200 text-xs font-bold dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300" @click="closePasswordDialog">Отмена</button><button type="submit" :disabled="passwordSaving" class="min-h-12 rounded-xl bg-teal-800 px-3 text-xs font-black text-white disabled:opacity-50 dark:bg-teal-600">{{ passwordSaving?'Сохраняем…':'Сменить пароль' }}</button></div></form></div>
-
     <ConfirmModal
       :is-open="confirmModalState.isOpen"
       :title="confirmModalState.title"
@@ -140,8 +137,6 @@ const orderStore=useOrderStore(), crewStore=useCrewStore(), auth=useAuthStore(),
 const selectedToken=ref<string|null>(null), activeFilter=ref<Filter>('active'), searchQuery=ref(''), assignmentCrewId=ref('');
 const isCreateOpen=ref(false), createDialog=ref<HTMLElement|null>(null), coordinateLatInput=ref<HTMLInputElement|null>(null), creating=ref(false), createError=ref(''), showCoordinates=ref(false);
 const isCancelOpen=ref(false), cancelDialog=ref<HTMLElement|null>(null), cancelReason=ref(''), cancelError=ref(''), cancelling=ref(false);
-const isPasswordOpen=ref(false), passwordDialog=ref<HTMLElement|null>(null), passwordSaving=ref(false), passwordError=ref('');
-const passwordForm=reactive({currentPassword:'',newPassword:'',confirmPassword:''});
 
 const confirmModalState = reactive<{
   isOpen: boolean;
@@ -239,7 +234,7 @@ function statusText(status:OrderStatus){return({ACCEPTED:'Принят',EN_ROUTE
 function crewStatus(status:Crew['status']){return({ON_DUTY:'на дежурстве',ON_CALL:'на вызове',BREAK:'перерыв',OFF_DUTY:'не на смене'} as Record<Crew['status'],string>)[status];}
 
 function setNotice(message:string){actionNotice.value=message;window.clearTimeout(noticeTimer);noticeTimer=window.setTimeout(()=>actionNotice.value='',3500);}
-function clearLocalSensitiveState(){clearSelectedPhoto();patientPaths.value=new Map();selectedToken.value=null;searchQuery.value='';assignmentCrewId.value='';cancelReason.value='';createError.value='';cancelError.value='';passwordError.value='';actionNotice.value='';actionError.value='';linkPending.value=null;isCreateOpen.value=false;isCancelOpen.value=false;isPasswordOpen.value=false;showCoordinates.value=false;createReturnFocus=null;cancelReturnFocus=null;passwordReturnFocus=null;Object.assign(newOrderForm,{patientName:'',patientPhone:'',address:'',lat:'',lng:'',crewId:'',priority:'EMERGENCY'});Object.assign(passwordForm,{currentPassword:'',newPassword:'',confirmPassword:''});}
+function clearLocalSensitiveState(){clearSelectedPhoto();patientPaths.value=new Map();selectedToken.value=null;searchQuery.value='';assignmentCrewId.value='';cancelReason.value='';createError.value='';cancelError.value='';actionNotice.value='';actionError.value='';linkPending.value=null;isCreateOpen.value=false;isCancelOpen.value=false;showCoordinates.value=false;createReturnFocus=null;cancelReturnFocus=null;Object.assign(newOrderForm,{patientName:'',patientPhone:'',address:'',lat:'',lng:'',crewId:'',priority:'EMERGENCY'});}
 function clearSelectedPhoto(){selectedPhotoController?.abort();selectedPhotoController=null;if(selectedPhotoUrl.value)URL.revokeObjectURL(selectedPhotoUrl.value);selectedPhotoUrl.value='';selectedPhotoLoading.value=false;selectedPhotoError.value='';}
 async function loadSelectedPhoto(){clearSelectedPhoto();const selected=selectedOrder.value,photoUrl=selected?.accessInfo?.photoUrl;if(!selected||!photoUrl||isClosed(selected))return;const controller=new AbortController();selectedPhotoController=controller;selectedPhotoLoading.value=true;try{const blob=await fetchAccessPhotoBlob(photoUrl,undefined,controller.signal);if(controller.signal.aborted||selectedPhotoController!==controller)return;selectedPhotoUrl.value=URL.createObjectURL(blob);}catch{if(!controller.signal.aborted&&selectedPhotoController===controller)selectedPhotoError.value='Фото временно недоступно';}finally{if(selectedPhotoController===controller){selectedPhotoController=null;selectedPhotoLoading.value=false;}}}
 function newRequestKey(){return typeof crypto.randomUUID==='function'?crypto.randomUUID():`call-${Date.now()}-${Math.random().toString(36).slice(2)}`;}
@@ -249,10 +244,7 @@ function closeCreateDialog(){if(!creating.value)finishCreateDialog();}
 function openCancelDialog(event?:Event){cancelReturnFocus=modalTrigger(event);isCancelOpen.value=true;cancelReason.value='';cancelError.value='';void nextTick(()=>focusFirstInModal(cancelDialog.value));}
 function finishCancelDialog(){isCancelOpen.value=false;const trigger=cancelReturnFocus;cancelReturnFocus=null;void nextTick(()=>restoreModalTrigger(trigger));}
 function closeCancelDialog(){if(!cancelling.value)finishCancelDialog();}
-function openPasswordDialog(event?:Event){passwordReturnFocus=modalTrigger(event);passwordError.value='';Object.assign(passwordForm,{currentPassword:'',newPassword:'',confirmPassword:''});isPasswordOpen.value=true;void nextTick(()=>focusFirstInModal(passwordDialog.value));}
-function finishPasswordDialog(){isPasswordOpen.value=false;Object.assign(passwordForm,{currentPassword:'',newPassword:'',confirmPassword:''});const trigger=passwordReturnFocus;passwordReturnFocus=null;void nextTick(()=>restoreModalTrigger(trigger));}
-function closePasswordDialog(){if(!passwordSaving.value)finishPasswordDialog();}
-function onKeydown(event:KeyboardEvent){if(event.key==='Tab'){if(isPasswordOpen.value)trapModalFocus(event,passwordDialog.value);else if(isCancelOpen.value)trapModalFocus(event,cancelDialog.value);else if(isCreateOpen.value)trapModalFocus(event,createDialog.value);return;}if(event.key!=='Escape')return;if(isPasswordOpen.value)closePasswordDialog();else if(isCancelOpen.value)closeCancelDialog();else if(isCreateOpen.value)closeCreateDialog();}
+function onKeydown(event:KeyboardEvent){if(event.key==='Tab'){if(isCancelOpen.value)trapModalFocus(event,cancelDialog.value);else if(isCreateOpen.value)trapModalFocus(event,createDialog.value);return;}if(event.key!=='Escape')return;if(isCancelOpen.value)closeCancelDialog();else if(isCreateOpen.value)closeCreateDialog();}
 
 import { z } from 'zod';
 
@@ -261,35 +253,6 @@ const createOrderSchema = z.object({
   patientPhone: z.string().min(6, 'Укажите корректный контактный номер телефона'),
   address: z.string().min(3, 'Укажите подробный адрес вызова')
 });
-
-const passwordChangeSchema = z.object({
-  currentPassword: z.string().min(1, 'Укажите текущий пароль'),
-  newPassword: z.string().min(10, 'Новый пароль должен содержать минимум 10 символов'),
-  confirmPassword: z.string().min(10, 'Подтверждение пароля должно содержать минимум 10 символов')
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: 'Новые пароли не совпадают',
-  path: ['confirmPassword']
-});
-
-async function submitPasswordChange(){
-  passwordError.value='';
-  const result = passwordChangeSchema.safeParse(passwordForm);
-  if (!result.success) {
-    passwordError.value = result.error.issues[0]?.message || 'Ошибка заполнения формы';
-    return;
-  }
-  passwordSaving.value=true;
-  try{
-    await auth.changePassword(passwordForm.currentPassword,passwordForm.newPassword);
-    Object.assign(passwordForm,{currentPassword:'',newPassword:'',confirmPassword:''});
-    isPasswordOpen.value=false;
-    await router.replace({path:'/login',query:{passwordChanged:'1'}});
-  }catch(error){
-    passwordError.value=errorMessage(error,'Не удалось сменить пароль');
-  }finally{
-    passwordSaving.value=false;
-  }
-}
 
 async function handleCreateOrder(){
   createError.value='';
