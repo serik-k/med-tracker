@@ -6,14 +6,14 @@
 
     <!-- Header Navigation -->
     <header class="site-header sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md transition-colors dark:border-slate-800/80 dark:bg-[#07111f]/90">
-      <nav class="header-inner mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8" :aria-label="text.navigation">
-        <RouterLink class="brand flex items-center gap-3 text-slate-950 transition hover:opacity-90 dark:text-white" to="/" :aria-label="text.brandHome">
+      <nav class="header-inner mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-2 px-3 sm:gap-6 sm:px-6 lg:px-8" :aria-label="text.navigation">
+        <RouterLink class="brand flex min-w-0 items-center gap-2 text-slate-950 transition hover:opacity-90 sm:gap-3 dark:text-white" to="/" :aria-label="text.brandHome">
           <span class="brand-mark grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-tr from-teal-700 to-teal-500 text-white shadow-lg shadow-teal-500/20 dark:from-teal-500 dark:to-cyan-400 dark:shadow-teal-400/10">
             <HeartPulse :size="22" stroke-width="2.2" aria-hidden="true" />
           </span>
           <span class="brand-copy">
             <strong class="block text-base font-black tracking-tight leading-none">MedTracker</strong>
-            <small class="block mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ text.brandNote }}</small>
+            <small class="mt-1 hidden text-[10px] font-bold uppercase tracking-wider text-slate-500 min-[390px]:block dark:text-slate-400">{{ text.brandNote }}</small>
           </span>
         </RouterLink>
 
@@ -23,7 +23,7 @@
           <a href="#faq" class="text-xs font-bold text-slate-600 transition hover:text-teal-600 dark:text-slate-300 dark:hover:text-teal-400">{{ text.navFaq }}</a>
         </div>
 
-        <div class="header-actions flex items-center gap-3">
+        <div class="header-actions flex shrink-0 items-center gap-1.5 sm:gap-3">
           <LanguageSwitcher />
           <ThemeToggle />
           <RouterLink class="login-button inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-xs font-black text-white shadow-md transition hover:bg-slate-800 hover:shadow-lg dark:bg-teal-600 dark:hover:bg-teal-500" to="/login">

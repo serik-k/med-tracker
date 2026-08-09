@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { clinicPasswordResetDecision } from '../authPolicy.js';
+import { clinicPasswordResetDecision, clinicUserDeletionDecision } from '../authPolicy.js';
 
 test('clinic password reset cannot bypass current-password verification for self', () => {
   const owner = { id: 'owner-1', role: 'clinic_owner' };
@@ -18,4 +18,13 @@ test('clinic password reset protects owners and permits another ordinary staff a
   const dispatcher = { id: 'dispatcher-1', role: 'dispatcher' };
   assert.equal(clinicPasswordResetDecision(admin, owner).code, 'OWNER_PROTECTED');
   assert.deepEqual(clinicPasswordResetDecision(admin, dispatcher), { allowed: true });
+});
+
+test('clinic user deletion protects the owner and the current account', () => {
+  const admin = { id: 'admin-1', role: 'clinic_admin' };
+  const owner = { id: 'owner-1', role: 'clinic_owner' };
+  const dispatcher = { id: 'dispatcher-1', role: 'dispatcher' };
+  assert.equal(clinicUserDeletionDecision(admin, admin).code, 'CANNOT_DELETE_SELF');
+  assert.equal(clinicUserDeletionDecision(admin, owner).code, 'OWNER_PROTECTED');
+  assert.deepEqual(clinicUserDeletionDecision(admin, dispatcher), { allowed: true });
 });

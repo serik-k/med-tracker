@@ -2,11 +2,11 @@
   <div class="min-h-screen bg-[#f4f7fa] text-slate-950 font-sans selection:bg-emerald-500 selection:text-slate-950 antialiased transition-colors dark:bg-[#07111f] dark:text-slate-100">
     <!-- Header Navigation -->
     <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-xl transition-colors dark:border-slate-800/80 dark:bg-[#07111f]/90">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:px-6 lg:px-8">
         
         <!-- Clinic Context -->
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+        <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/20">
             <Building2 class="w-5 h-5 text-slate-950 font-bold" />
           </div>
           <div class="min-w-0">
@@ -16,12 +16,12 @@
                 Fleet Management
               </span>
             </div>
-            <p class="truncate text-xs text-slate-500 dark:text-slate-400">Управление автопарком и сменами бригад</p>
+            <p class="hidden truncate text-xs text-slate-500 min-[420px]:block dark:text-slate-400">Управление автопарком и сменами бригад</p>
           </div>
         </div>
 
         <!-- Right Quick Actions -->
-        <div class="flex items-center gap-2">
+        <div class="flex shrink-0 items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
           <button
@@ -49,40 +49,40 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       <!-- Telematics KPI Scorecards (Senior UX Design) -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 flex items-center justify-between shadow-sm backdrop-blur-xl hover:border-emerald-500/40 transition-all dark:bg-slate-900/80 dark:border-slate-800/90 dark:shadow-xl dark:hover:border-emerald-500/30">
-          <div>
+      <div class="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 sm:grid-cols-3">
+        <div class="flex min-w-0 items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm backdrop-blur-xl transition-all hover:border-emerald-500/40 dark:border-slate-800/90 dark:bg-slate-900/80 dark:shadow-xl dark:hover:border-emerald-500/30 sm:p-6">
+          <div class="min-w-0">
             <div class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Машин в автопарке</div>
             <div class="text-3xl font-black text-slate-950 dark:text-white mt-1 font-mono">{{ crewStore.crews.length }}</div>
             <div class="text-[11px] text-slate-500 mt-1">Всего зарегистрировано</div>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <Ambulance class="w-6 h-6" />
           </div>
         </div>
 
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 flex items-center justify-between shadow-sm backdrop-blur-xl hover:border-teal-500/40 transition-all dark:bg-slate-900/80 dark:border-slate-800/90 dark:shadow-xl dark:hover:border-teal-500/30">
-          <div>
+        <div class="flex min-w-0 items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm backdrop-blur-xl transition-all hover:border-teal-500/40 dark:border-slate-800/90 dark:bg-slate-900/80 dark:shadow-xl dark:hover:border-teal-500/30 sm:p-6">
+          <div class="min-w-0">
             <div class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">На дежурстве</div>
             <div class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
               {{ crewStore.crews.filter(c => c.status === 'ON_DUTY').length }}
             </div>
             <div class="text-[11px] text-emerald-700 dark:text-emerald-400/80 mt-1">Готовы к приему вызовов</div>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-teal-500/20 bg-teal-500/10 text-teal-600 dark:text-teal-400">
             <CheckCircle2 class="w-6 h-6" />
           </div>
         </div>
 
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 flex items-center justify-between shadow-sm backdrop-blur-xl hover:border-cyan-500/40 transition-all dark:bg-slate-900/80 dark:border-slate-800/90 dark:shadow-xl dark:hover:border-cyan-500/30">
-          <div>
+        <div class="flex min-w-0 items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm backdrop-blur-xl transition-all hover:border-cyan-500/40 dark:border-slate-800/90 dark:bg-slate-900/80 dark:shadow-xl dark:hover:border-cyan-500/30 sm:p-6">
+          <div class="min-w-0">
             <div class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Реанимация / Спецсмены</div>
             <div class="text-3xl font-black text-cyan-600 dark:text-cyan-400 mt-1 font-mono">
               {{ crewStore.crews.filter(c => c.type === 'РЕАНИМАЦИЯ').length }}
             </div>
             <div class="text-[11px] text-cyan-700 dark:text-cyan-400/80 mt-1">Оснащены ИВЛ и мониторами</div>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
             <ShieldAlert class="w-6 h-6" />
           </div>
         </div>
@@ -101,28 +101,28 @@
       </p>
 
       <!-- Fleet Crew Management Section -->
-      <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm backdrop-blur-xl space-y-6 transition-colors dark:bg-slate-900/80 dark:border-slate-800/90 dark:shadow-2xl">
+      <div class="w-full min-w-0 max-w-full space-y-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm backdrop-blur-xl transition-colors dark:border-slate-800/90 dark:bg-slate-900/80 dark:shadow-2xl sm:p-6">
         
         <!-- Header & Search Filter Bar -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5 dark:border-slate-800/80">
-          <div>
-            <h2 class="text-lg font-black text-slate-950 dark:text-white flex items-center gap-2">
-              <Users class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              <span>Реестр Бригад и Автомобилей</span>
+          <div class="min-w-0">
+            <h2 class="flex min-w-0 items-start gap-2 text-lg font-black text-slate-950 dark:text-white">
+              <Users class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <span class="min-w-0 break-words">Реестр Бригад и Автомобилей</span>
             </h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Управление доступным автопарком для диспетчерской службы</p>
+            <p class="mt-0.5 break-words text-xs text-slate-500 dark:text-slate-400">Управление доступным автопарком для диспетчерской службы</p>
           </div>
 
-          <div class="flex items-center gap-3">
+          <div class="flex min-w-0 flex-col items-stretch gap-3 sm:flex-row sm:items-center">
             <!-- Search Filter -->
-            <label class="relative">
+            <label class="relative min-w-0 flex-1">
               <span class="sr-only">Поиск экипажа или госномера</span>
               <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 v-model="searchQuery"
                 type="search"
                 placeholder="Поиск экипажа или госномера..."
-                class="min-h-11 w-44 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-4 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-600 sm:w-64 dark:border-slate-700/80 dark:bg-slate-950 dark:text-white dark:focus:border-emerald-400"
+                class="min-h-11 w-full min-w-0 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-4 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-600 sm:w-64 dark:border-slate-700/80 dark:bg-slate-950 dark:text-white dark:focus:border-emerald-400"
               />
             </label>
 
@@ -130,7 +130,7 @@
             <button
               type="button"
               @click="openAddModal"
-              class="flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-xs font-black text-white shadow-md transition hover:bg-emerald-700 focus-visible:ring-4 focus-visible:ring-emerald-500/30 dark:bg-emerald-400 dark:text-slate-950 dark:shadow-emerald-500/20 dark:hover:bg-emerald-300"
+              class="flex min-h-11 min-w-0 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-xs font-black text-white shadow-md transition hover:bg-emerald-700 focus-visible:ring-4 focus-visible:ring-emerald-500/30 dark:bg-emerald-400 dark:text-slate-950 dark:shadow-emerald-500/20 dark:hover:bg-emerald-300"
             >
               <Plus class="w-4 h-4" />
               <span>Добавить Бригаду</span>
@@ -139,29 +139,29 @@
         </div>
 
         <!-- Fleet Crews Cards Grid View (All Screens) -->
-        <div v-if="filteredCrews.length" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div v-if="filteredCrews.length" class="grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <article
             v-for="crew in filteredCrews"
             :key="crew.id"
-            class="relative flex flex-col justify-between rounded-3xl border border-slate-200 bg-slate-50/80 p-5 shadow-sm transition-all focus-within:z-30 hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-950/60 dark:hover:border-slate-700"
+            class="relative min-w-0 max-w-full rounded-3xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm transition-all focus-within:z-30 hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-950/60 dark:hover:border-slate-700 sm:flex sm:flex-col sm:justify-between sm:p-5"
           >
             <div>
               <!-- Card Header: Ambulance icon, Name & License Plate -->
-              <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-3">
+              <div class="flex min-w-0 flex-col items-start gap-3">
+                <div class="flex w-full min-w-0 items-center gap-3">
                   <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white text-emerald-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-emerald-400">
                     <Ambulance class="h-5 w-5" />
                   </div>
-                  <div>
-                    <h3 class="text-base font-black text-slate-950 dark:text-white">{{ crew.name }}</h3>
-                    <span class="mt-0.5 inline-block whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 py-0.5 font-mono text-xs font-bold tracking-wider text-slate-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-black text-slate-950 dark:text-white">{{ crew.name }}</h3>
+                    <span class="mt-0.5 block max-w-full truncate whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 py-0.5 font-mono text-xs font-bold tracking-wider text-slate-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" :title="crew.carPlate">
                       {{ crew.carPlate }}
                     </span>
                   </div>
                 </div>
                 <span
                   :class="[
-                    'whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-extrabold border uppercase tracking-wider',
+                    'min-w-0 max-w-full truncate whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-extrabold border uppercase tracking-wider',
                     crew.type === 'РЕАНИМАЦИЯ' ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' :
                     crew.type === 'ПЕДИАТРИЧЕСКАЯ' ? 'bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20' :
                     'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
@@ -172,9 +172,9 @@
               </div>
 
               <!-- Driver / Doctor -->
-              <div class="mt-4 flex items-center justify-between border-t border-slate-200/80 pt-3 text-xs dark:border-slate-800/80">
+              <div class="mt-4 flex min-w-0 flex-col items-start gap-1 border-t border-slate-200/80 pt-3 text-xs dark:border-slate-800/80 2xl:flex-row 2xl:justify-between 2xl:gap-3">
                 <span class="font-semibold text-slate-500 dark:text-slate-400">Водитель / Врач:</span>
-                <strong class="font-extrabold text-slate-950 dark:text-white">{{ crew.driverName }}</strong>
+                <strong class="min-w-0 max-w-full break-words font-extrabold text-slate-950 dark:text-white 2xl:text-right">{{ crew.driverName }}</strong>
               </div>
 
               <!-- Status CustomSelect -->
@@ -190,10 +190,10 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="mt-5 grid grid-cols-2 gap-2 border-t border-slate-200/80 pt-4 dark:border-slate-800/80">
+            <div class="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 border-t border-slate-200/80 pt-4 dark:border-slate-800/80 lg:grid-cols-[repeat(2,minmax(0,1fr))]">
               <button
                 type="button"
-                class="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-700 transition-all hover:bg-slate-100 focus-visible:ring-4 focus-visible:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                class="flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-700 transition-all hover:bg-slate-100 focus-visible:ring-4 focus-visible:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 @click="openEditModal(crew)"
               >
                 <Pencil class="h-3.5 w-3.5" />
@@ -201,7 +201,7 @@
               </button>
               <button
                 type="button"
-                class="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-emerald-600/30 bg-emerald-50 px-3 text-xs font-bold text-emerald-800 transition-all hover:bg-emerald-100 focus-visible:ring-4 focus-visible:ring-emerald-500/20 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300 dark:hover:bg-emerald-500/25"
+                class="flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl border border-emerald-600/30 bg-emerald-50 px-3 text-xs font-bold text-emerald-800 transition-all hover:bg-emerald-100 focus-visible:ring-4 focus-visible:ring-emerald-500/20 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300 dark:hover:bg-emerald-500/25"
                 @click="openDriverLinkModal(crew)"
               >
                 <Link2 class="h-3.5 w-3.5" />
@@ -209,7 +209,7 @@
               </button>
               <button
                 type="button"
-                class="col-span-2 flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-700 transition-all hover:bg-red-100 focus-visible:ring-4 focus-visible:ring-red-500/20 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300 dark:hover:bg-red-500/25"
+                class="flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-700 transition-all hover:bg-red-100 focus-visible:ring-4 focus-visible:ring-red-500/20 lg:col-span-2 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300 dark:hover:bg-red-500/25"
                 @click="openDeleteModal(crew)"
               >
                 <Trash2 class="h-3.5 w-3.5" />
@@ -227,9 +227,9 @@
     </main>
 
     <div v-if="showSettingsModal" class="fixed inset-0 z-[70] grid place-items-center overflow-y-auto bg-slate-950/75 p-4 backdrop-blur-sm" @click.self="closeSettingsModal" @keydown.esc="closeSettingsModal" @keydown.tab="trapFocus($event, settingsDialog)">
-      <form ref="settingsDialog" class="my-6 w-full max-w-3xl rounded-3xl border border-slate-200 bg-white p-6 text-slate-950 shadow-2xl transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title" @submit.prevent="saveClinicSettings">
+      <form ref="settingsDialog" class="my-4 min-w-0 w-full max-w-3xl rounded-3xl border border-slate-200 bg-white p-4 text-slate-950 shadow-2xl transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 sm:my-6 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title" @submit.prevent="saveClinicSettings">
         <div class="flex items-start justify-between gap-4 border-b border-slate-200 pb-5 dark:border-slate-800">
-          <div><p class="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-400">Конфигурация клиники</p><h2 id="settings-dialog-title" class="mt-1 text-xl font-black text-slate-950 dark:text-white">Диспетчер и стационары</h2><p class="mt-2 max-w-xl text-xs font-semibold leading-5 text-slate-500 dark:text-slate-400">Координаты используются только для построения маршрута экипажа при госпитализации.</p></div>
+          <div class="min-w-0"><p class="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-400">Конфигурация клиники</p><h2 id="settings-dialog-title" class="mt-1 break-words text-xl font-black text-slate-950 dark:text-white">Диспетчер и стационары</h2><p class="mt-2 max-w-xl break-words text-xs font-semibold leading-5 text-slate-500 dark:text-slate-400">Координаты используются только для построения маршрута экипажа при госпитализации.</p></div>
           <button type="button" class="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white" aria-label="Закрыть настройки" @click="closeSettingsModal"><X class="h-5 w-5" /></button>
         </div>
 
@@ -239,9 +239,9 @@
           <label class="text-xs font-black text-slate-700 dark:text-slate-300">Часовой пояс<input v-model.trim="settingsForm.timezone" type="text" required placeholder="Asia/Almaty" class="mt-1.5 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-emerald-400" /></label>
         </div>
 
-        <div class="mt-7 flex items-center justify-between gap-4">
-          <div><h3 class="text-sm font-black text-slate-950 dark:text-white">Стационары</h3><p class="mt-1 text-xs font-semibold text-slate-500">Добавьте только утверждённые клиникой точки назначения.</p></div>
-          <button type="button" :disabled="settingsForm.hospitalOptions.length >= 50" class="flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-xs font-black text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-transparent dark:text-slate-200 dark:hover:bg-slate-800" @click="addHospital"><Plus class="h-4 w-4" />Добавить</button>
+        <div class="mt-7 flex min-w-0 flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div class="min-w-0"><h3 class="text-sm font-black text-slate-950 dark:text-white">Стационары</h3><p class="mt-1 break-words text-xs font-semibold text-slate-500">Добавьте только утверждённые клиникой точки назначения.</p></div>
+          <button type="button" :disabled="settingsForm.hospitalOptions.length >= 50" class="flex min-h-10 min-w-0 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-xs font-black text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-transparent dark:text-slate-200 dark:hover:bg-slate-800" @click="addHospital"><Plus class="h-4 w-4 shrink-0" />Добавить</button>
         </div>
 
         <div v-if="!settingsForm.hospitalOptions.length" class="mt-4 rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-slate-700"><Hospital class="mx-auto h-7 w-7 text-slate-400 dark:text-slate-600" /><p class="mt-3 text-sm font-black text-slate-700 dark:text-slate-300">Стационары пока не настроены</p><p class="mt-1 text-xs text-slate-500">Экипаж увидит понятное предупреждение и свяжется с диспетчером.</p></div>

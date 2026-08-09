@@ -1,17 +1,17 @@
 <template>
   <div class="min-h-svh bg-[#f4f7fa] text-slate-950 transition-colors dark:bg-[#07111f] dark:text-slate-100">
     <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur transition-colors dark:border-slate-800 dark:bg-slate-900/95">
-      <div class="mx-auto flex min-h-[72px] max-w-[1500px] items-center justify-between gap-4 px-4 sm:px-6">
-        <div class="flex min-w-0 items-center gap-3">
+      <div class="mx-auto flex min-h-[72px] max-w-[1500px] items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-6">
+        <div class="flex min-w-0 items-center gap-2 sm:gap-3">
           <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-950 text-teal-300 shadow-sm dark:bg-slate-800">
             <Building2 class="h-5 w-5" />
           </span>
           <div class="min-w-0">
             <h1 class="truncate text-sm font-black text-slate-950 dark:text-slate-100">MedTracker Platform</h1>
-            <p class="truncate text-xs font-semibold text-slate-500 dark:text-slate-400">Супер-Администратор Платформы</p>
+            <p class="hidden truncate text-xs font-semibold text-slate-500 min-[420px]:block dark:text-slate-400">Супер-Администратор Платформы</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex shrink-0 items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
           <button
@@ -37,7 +37,7 @@
 
     <main class="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 sm:py-8">
       <!-- Top Banner -->
-      <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm backdrop-blur-xl transition-colors dark:border-slate-800/90 dark:bg-slate-900/80 dark:shadow-2xl sm:p-8">
+      <section class="min-w-0 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm backdrop-blur-xl transition-colors dark:border-slate-800/90 dark:bg-slate-900/80 dark:shadow-2xl sm:p-8">
         <div class="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div class="max-w-3xl">
             <p class="text-xs font-black uppercase tracking-[0.16em] text-teal-700 dark:text-teal-400">Platform Control Center</p>
@@ -113,8 +113,8 @@
           </div>
         </div>
 
-        <div v-else class="grid gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
-          <article v-for="clinic in filteredClinics" :key="clinic.id" class="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md focus-within:z-30 hover:z-20 dark:border-slate-800 dark:bg-slate-900/90 dark:hover:border-slate-700">
+        <div v-else class="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 p-3 sm:p-4 md:grid-cols-2 xl:grid-cols-3">
+          <article v-for="clinic in filteredClinics" :key="clinic.id" class="relative min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300 hover:shadow-md focus-within:z-30 hover:z-20 dark:border-slate-800 dark:bg-slate-900/90 dark:hover:border-slate-700 sm:p-5">
             <div class="flex items-start justify-between gap-3">
               <span class="grid h-11 w-11 place-items-center rounded-xl bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300">
                 <Hospital class="h-5 w-5" />
@@ -130,14 +130,14 @@
               <CustomSelect v-model="clinic.status" label="Статус организации" :options="statusSelectOptions" />
             </div>
 
-            <dl class="mt-4 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3 text-xs dark:bg-slate-800/60">
-              <div>
+            <dl class="mt-4 grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))] gap-3 rounded-xl bg-slate-50 p-3 text-xs dark:bg-slate-800/60">
+              <div class="min-w-0">
                 <dt class="font-semibold text-slate-500 dark:text-slate-400">БИН</dt>
-                <dd class="mt-1 font-mono font-black text-slate-950 dark:text-slate-100">{{ clinic.bin }}</dd>
+                <dd class="mt-1 truncate font-mono font-black text-slate-950 dark:text-slate-100" :title="clinic.bin">{{ clinic.bin }}</dd>
               </div>
-              <div>
+              <div class="min-w-0">
                 <dt class="font-semibold text-slate-500 dark:text-slate-400">Город</dt>
-                <dd class="mt-1 font-black text-slate-950 dark:text-slate-100">{{ clinic.city }}</dd>
+                <dd class="mt-1 truncate font-black text-slate-950 dark:text-slate-100" :title="clinic.city">{{ clinic.city }}</dd>
               </div>
             </dl>
 

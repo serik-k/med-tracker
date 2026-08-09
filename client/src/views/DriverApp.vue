@@ -124,7 +124,7 @@ function stopGps(){if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWat
 function restartGps(){stopGps();startGpsTracking();void acquireWakeLock();}
 async function reloadAccess(){if(accessToken.value)await orderStore.joinCrewRoom(accessToken.value);}
 
-async function advanceStatus(){if(!nextStatus.value||!activeOrder.value)return;statusError.value='';try{await orderStore.updateStatus(activeOrder.value.token,nextStatus.value.status);showMessage(`${nextStatus.value.label}: ${lang.t('statusConfirmed')}`);}catch(error){statusError.value=errorMessage(error,lang.t('loadCallFailed'));}}
+async function advanceStatus(){const targetStatus=nextStatus.value,order=activeOrder.value;if(!targetStatus||!order)return;statusError.value='';try{await orderStore.updateStatus(order.token,targetStatus.status);showMessage(`${targetStatus.label}: ${lang.t('statusConfirmed')}`);}catch(error){statusError.value=errorMessage(error,lang.t('loadCallFailed'));}}
 function openHospitalDialog(event?:Event){hospitalReturnFocus=modalTrigger(event);isHospitalSelectOpen.value=true;void nextTick(()=>focusFirstInModal(hospitalDialog.value));}
 function closeHospitalDialog(){if(!statusPending.value){isHospitalSelectOpen.value=false;const trigger=hospitalReturnFocus;hospitalReturnFocus=null;void nextTick(()=>restoreModalTrigger(trigger));}}
 async function confirmHospitalTransport(hospital:HospitalOption){if(!activeOrder.value)return;statusError.value='';try{await orderStore.updateStatus(activeOrder.value.token,'HOSPITAL_TRANSPORT',hospital.name,hospital.location);closeHospitalDialog();showMessage(`${lang.t('hospitalTransport')}: ${hospital.name}`);}catch(error){statusError.value=errorMessage(error,lang.t('loadCallFailed'));}}
