@@ -1,16 +1,16 @@
 <template>
-  <div ref="containerRef" class="relative w-full space-y-1.5" :class="{ 'z-40': isOpen }">
+  <div ref="containerRef" class="relative min-w-0 max-w-full space-y-1.5" :class="{ 'z-40': isOpen }">
     <label v-if="label" :for="selectId" class="block text-xs font-black text-slate-700 dark:text-slate-200">{{ label }}</label>
     
     <!-- Select Trigger Button -->
-    <div class="relative">
+    <div class="relative min-w-0 max-w-full">
       <component :is="icon" v-if="icon" class="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-teal-700 dark:text-teal-400" aria-hidden="true" />
       
       <button
         :id="selectId"
         type="button"
         :disabled="disabled"
-        class="min-h-11 w-full rounded-xl border border-slate-300 bg-white py-2.5 text-left text-sm font-medium text-slate-900 outline-none transition-all hover:border-slate-400 focus:border-teal-600 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-teal-400 dark:disabled:bg-slate-800"
+        class="min-h-11 w-full min-w-0 max-w-full rounded-xl border border-slate-300 bg-white py-2.5 text-left text-sm font-medium text-slate-900 outline-none transition-all hover:border-slate-400 focus:border-teal-600 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-teal-400 dark:disabled:bg-slate-800"
         :class="[
           icon ? 'pl-10' : 'pl-3.5',
           'pr-10'

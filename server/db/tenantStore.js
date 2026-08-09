@@ -437,6 +437,21 @@ class TenantStore {
     });
   }
 
+  async deleteClinicUser(clinicId, userId) {
+    if (this.mode === 'file') {
+      const index = this.data.users.findIndex(item => item.clinicId === clinicId && item.id === userId);
+      if (index < 0) return false;
+      this.data.sessions = this.data.sessions.filter(session => session.userId !== userId);
+      this.data.users.splice(index, 1);
+      this.persist();
+      return true;
+    }
+    return withTenant(this.pool, { clinicId }, async client => {
+      const result = await client.query('DELETE FROM users WHERE clinic_id=$1 AND id=$2', [clinicId, userId]);
+      return Boolean(result.rowCount);
+    });
+  }
+
   async resetClinicUserPassword(clinicId, userId, password) {
     const passwordHash = hashPassword(password);
     if (this.mode === 'file') {

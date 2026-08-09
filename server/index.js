@@ -8,7 +8,7 @@ import { orderStore, StoreError } from './store.js';
 import { hashToken, tenantStore } from './db/tenantStore.js';
 import { findAccessPhoto } from './services/accessPhotos.js';
 import { fetchMapTile, validTileCoordinates } from './services/mapTiles.js';
-import { clinicPasswordResetDecision } from './authPolicy.js';
+import { clinicPasswordResetDecision, clinicUserDeletionDecision } from './authPolicy.js';
 
 const configuredInteger = (name, fallback, minimum, maximum) => {
   const raw = process.env[name];
@@ -454,6 +454,27 @@ app.patch('/api/clinic/users/:id', requireAuth, requireClinic, allowRoles('clini
     for (const socket of io.sockets.sockets.values()) if (socket.data.staffUserId === targetId) revokeSocket(socket, 'staff', reason);
   }
   res.json(updated);
+}));
+
+app.delete('/api/clinic/users/:id', requireAuth, requireClinic, allowRoles('clinic_owner', 'clinic_admin'), asyncRoute(async (req, res) => {
+  const targetId = cleanId(req.params.id);
+  const users = await tenantStore.getClinicUsers(req.user.clinicId);
+  const target = users.find(user => user.id === targetId);
+  if (!target) throw httpError(404, 'USER_NOT_FOUND', 'Сотрудник не найден');
+  const decision = clinicUserDeletionDecision(req.user, target);
+  if (!decision.allowed) {
+    const message = decision.code === 'CANNOT_DELETE_SELF'
+      ? 'Нельзя удалить собственную учётную запись'
+      : 'Учётная запись владельца защищена';
+    throw httpError(decision.status, decision.code, message);
+  }
+  if (!await tenantStore.deleteClinicUser(req.user.clinicId, targetId)) {
+    throw httpError(404, 'USER_NOT_FOUND', 'Сотрудник не найден');
+  }
+  for (const socket of io.sockets.sockets.values()) {
+    if (socket.data.staffUserId === targetId) revokeSocket(socket, 'staff', 'USER_DELETED');
+  }
+  res.status(204).end();
 }));
 
 app.post('/api/clinic/users/:id/reset-password', requireAuth, requireClinic, allowRoles('clinic_owner', 'clinic_admin'), asyncRoute(async (req, res) => {

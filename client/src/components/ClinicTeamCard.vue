@@ -1,24 +1,25 @@
 <template>
-  <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900/80 sm:p-6" aria-labelledby="team-title">
+  <section class="min-w-0 max-w-full rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900/80 sm:p-6" aria-labelledby="team-title">
     <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-      <div><h2 id="team-title" class="flex items-center gap-2 text-lg font-black text-slate-950 dark:text-slate-100"><Users class="h-5 w-5 text-teal-600 dark:text-cyan-400" />Сотрудники клиники</h2><p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Роли, состояние доступа и восстановление учётных записей</p></div>
-      <button ref="createTrigger" type="button" class="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-xs font-black text-white shadow-md transition hover:bg-emerald-700 focus-visible:ring-4 focus-visible:ring-emerald-500/20 dark:bg-emerald-500 dark:text-slate-950 dark:hover:bg-emerald-400" @click="openCreate"><UserPlus class="h-4 w-4" />Добавить сотрудника</button>
+      <div class="min-w-0"><h2 id="team-title" class="flex items-center gap-2 text-lg font-black text-slate-950 dark:text-slate-100"><Users class="h-5 w-5 shrink-0 text-teal-600 dark:text-cyan-400" /><span class="min-w-0 break-words">Сотрудники клиники</span></h2><p class="mt-1 break-words text-xs font-semibold text-slate-500 dark:text-slate-400">Роли, состояние доступа и восстановление учётных записей</p></div>
+      <button ref="createTrigger" type="button" class="flex min-h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-xs font-black text-white shadow-md transition hover:bg-emerald-700 focus-visible:ring-4 focus-visible:ring-emerald-500/20 dark:bg-emerald-500 dark:text-slate-950 dark:hover:bg-emerald-400 sm:w-auto" @click="openCreate"><UserPlus class="h-4 w-4 shrink-0" /><span class="min-w-0 break-words">Добавить сотрудника</span></button>
     </div>
 
     <div v-if="loading" class="grid min-h-36 place-items-center" role="status"><LoaderCircle class="h-6 w-6 animate-spin text-teal-600 dark:text-cyan-400" /></div>
     <div v-else-if="loadError" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300" role="alert">{{ loadError }} <button type="button" class="ml-2 min-h-10 rounded-lg px-2 underline" @click="load">Повторить</button></div>
     <div v-else-if="!users.length" class="mt-5 rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700"><UserRound class="mx-auto h-7 w-7 text-slate-400 dark:text-slate-600" /><p class="mt-3 text-sm font-bold text-slate-500 dark:text-slate-400">Сотрудников пока нет</p></div>
-    <div v-else class="mt-5 grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
-      <article v-for="user in users" :key="user.id" class="relative rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition-colors focus-within:z-30 hover:z-20 dark:border-slate-800 dark:bg-slate-950/60">
-        <div class="flex items-start gap-3"><span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"><UserRound class="h-4 w-4" /></span><div class="min-w-0"><h3 class="truncate text-sm font-black text-slate-950 dark:text-white">{{ user.name }}</h3><p class="mt-0.5 truncate text-[11px] font-semibold text-slate-500 dark:text-slate-400">{{ user.email }}</p></div><span class="ml-auto shrink-0 rounded-full px-2.5 py-1 text-[9px] font-black uppercase" :class="user.status === 'DISABLED' ? 'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300'">{{ userBadge(user) }}</span></div>
+    <div v-else class="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-2 2xl:grid-cols-3">
+      <article v-for="user in users" :key="user.id" class="relative min-w-0 max-w-full rounded-2xl border border-slate-200 bg-slate-50/80 p-3 transition-colors focus-within:z-30 hover:z-20 dark:border-slate-800 dark:bg-slate-950/60 sm:p-4">
+        <div class="flex min-w-0 items-start gap-2.5 sm:gap-3"><span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"><UserRound class="h-4 w-4" /></span><div class="min-w-0 flex-1"><h3 class="truncate text-sm font-black text-slate-950 dark:text-white">{{ user.name }}</h3><p class="mt-0.5 truncate text-[11px] font-semibold text-slate-500 dark:text-slate-400">{{ user.email }}</p></div><span class="max-w-[42%] shrink-0 truncate rounded-full px-2 py-1 text-[9px] font-black uppercase sm:px-2.5" :title="userBadge(user)" :class="user.status === 'DISABLED' ? 'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300'">{{ userBadge(user) }}</span></div>
         <div v-if="user.role !== 'clinic_owner'" class="mt-4">
           <CustomSelect :model-value="user.role" :disabled="updatingId === user.id" label="Роль" :options="roleSelectOptions" @update:model-value="val => changeRole(user, val as 'dispatcher' | 'clinic_admin')" />
         </div>
-        <div class="mt-4 grid grid-cols-2 gap-2">
-          <button v-if="user.role !== 'clinic_owner'" type="button" class="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white text-[11px] font-bold text-slate-700 transition-all hover:bg-slate-100 focus-visible:ring-4 focus-visible:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" :disabled="updatingId === user.id" @click="requestToggleUser(user)"><UserCheck v-if="user.status === 'DISABLED'" class="h-3.5 w-3.5" /><UserX v-else class="h-3.5 w-3.5" />{{ user.status === 'DISABLED' ? 'Включить' : 'Отключить' }}</button>
-          <span v-else class="flex min-h-10 items-center justify-center rounded-xl border border-slate-200 text-[11px] font-bold text-slate-400 dark:border-slate-800 dark:text-slate-600">Владелец</span>
-          <button v-if="canReset(user)" type="button" class="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white text-[11px] font-bold text-slate-700 transition-all hover:bg-slate-100 focus-visible:ring-4 focus-visible:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" @click="openReset(user)"><KeyRound class="h-3.5 w-3.5" />Сменить пароль</button>
-          <span v-else class="flex min-h-10 items-center justify-center rounded-xl border border-slate-200 text-[11px] font-bold text-slate-400 dark:border-slate-800 dark:text-slate-600">Пароль защищён</span>
+        <div class="mt-4 grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))] gap-2">
+          <button v-if="user.role !== 'clinic_owner'" type="button" class="flex min-h-10 min-w-0 items-center justify-center gap-1 rounded-xl border border-slate-300 bg-white px-1.5 text-[10px] font-bold text-slate-700 transition-all hover:bg-slate-100 focus-visible:ring-4 focus-visible:ring-emerald-500/20 min-[380px]:gap-1.5 min-[380px]:px-2 min-[380px]:text-[11px] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" :disabled="updatingId === user.id" @click="requestToggleUser(user)"><UserCheck v-if="user.status === 'DISABLED'" class="h-3.5 w-3.5 shrink-0" /><UserX v-else class="h-3.5 w-3.5 shrink-0" /><span class="min-w-0 break-words">{{ user.status === 'DISABLED' ? 'Включить' : 'Отключить' }}</span></button>
+          <span v-else class="flex min-h-10 min-w-0 items-center justify-center break-words rounded-xl border border-slate-200 px-1 text-center text-[10px] font-bold text-slate-400 min-[380px]:text-[11px] dark:border-slate-800 dark:text-slate-600">Владелец</span>
+          <button v-if="canReset(user)" type="button" class="flex min-h-10 min-w-0 items-center justify-center gap-1 rounded-xl border border-slate-300 bg-white px-1.5 text-[10px] font-bold text-slate-700 transition-all hover:bg-slate-100 focus-visible:ring-4 focus-visible:ring-emerald-500/20 min-[380px]:gap-1.5 min-[380px]:px-2 min-[380px]:text-[11px] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" @click="openReset(user)"><KeyRound class="h-3.5 w-3.5 shrink-0" /><span class="min-w-0 break-words">Сменить пароль</span></button>
+          <span v-else class="flex min-h-10 min-w-0 items-center justify-center break-words rounded-xl border border-slate-200 px-1 text-center text-[10px] font-bold text-slate-400 min-[380px]:text-[11px] dark:border-slate-800 dark:text-slate-600">Пароль защищён</span>
+          <button v-if="canDelete(user)" type="button" :disabled="deletingId === user.id || updatingId === user.id" class="col-span-2 flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl border border-red-300 bg-red-50 px-3 text-[11px] font-black text-red-700 transition-all hover:bg-red-100 focus-visible:ring-4 focus-visible:ring-red-500/20 disabled:cursor-wait disabled:opacity-60 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20" @click="openDelete(user)"><Trash2 class="h-3.5 w-3.5 shrink-0" />Удалить сотрудника</button>
         </div>
         <p v-if="rowErrors[user.id]" class="mt-3 text-[11px] font-bold text-red-600 dark:text-red-300" role="alert">{{ rowErrors[user.id] }}</p>
       </article>
@@ -63,6 +64,17 @@
         <div class="mt-6 grid grid-cols-2 gap-2"><button type="button" :disabled="updatingId === disableUser.id" class="min-h-11 rounded-xl border border-slate-300 bg-white text-xs font-black text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-transparent dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" @click="closeDisable">Отмена</button><button type="button" :disabled="updatingId === disableUser.id" class="min-h-11 rounded-xl bg-red-600 text-xs font-black text-white disabled:cursor-wait disabled:opacity-60" @click="confirmDisable">{{ updatingId === disableUser.id ? 'Отключаем…' : 'Отключить доступ' }}</button></div>
       </div>
     </div>
+
+    <div v-if="deleteUser" class="fixed inset-0 z-[77] grid place-items-center bg-slate-950/85 p-4 backdrop-blur-sm" @click.self="closeDelete" @keydown.esc="closeDelete" @keydown.tab="trapFocus($event, deleteDialog)">
+      <div ref="deleteDialog" class="w-full max-w-sm rounded-3xl border border-red-200 bg-white p-5 shadow-2xl transition-colors dark:border-red-500/30 dark:bg-slate-900 sm:p-6" role="alertdialog" aria-modal="true" aria-labelledby="delete-user-title" aria-describedby="delete-user-description">
+        <span class="grid h-12 w-12 place-items-center rounded-2xl border border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"><Trash2 class="h-6 w-6" /></span>
+        <h3 id="delete-user-title" class="mt-5 text-lg font-black text-slate-950 dark:text-white">Удалить сотрудника?</h3>
+        <p id="delete-user-description" class="mt-2 break-words text-sm font-medium leading-6 text-slate-600 dark:text-slate-400">Учётная запись <strong class="text-slate-900 dark:text-white">{{ deleteUser.name }}</strong> ({{ deleteUser.email }}) будет удалена. Все активные сессии сразу завершатся.</p>
+        <p class="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-bold text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-200">Это действие нельзя отменить.</p>
+        <p v-if="deleteError" class="mt-3 text-xs font-bold text-red-700 dark:text-red-300" role="alert">{{ deleteError }}</p>
+        <div class="mt-6 grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))] gap-2"><button type="button" :disabled="deletingId === deleteUser.id" class="min-h-11 rounded-xl border border-slate-300 bg-white px-2 text-xs font-black text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-transparent dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" @click="closeDelete">Отмена</button><button type="button" :disabled="deletingId === deleteUser.id" class="min-h-11 rounded-xl bg-red-600 px-2 text-xs font-black text-white disabled:cursor-wait disabled:opacity-60" @click="confirmDelete">{{ deletingId === deleteUser.id ? 'Удаляем…' : 'Удалить' }}</button></div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -72,7 +84,7 @@ import { useRouter } from 'vue-router';
 import { apiFetch } from '@/services/api';
 import { useAuthStore } from '@/stores/authStore';
 import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect.vue';
-import { KeyRound, LoaderCircle, UserCheck, UserPlus, UserRound, Users, UserX, X } from 'lucide-vue-next';
+import { KeyRound, LoaderCircle, Trash2, UserCheck, UserPlus, UserRound, Users, UserX, X } from 'lucide-vue-next';
 
 interface TeamUser { id:string; name:string; email:string; role:'clinic_owner'|'clinic_admin'|'dispatcher'; status?:'INVITED'|'ACTIVE'|'DISABLED' }
 
@@ -87,12 +99,14 @@ const resetUser=ref<TeamUser|null>(null),resetCurrentPassword=ref(''),resetPassw
 const createTrigger=ref<HTMLButtonElement|null>(null),createDialog=ref<HTMLElement|null>(null),resetDialog=ref<HTMLElement|null>(null),resetPasswordInput=ref<HTMLInputElement|null>(null);
 const resetCurrentInput=ref<HTMLInputElement|null>(null);
 const disableUser=ref<TeamUser|null>(null),disableDialog=ref<HTMLElement|null>(null);
+const deleteUser=ref<TeamUser|null>(null),deleteDialog=ref<HTMLElement|null>(null),deletingId=ref(''),deleteError=ref('');
 let returnFocusTo:HTMLElement|null=null;
 const rowErrors=reactive<Record<string,string>>({});
 const form=reactive({name:'',email:'',role:'dispatcher' as 'dispatcher'|'clinic_admin',password:'',passwordConfirm:''});
 const roleName=(role:string)=>({clinic_owner:'Владелец',clinic_admin:'Администратор',dispatcher:'Диспетчер'}[role]||role);
 const userBadge=(user:TeamUser)=>user.status==='DISABLED'?'Отключён':user.status==='INVITED'?'Приглашён':roleName(user.role);
 const canReset=(user:TeamUser)=>user.role!=='clinic_owner'||user.id===auth.user?.id;
+const canDelete=(user:TeamUser)=>user.role!=='clinic_owner'&&user.id!==auth.user?.id;
 const isSelfReset=computed(()=>Boolean(resetUser.value&&resetUser.value.id===auth.user?.id));
 
 async function load(){loading.value=true;loadError.value='';try{const res=await apiFetch('/api/clinic/users');const data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка сервера');users.value=data.map((user:TeamUser)=>({...user,status:user.status||'ACTIVE'}));}catch(err){loadError.value=err instanceof Error?err.message:'Не удалось загрузить сотрудников';}finally{loading.value=false;}}
@@ -138,6 +152,26 @@ async function createUser(){
 async function requestToggleUser(user:TeamUser){if(user.status==='DISABLED'){await toggleUser(user);return;}returnFocusTo=document.activeElement as HTMLElement|null;disableUser.value=user;await nextTick();disableDialog.value?.querySelector<HTMLElement>('button')?.focus();}
 function closeDisable(){if(disableUser.value&&updatingId.value===disableUser.value.id)return;disableUser.value=null;void nextTick(()=>returnFocusTo?.focus());}
 async function confirmDisable(){const user=disableUser.value;if(!user)return;await toggleUser(user);disableUser.value=null;void nextTick(()=>returnFocusTo?.focus());}
+async function openDelete(user:TeamUser){returnFocusTo=document.activeElement as HTMLElement|null;deleteUser.value=user;deleteError.value='';await nextTick();deleteDialog.value?.querySelector<HTMLElement>('button')?.focus();}
+function closeDelete(){if(deleteUser.value&&deletingId.value===deleteUser.value.id)return;deleteUser.value=null;deleteError.value='';void nextTick(()=>returnFocusTo?.focus());}
+async function confirmDelete(){
+  const user=deleteUser.value;
+  if(!user)return;
+  deletingId.value=user.id;
+  deleteError.value='';
+  rowErrors[user.id]='';
+  try{
+    const res=await apiFetch(`/api/clinic/users/${encodeURIComponent(user.id)}`,{method:'DELETE'});
+    if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error?.message||data.error||'Не удалось удалить сотрудника');}
+    users.value=users.value.filter(item=>item.id!==user.id);
+    deleteUser.value=null;
+    void nextTick(()=>returnFocusTo?.focus());
+  }catch(err){
+    deleteError.value=err instanceof Error?err.message:'Не удалось удалить сотрудника';
+  }finally{
+    deletingId.value='';
+  }
+}
 async function toggleUser(user:TeamUser){const status=user.status==='DISABLED'?'ACTIVE':'DISABLED';updatingId.value=user.id;rowErrors[user.id]='';try{const res=await apiFetch(`/api/clinic/users/${encodeURIComponent(user.id)}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})});const data=await res.json();if(!res.ok)throw new Error(data.error||'Изменение отклонено');Object.assign(user,data);}catch(err){rowErrors[user.id]=err instanceof Error?err.message:'Не удалось изменить доступ';}finally{updatingId.value='';}}
 async function changeRole(user:TeamUser,role:'dispatcher'|'clinic_admin'){const previous=user.role;user.role=role;updatingId.value=user.id;rowErrors[user.id]='';try{const res=await apiFetch(`/api/clinic/users/${encodeURIComponent(user.id)}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({role})});const data=await res.json();if(!res.ok)throw new Error(data.error||'Изменение отклонено');Object.assign(user,data);}catch(err){user.role=previous;rowErrors[user.id]=err instanceof Error?err.message:'Не удалось изменить роль';}finally{updatingId.value='';}}
 function handleRoleChange(user:TeamUser,event:Event){void changeRole(user,(event.target as HTMLSelectElement).value as 'dispatcher'|'clinic_admin');}
