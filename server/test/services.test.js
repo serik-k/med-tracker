@@ -113,13 +113,13 @@ test('map tile proxy validates coordinates, formats and response limits', { conc
   await firstDownload;
 });
 
-test('access photos are validated, stored outside order JSON and removable', () => {
+test('access photos are validated, stored outside order JSON and removable', async () => {
   const onePixelPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
-  const saved = saveAccessPhoto(onePixelPng);
+  const saved = await saveAccessPhoto(onePixelPng);
   assert.match(saved.url, /^\/api\/access-photos\/[A-Za-z0-9_-]+$/);
   assert.equal(saved.mimeType, 'image/png');
-  assert.ok(findAccessPhoto(saved.token));
-  removeAccessPhoto(saved.url);
-  assert.equal(findAccessPhoto(saved.token), null);
-  assert.throws(() => saveAccessPhoto('data:image/png;base64,SGVsbG8='), /формат/);
+  assert.ok(await findAccessPhoto(saved.token));
+  await removeAccessPhoto(saved.url);
+  assert.equal(await findAccessPhoto(saved.token), null);
+  await assert.rejects(saveAccessPhoto('data:image/png;base64,SGVsbG8='), /формат/);
 });

@@ -43,9 +43,10 @@ const patientTokenDigest = rawToken => {
   if (!token || token.length > 200) throw new StoreError('PATIENT_ACCESS_DENIED', 'Нет доступа к вызову', 403);
   return hashToken(token);
 };
-const safelyRemovePhoto = photoUrl => {
+const photoStorage = clinicId => tenantStore.mode === 'postgres' ? { pool: tenantStore.pool, clinicId } : {};
+const safelyRemovePhoto = async (photoUrl, clinicId) => {
   if (!photoUrl) return;
-  try { removeAccessPhoto(photoUrl); }
+  try { await removeAccessPhoto(photoUrl, photoStorage(clinicId)); }
   catch (error) { console.warn('[AccessPhoto] Cleanup failed:', error.message); }
 };
 
@@ -641,7 +642,7 @@ class OrderStore {
         if (previousCrewId) await client.query("UPDATE crews SET status='ON_DUTY' WHERE clinic_id=$1 AND id=$2", [clinicId, previousCrewId]);
       });
     }
-    safelyRemovePhoto(terminalPhotoUrl);
+    await safelyRemovePhoto(terminalPhotoUrl, clinicId);
     return { order: await this.getOrderByRef(reference, clinicId), previousCrewId };
   }
 
@@ -711,7 +712,7 @@ class OrderStore {
       });
       if (unchanged) return this.getOrderByRef(reference, clinicId);
     }
-    safelyRemovePhoto(terminalPhotoUrl);
+    await safelyRemovePhoto(terminalPhotoUrl, clinicId);
     if (targetStatus === 'HOSPITAL_TRANSPORT') await this.recalculateRoute(clinicId, String(reference));
     return this.getOrderByRef(reference, clinicId);
   }
@@ -808,7 +809,7 @@ class OrderStore {
       if (field === 'residenceType' && value && !['apartment', 'house'].includes(value)) throw new StoreError('INVALID_RESIDENCE_TYPE', 'Некорректный тип жилья', 400);
       const max = field === 'note' ? 500 : field === 'photoUrl' ? 1_100_000 : 100;
       if (field === 'photoUrl' && value.startsWith('data:')) {
-        try { savedPhoto = saveAccessPhoto(value); }
+        try { savedPhoto = await saveAccessPhoto(value, photoStorage(order.clinicId)); }
         catch (error) {
           if (error instanceof PhotoError) throw new StoreError(error.code, error.message, error.status);
           throw error;
@@ -829,10 +830,10 @@ class OrderStore {
         audit('ACCESS_UPDATED', 'Пациент уточнил информацию о доступе'), expectedTokenHash);
       const updated = patched?.order;
       if (!updated || !ACTIVE_STATUSES.has(updated.status) || updated.patientAccessExpired) throw new StoreError('ORDER_NOT_ACTIVE', 'Вызов завершён или ссылка пациента истекла', 409);
-      if (patched.previousPhotoUrl && patched.previousPhotoUrl !== updated.accessInfo.photoUrl) safelyRemovePhoto(patched.previousPhotoUrl);
+      if (patched.previousPhotoUrl && patched.previousPhotoUrl !== updated.accessInfo.photoUrl) await safelyRemovePhoto(patched.previousPhotoUrl, order.clinicId);
       return updated;
     } catch (error) {
-      if (savedPhoto) safelyRemovePhoto(savedPhoto.url);
+      if (savedPhoto) await safelyRemovePhoto(savedPhoto.url, order.clinicId);
       throw error;
     }
   }

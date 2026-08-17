@@ -29,12 +29,12 @@ test('cancelling an order physically removes its access photo', async () => {
   const onePixelPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
   const withPhoto = await orderStore.updateAccessInfo(created.token, { photoUrl: onePixelPng }, created.patientAccessToken);
   const photoToken = withPhoto.accessInfo.photoUrl.split('/').at(-1);
-  assert.ok(findAccessPhoto(photoToken));
+  assert.ok(await findAccessPhoto(photoToken));
 
   const { order } = await orderStore.cancelOrder('clinic_medclinic_almaty', created.token, 'test cleanup', 'user_med_dispatcher');
   assert.equal(order.status, 'CANCELLED');
   assert.equal(order.accessInfo.photoUrl, undefined);
-  assert.equal(findAccessPhoto(photoToken), null);
+  assert.equal(await findAccessPhoto(photoToken), null);
 });
 
 test('completing an order physically removes its access photo', async () => {
@@ -46,14 +46,14 @@ test('completing an order physically removes its access photo', async () => {
   const onePixelPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
   const withPhoto = await orderStore.updateAccessInfo(created.token, { photoUrl: onePixelPng }, created.patientAccessToken);
   const photoToken = withPhoto.accessInfo.photoUrl.split('/').at(-1);
-  assert.ok(findAccessPhoto(photoToken));
+  assert.ok(await findAccessPhoto(photoToken));
 
   await orderStore.updateOrderStatus('clinic_medclinic_almaty', created.token, 'EN_ROUTE');
   await orderStore.updateOrderStatus('clinic_medclinic_almaty', created.token, 'ARRIVED');
   const completed = await orderStore.updateOrderStatus('clinic_medclinic_almaty', created.token, 'COMPLETED');
   assert.equal(completed.status, 'COMPLETED');
   assert.equal(completed.accessInfo.photoUrl, undefined);
-  assert.equal(findAccessPhoto(photoToken), null);
+  assert.equal(await findAccessPhoto(photoToken), null);
 });
 
 test('order creation is idempotent only for the same payload', async () => {
