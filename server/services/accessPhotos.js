@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { withTenant } from '../db/database.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadDirectory = process.env.UPLOAD_DIR
@@ -23,7 +24,7 @@ export class PhotoError extends Error {
   }
 }
 
-export function saveAccessPhoto(dataUrl) {
+export async function saveAccessPhoto(dataUrl, storage = {}) {
   const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=\r\n]+)$/.exec(String(dataUrl || ''));
   if (!match) throw new PhotoError('INVALID_PHOTO', 'Поддерживаются изображения JPEG, PNG и WebP');
   const format = formats[match[1]];
@@ -33,15 +34,31 @@ export function saveAccessPhoto(dataUrl) {
   if (!buffer.length || buffer.length > MAX_PHOTO_BYTES) throw new PhotoError('PHOTO_TOO_LARGE', 'Размер фото не должен превышать 750 КБ', 413);
   if (!format.matches(buffer)) throw new PhotoError('INVALID_PHOTO', 'Содержимое файла не соответствует формату изображения');
 
-  fs.mkdirSync(uploadDirectory, { recursive: true, mode: 0o700 });
   const token = crypto.randomBytes(32).toString('base64url');
+  if (storage.pool && storage.clinicId) {
+    await withTenant(storage.pool, { clinicId: storage.clinicId }, client => client.query(
+      'INSERT INTO access_photos (token,clinic_id,mime_type,contents) VALUES ($1,$2,$3,$4)',
+      [token, storage.clinicId, match[1], buffer]
+    ));
+    return { token, url: `/api/access-photos/${token}`, mimeType: match[1], size: buffer.length };
+  }
+  fs.mkdirSync(uploadDirectory, { recursive: true, mode: 0o700 });
   const filename = `${token}.${format.extension}`;
   fs.writeFileSync(path.join(uploadDirectory, filename), buffer, { flag: 'wx', mode: 0o600 });
   return { token, url: `/api/access-photos/${token}`, mimeType: match[1], size: buffer.length };
 }
 
-export function findAccessPhoto(token) {
+export async function findAccessPhoto(token, storage = {}) {
   if (!TOKEN_PATTERN.test(String(token || ''))) return null;
+  if (storage.pool && storage.clinicId) {
+    return withTenant(storage.pool, { clinicId: storage.clinicId }, async client => {
+      const row = (await client.query(
+        'SELECT mime_type,contents FROM access_photos WHERE token=$1 AND clinic_id=$2',
+        [String(token), storage.clinicId]
+      )).rows[0];
+      return row ? { mimeType: row.mime_type, data: row.contents } : null;
+    });
+  }
   for (const [mimeType, format] of Object.entries(formats)) {
     const filePath = path.join(uploadDirectory, `${token}.${format.extension}`);
     if (fs.existsSync(filePath)) return { filePath, mimeType };
@@ -49,9 +66,16 @@ export function findAccessPhoto(token) {
   return null;
 }
 
-export function removeAccessPhoto(photoUrl) {
+export async function removeAccessPhoto(photoUrl, storage = {}) {
   const token = String(photoUrl || '').match(/^\/api\/access-photos\/([A-Za-z0-9_-]{32,80})$/)?.[1];
   if (!token) return;
-  const found = findAccessPhoto(token);
+  if (storage.pool && storage.clinicId) {
+    await withTenant(storage.pool, { clinicId: storage.clinicId }, client => client.query(
+      'DELETE FROM access_photos WHERE token=$1 AND clinic_id=$2',
+      [token, storage.clinicId]
+    ));
+    return;
+  }
+  const found = await findAccessPhoto(token);
   if (found) fs.rmSync(found.filePath, { force: true });
 }

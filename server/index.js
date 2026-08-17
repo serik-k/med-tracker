@@ -1,7 +1,9 @@
 import crypto from 'crypto';
 import express from 'express';
 import { createServer } from 'http';
+import fs from 'fs';
 import { BlockList, isIP } from 'net';
+import path from 'path';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { orderStore, StoreError } from './store.js';
@@ -644,14 +646,15 @@ const cleanPhotoToken = value => {
   if (!/^[A-Za-z0-9_-]+$/.test(photoToken)) throw httpError(400, 'INVALID_PHOTO_TOKEN', 'Некорректный идентификатор фото');
   return photoToken;
 };
-const sendAccessPhoto = (photoToken, res) => {
-  const photo = findAccessPhoto(photoToken);
+const sendAccessPhoto = async (photoToken, clinicId, res) => {
+  const storage = tenantStore.mode === 'postgres' ? { pool: tenantStore.pool, clinicId } : {};
+  const photo = await findAccessPhoto(photoToken, storage);
   if (!photo) throw httpError(404, 'PHOTO_NOT_FOUND', 'Фото не найдено');
   res.type(photo.mimeType);
   res.setHeader('Content-Disposition', 'inline');
   res.setHeader('Cache-Control', 'private, no-store');
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-  return res.sendFile(photo.filePath);
+  return photo.data ? res.send(photo.data) : res.sendFile(photo.filePath);
 };
 
 app.post('/api/access-photo', requireAuth, requireClinic, publicAccessRateLimit, asyncRoute(async (req, res) => {
@@ -661,7 +664,7 @@ app.post('/api/access-photo', requireAuth, requireClinic, publicAccessRateLimit,
   if (!order) throw httpError(404, 'PHOTO_NOT_FOUND', 'Фото не найдено');
   if (order.clinicId !== req.user.clinicId) throw httpError(404, 'PHOTO_NOT_FOUND', 'Фото не найдено');
   if (order.clinicStatus !== 'ACTIVE' || order.expired || !ACTIVE_STATUSES.has(order.status)) throw httpError(410, 'PHOTO_EXPIRED', 'Доступ к фото завершён');
-  sendAccessPhoto(photoToken, res);
+  await sendAccessPhoto(photoToken, order.clinicId, res);
 }));
 
 app.post('/api/public/access-photo', publicAccessRateLimit, asyncRoute(async (req, res) => {
@@ -676,7 +679,7 @@ app.post('/api/public/access-photo', publicAccessRateLimit, asyncRoute(async (re
     if (crew) authorizedOrder = (await orderStore.getAllActiveOrders(crew.clinicId)).find(order => order.crewId === crew.id) || null;
   }
   if (!authorizedOrder || authorizedOrder.accessInfo?.photoUrl !== expectedPhotoUrl) throw httpError(404, 'PHOTO_NOT_FOUND', 'Фото не найдено или ссылка доступа недействительна');
-  sendAccessPhoto(photoToken, res);
+  await sendAccessPhoto(photoToken, authorizedOrder.clinicId, res);
 }));
 
 // The former GET endpoint exposed a standalone bearer capability in URLs and
@@ -999,6 +1002,18 @@ const credentialTimer = setInterval(async () => {
   }
 }, 60_000);
 credentialTimer.unref();
+
+const staticDirectory = String(process.env.STATIC_DIR || '').trim();
+if (staticDirectory) {
+  const resolvedStaticDirectory = path.resolve(staticDirectory);
+  const indexFile = path.join(resolvedStaticDirectory, 'index.html');
+  if (!fs.existsSync(indexFile)) throw new Error(`STATIC_DIR does not contain index.html: ${resolvedStaticDirectory}`);
+  app.use(express.static(resolvedStaticDirectory, {
+    index: false,
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0
+  }));
+  app.get('*', (req, res, next) => req.path.startsWith('/api/') ? next() : res.sendFile(indexFile));
+}
 
 app.use((req, _res, next) => next(httpError(404, 'NOT_FOUND', 'Маршрут API не найден')));
 app.use((error, req, res, _next) => {

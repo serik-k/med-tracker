@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+ACCOUNTS_AND_LOGINS.md
+.agents/
+skills-lock.json
+client/node_modules/
+client/dist/
+server/node_modules/
+server/db/orders_store.json
+server/db/platform_store.json
+server/db/uploads/
+
