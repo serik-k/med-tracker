@@ -1,5 +1,13 @@
 # MedTracker
 
+[![CI Status](https://github.com/serik-k/med-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/serik-k/med-tracker/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Vue 3](https://img.shields.io/badge/Vue-3.x-4fc08d?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.x-4169e1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-06b6d4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+
 MedTracker — веб-система для частных выездных медицинских служб: диспетчер создаёт вызов и назначает бригаду, водитель передаёт геопозицию и меняет этапы вызова, а пациент открывает временную ссылку и видит прибытие машины без установки приложения.
 
 > MedTracker не заменяет государственную службу экстренной помощи, медицинскую информационную систему или сертифицированный диспетчерский комплекс. Перед эксплуатацией с реальными пациентами организация должна провести собственные проверки безопасности, доступности, правовых оснований обработки данных и аварийных процедур.
