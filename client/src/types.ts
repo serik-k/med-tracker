@@ -1,3 +1,32 @@
+export type UserRole = 'platform_admin' | 'clinic_owner' | 'clinic_admin' | 'dispatcher';
+
+export interface User {
+  id: string;
+  name: string;
+  role: UserRole;
+  clinicId: string | null;
+  clinicName: string | null;
+  email: string;
+  status?: 'INVITED' | 'ACTIVE' | 'DISABLED';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Clinic {
+  id: string;
+  name: string;
+  legalName: string;
+  bin: string;
+  city: string;
+  contactPhone: string;
+  plan: 'START' | 'PRO' | 'ENTERPRISE';
+  status: 'TRIAL' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED';
+  timezone?: string;
+  hospitalOptions?: HospitalOption[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export type OrderStatus = 'ACCEPTED' | 'EN_ROUTE' | 'ARRIVED' | 'HOSPITAL_TRANSPORT' | 'COMPLETED' | 'CANCELLED';
 export type OrderPriority = 'EMERGENCY' | 'URGENT' | 'STANDARD';
 
