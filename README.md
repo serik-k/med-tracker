@@ -86,13 +86,9 @@ npm run dev:client
 
 Без `DATABASE_URL` backend использует локальное файловое хранилище. Этот режим запрещён при `NODE_ENV=production` и не предназначен для общих стендов.
 
-Демонстрационные учётные записи создаются только в development:
+Демонстрационные учётные записи создаются только в development. Их пароли задаются переменными `SEED_PLATFORM_PASSWORD`, `SEED_CLINIC_PASSWORD` и `SEED_DISPATCHER_PASSWORD` из `.env`.
 
-- `platform@medtracker.kz` / `Admin123!`;
-- `admin@medclinic.kz` / `Clinic123!`;
-- `dispatcher@medclinic.kz` / `Dispatch123!`.
-
-Не используйте эти пароли или демонстрационную базу в сети, доступной другим пользователям.
+Не используйте демонстрационную базу в сети, доступной другим пользователям.
 
 ## Проверки
 
